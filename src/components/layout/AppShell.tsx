@@ -46,7 +46,7 @@ export function AppShell({ children }: AppShellProps) {
         )}
         initial={isMobile ? { x: "-100%" } : false}
         animate={isMobile && sidebarOpen ? { x: 0 } : false}
-        transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} // ease-out-expo from animations.md
       >
         {/* Sidebar Header - Logo/Brand */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-neutral-200">
@@ -132,6 +132,7 @@ export function AppShell({ children }: AppShellProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }} // ease-micro from animations.md
           onClick={closeSidebar}
         />
       )}
@@ -159,9 +160,12 @@ export function AppShell({ children }: AppShellProps) {
         {/* Page Content */}
         <main className="flex-1">
           <motion.div
-            initial={{ opacity: 0, y: 5 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ 
+              duration: 0.4, 
+              ease: [0.16, 1, 0.3, 1], // ease-out-expo from animations.md
+            }}
           >
             {children}
           </motion.div>
