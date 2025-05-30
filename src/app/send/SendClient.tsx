@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { FiCheck, FiAlertTriangle, FiChevronRight, FiCamera } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
+import { AppShell } from '@/components/layout/AppShell'
 
 // Mock data
 const wallets = [
@@ -41,8 +42,6 @@ const STEPS = {
   REVIEW: 3,
   CONFIRMATION: 4
 }
-
-import { AppShell } from '@/components/layout/AppShell'
 
 export function SendClient() {
   const [currentStep, setCurrentStep] = useState(STEPS.SELECT_WALLET)
@@ -503,6 +502,6 @@ export function SendClient() {
           </div>
         </div>
       </div>
-    </div>
+    </AppShell>
   )
 }
