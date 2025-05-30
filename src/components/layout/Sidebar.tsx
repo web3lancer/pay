@@ -16,7 +16,7 @@ import {
 } from 'react-icons/fi'
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: FiHome },
+  { name: 'Home', href: '/', icon: FiHome },
   { name: 'Wallets', href: '/wallets', icon: FiCreditCard },
   { name: 'Send', href: '/send', icon: FiSend },
   { name: 'Requests', href: '/requests', icon: FiDownload },

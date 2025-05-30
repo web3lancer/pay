@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { FiArrowRight, FiRefreshCw, FiChevronDown, FiAlertTriangle, FiCheck } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { AppShell } from '@/components/layout/AppShell'
 
 // Define types
 interface Wallet {
@@ -166,6 +167,8 @@ export function ExchangeClient() {
     fromWallet.id !== toWallet.id
 
   return (
+        <AppShell>
+    
     <div className="min-h-screen bg-neutral-50">
       {/* AppShell would go here in a real implementation */}
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -470,5 +473,6 @@ export function ExchangeClient() {
         </div>
       </div>
     </div>
+    </AppShell>
   )
 }

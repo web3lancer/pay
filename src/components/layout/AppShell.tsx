@@ -25,7 +25,7 @@ export function AppShell({ children }: AppShellProps) {
 
   // Navigation items
   const navItems = [
-    { href: '/', label: 'Dashboard', icon: FiHome },
+    { href: '/', label: 'Home', icon: FiHome },
     { href: '/wallets', label: 'Wallets', icon: FiCreditCard },
     { href: '/send', label: 'Send', icon: FiSend },
     { href: '/requests', label: 'Requests', icon: FiDownload },

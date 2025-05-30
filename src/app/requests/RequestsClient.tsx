@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { FiPlus, FiCopy, FiDownload, FiShare2, FiX, FiCheck } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
 import QRCode from 'react-qr-code'
+import { AppShell } from '@/components/layout/AppShell'
 
 // Mock data
 const wallets = [
@@ -102,6 +103,8 @@ export function RequestsClient() {
   }
 
   return (
+        <AppShell>
+    
     <div className="min-h-screen bg-neutral-50">
       {/* AppShell would go here in a real implementation */}
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -411,5 +414,6 @@ export function RequestsClient() {
         </div>
       )}
     </div>
+    </AppShell>
   )
 }
