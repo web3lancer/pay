@@ -170,7 +170,9 @@ export function AppShell({ children }: AppShellProps) {
         {/* Mobile Bottom Navigation */}
         <nav className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-neutral-200 z-10">
           <div className="grid grid-cols-5 h-14">
-            {navItems.map((item) => {
+            {navItems.filter(item => [
+              '/', '/wallets', '/send', '/requests', '/exchange'
+            ].includes(item.href)).map((item) => {
               const isActive = pathname === item.href
               
               return (
