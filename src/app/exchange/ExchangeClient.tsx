@@ -1,390 +1,474 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { AppShell } from '@/components/layout/AppShell'
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { PriceChart } from '@/components/crypto/PriceChart'
-import { CryptoAmountInput } from '@/components/crypto/CryptoAmountInput'
-import { FiArrowDown, FiRefreshCw, FiAlertCircle, FiInfo } from 'react-icons/fi'
+import { motion } from 'framer-motion'
+import { FiArrowRight, FiRefreshCw, FiChevronDown, FiAlertTriangle, FiCheck } from 'react-icons/fi'
+import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
-// Mock currencies data
-const currencies = [
-  { id: 'btc', name: 'Bitcoin', symbol: 'BTC', balance: { value: 0.45123, formatted: '0.45123 BTC' } },
-  { id: 'eth', name: 'Ethereum', symbol: 'ETH', balance: { value: 3.12345, formatted: '3.12345 ETH' } },
-  { id: 'usdc', name: 'USD Coin', symbol: 'USDC', balance: { value: 1000, formatted: '1,000 USDC' } },
-  { id: 'sol', name: 'Solana', symbol: 'SOL', balance: { value: 45.6789, formatted: '45.6789 SOL' } }
+// Define types
+interface Wallet {
+  id: string;
+  name: string;
+  type: string;
+  symbol: string;
+  balance: number;
+  fiatBalance: number;
+}
+
+interface PriceDataPoint {
+  date: string;
+  price: number;
+}
+
+interface ExchangeRates {
+  [key: string]: number;
+}
+
+// Mock data for wallets
+const wallets = [
+  {
+    id: 'wallet1',
+    name: 'Bitcoin Wallet',
+    type: 'bitcoin',
+    symbol: 'BTC',
+    balance: 0.45123,
+    fiatBalance: 12345.67
+  },
+  {
+    id: 'wallet2',
+    name: 'Ethereum Wallet',
+    type: 'ethereum',
+    symbol: 'ETH',
+    balance: 3.2156,
+    fiatBalance: 9876.54
+  },
+  {
+    id: 'wallet3',
+    name: 'USDC Wallet',
+    type: 'ethereum',
+    symbol: 'USDC',
+    balance: 5000.00,
+    fiatBalance: 5000.00
+  },
+  {
+    id: 'wallet4',
+    name: 'Solana Wallet',
+    type: 'solana',
+    symbol: 'SOL',
+    balance: 25.5,
+    fiatBalance: 2500.00
+  }
 ]
 
-// Mock price chart data
-const generateChartData = (days = 7) => {
+// Mock price data
+const generatePriceData = (days = 7, basePrice = 100, volatility = 0.05) => {
   const data = []
-  const today = new Date()
-  
-  for (let i = days; i >= 0; i--) {
-    const date = new Date(today)
-    date.setDate(date.getDate() - i)
+  for (let i = 0; i < days; i++) {
+    const date = new Date()
+    date.setDate(date.getDate() - (days - i - 1))
+    
+    const randomFactor = 1 + (Math.random() * volatility * 2 - volatility)
+    const price = basePrice * randomFactor
     
     data.push({
-      timestamp: date.getTime(),
-      price: 1800 + Math.random() * 200 - 100 // ETH price around $1800 with fluctuation
+      date: date.toISOString().split('T')[0],
+      price: price
     })
   }
-  
   return data
 }
 
-// Mock exchange rates between all assets
-const getExchangeRate = (from: string, to: string) => {
-  const rates: Record<string, Record<string, number>> = {
-    'btc': { 'btc': 1, 'eth': 15, 'usdc': 27000, 'sol': 300 },
-    'eth': { 'btc': 0.066, 'eth': 1, 'usdc': 1800, 'sol': 20 },
-    'usdc': { 'btc': 0.000037, 'eth': 0.00055, 'usdc': 1, 'sol': 0.011 },
-    'sol': { 'btc': 0.0033, 'eth': 0.05, 'usdc': 90, 'sol': 1 }
-  }
-  
-  return rates[from.toLowerCase()][to.toLowerCase()]
+// Exchange rates between currencies (very simplified)
+const exchangeRates: ExchangeRates = {
+  'BTC/ETH': 15.5,
+  'BTC/USDC': 27500,
+  'BTC/SOL': 1100,
+  'ETH/BTC': 0.0645,
+  'ETH/USDC': 1775,
+  'ETH/SOL': 71,
+  'USDC/BTC': 0.0000363,
+  'USDC/ETH': 0.000564,
+  'USDC/SOL': 0.04,
+  'SOL/BTC': 0.000909,
+  'SOL/ETH': 0.0141,
+  'SOL/USDC': 25
 }
 
-// Fee structure
-const FEE_PERCENTAGE = 0.005 // 0.5%
-
 export function ExchangeClient() {
-  const [fromCurrency, setFromCurrency] = useState(currencies[1]) // ETH
-  const [toCurrency, setToCurrency] = useState(currencies[0]) // BTC
+  const [fromWallet, setFromWallet] = useState<Wallet>(wallets[0])
+  const [toWallet, setToWallet] = useState<Wallet>(wallets[1])
   const [fromAmount, setFromAmount] = useState('')
   const [toAmount, setToAmount] = useState('')
-  const [chartData, setChartData] = useState(generateChartData())
-  const [timeRange, setTimeRange] = useState('1W')
+  const [priceData, setPriceData] = useState<PriceDataPoint[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [swapComplete, setSwapComplete] = useState(false)
   
-  // Update the to amount when from amount or currencies change
+  // Update price data when currencies change
   useEffect(() => {
-    if (fromAmount) {
-      const rate = getExchangeRate(fromCurrency.id, toCurrency.id)
-      const calculatedAmount = Number(fromAmount) * rate * (1 - FEE_PERCENTAGE)
-      setToAmount(calculatedAmount.toFixed(8))
-    } else {
-      setToAmount('')
-    }
-  }, [fromAmount, fromCurrency, toCurrency])
+    const pair = `${fromWallet.symbol}/${toWallet.symbol}`
+    const rate = exchangeRates[pair] || 1
+    const basePrice = rate * 100 // just for visualization scaling
+    
+    setPriceData(generatePriceData(7, basePrice, 0.1))
+  }, [fromWallet, toWallet])
   
-  // Update chart data when time range or pair changes
-  useEffect(() => {
-    let days = 7
-    
-    switch (timeRange) {
-      case '1D': days = 1; break
-      case '1W': days = 7; break
-      case '1M': days = 30; break
-      case '3M': days = 90; break
-      case '1Y': days = 365; break
-      default: days = 7
-    }
-    
-    // In a real app, this would fetch data from an API
-    setChartData(generateChartData(days))
-  }, [timeRange, fromCurrency.id, toCurrency.id])
+  // Calculate exchange rate and to amount
+  const pair = `${fromWallet.symbol}/${toWallet.symbol}`
+  const rate = exchangeRates[pair] || 1
   
-  // Swap the currencies
-  const handleSwapCurrencies = () => {
-    const temp = fromCurrency
-    setFromCurrency(toCurrency)
-    setToCurrency(temp)
-    
-    // Also swap the amounts if they exist
-    if (fromAmount && toAmount) {
-      setFromAmount(toAmount)
-      // The useEffect will recalculate toAmount
-    }
+  // Handle amount changes
+  const handleFromAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setFromAmount(value)
+    setToAmount((parseFloat(value || '0') * rate).toFixed(8))
   }
   
-  // Process the exchange
+  const handleToAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setToAmount(value)
+    setFromAmount((parseFloat(value || '0') / rate).toFixed(8))
+  }
+  
+  // Swap wallets
+  const handleSwapWallets = () => {
+    const temp = fromWallet
+    setFromWallet(toWallet)
+    setToWallet(temp)
+    
+    // Reset amounts
+    setFromAmount('')
+    setToAmount('')
+  }
+  
+  // Handle exchange
   const handleExchange = () => {
     setIsLoading(true)
     
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false)
-      setShowConfirmation(true)
+      setSwapComplete(true)
+      
+      // Reset after a bit
+      setTimeout(() => {
+        setSwapComplete(false)
+        setFromAmount('')
+        setToAmount('')
+      }, 5000)
     }, 2000)
   }
   
-  // Reset the form after confirmation
-  const handleReset = () => {
-    setShowConfirmation(false)
-    setFromAmount('')
-    setToAmount('')
-  }
-  
-  // Calculate the exchange fee
-  const calculateFee = () => {
-    if (!fromAmount) return 0
-    return Number(fromAmount) * FEE_PERCENTAGE
-  }
-  
-  // Check if exchange button should be disabled
-  const isExchangeDisabled = () => {
-    return !fromAmount || 
-      Number(fromAmount) <= 0 ||
-      Number(fromAmount) > fromCurrency.balance.value ||
-      fromCurrency.id === toCurrency.id
-  }
+  // Check if exchange is valid
+  const isExchangeValid = 
+    parseFloat(fromAmount) > 0 && 
+    parseFloat(fromAmount) <= fromWallet.balance &&
+    fromWallet.id !== toWallet.id
 
   return (
-    <AppShell>
-      <div className="space-y-8">
-        {/* Page Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Exchange</h1>
-          <p className="text-sm text-neutral-500">Swap between different cryptocurrencies</p>
-        </div>
+    <div className="min-h-screen bg-neutral-50">
+      {/* AppShell would go here in a real implementation */}
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="flex flex-col space-y-6">
+          {/* Page Header */}
+          <div>
+            <h1 className="text-2xl font-bold text-neutral-900">Exchange</h1>
+            <p className="text-sm text-neutral-500">Swap between your crypto assets</p>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Exchange Card */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle>Swap Assets</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AnimatePresence mode="wait">
-                {!showConfirmation ? (
+          {/* Exchange Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Exchange Form */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                {swapComplete ? (
                   <motion.div 
-                    key="exchange-form"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="space-y-6"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                    className="text-center py-6"
                   >
+                    <div className="w-16 h-16 bg-accent-green bg-opacity-10 rounded-full flex items-center justify-center mx-auto">
+                      <FiCheck className="text-accent-green text-3xl" />
+                    </div>
+                    <h2 className="text-xl font-bold mt-4 text-neutral-900">Exchange Complete</h2>
+                    <p className="text-neutral-600 mt-2">
+                      You've successfully exchanged {fromAmount} {fromWallet.symbol} to {toAmount} {toWallet.symbol}
+                    </p>
+                    
+                    <div className="mt-6">
+                      <button className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
+                        View Transaction Details
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <>
+                    <h2 className="text-lg font-medium text-neutral-800 mb-4">Swap Tokens</h2>
+                    
                     {/* From Currency */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        From
-                      </label>
-                      <CryptoAmountInput
-                        currencies={currencies}
-                        selectedCurrency={fromCurrency}
-                        onCurrencyChange={setFromCurrency}
-                        value={fromAmount}
-                        onChange={setFromAmount}
-                        label=""
-                      />
-                      <div className="flex justify-between mt-1">
-                        <span className="text-xs text-gray-500">
-                          Available: {fromCurrency.balance.formatted}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-neutral-700">From</label>
+                      <div className="flex items-center space-x-3">
+                        <div className="relative flex-1">
+                          <input 
+                            type="number"
+                            value={fromAmount}
+                            onChange={handleFromAmountChange}
+                            placeholder="0.00"
+                            className="w-full p-3 pr-24 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <span className="text-sm text-neutral-500">{fromWallet.symbol}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="relative">
+                          <button className="flex items-center space-x-2 p-3 border border-neutral-300 rounded-lg">
+                            <div className="w-6 h-6 rounded-full bg-neutral-100 flex items-center justify-center">
+                              <span className="text-xs">{fromWallet.symbol}</span>
+                            </div>
+                            <span className="font-medium text-neutral-800">{fromWallet.name}</span>
+                            <FiChevronDown className="text-neutral-400" />
+                          </button>
+                          {/* Dropdown would go here */}
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between text-xs">
+                        <span className="text-neutral-500">
+                          Balance: {formatCryptoAmount(fromWallet.balance, fromWallet.symbol)}
                         </span>
                         <button 
-                          className="text-xs text-indigo-600 hover:text-indigo-800"
-                          onClick={() => setFromAmount(fromCurrency.balance.value.toString())}
+                          onClick={() => setFromAmount(fromWallet.balance.toString())}
+                          className="text-primary-500 hover:text-primary-600"
                         >
                           Max
                         </button>
                       </div>
                     </div>
-
+                    
                     {/* Swap Button */}
-                    <div className="flex justify-center">
-                      <motion.button
-                        className="h-10 w-10 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-indigo-600 hover:bg-indigo-50"
-                        onClick={handleSwapCurrencies}
-                        whileTap={{ rotate: 180 }}
-                        transition={{ duration: 0.3 }}
+                    <div className="flex justify-center my-4">
+                      <button 
+                        onClick={handleSwapWallets}
+                        className="p-2 bg-primary-100 hover:bg-primary-200 rounded-full transition-colors"
                       >
-                        <FiArrowDown className="h-5 w-5" />
-                      </motion.button>
+                        <FiArrowRight className="transform rotate-90 text-primary-600" />
+                      </button>
                     </div>
-
+                    
                     {/* To Currency */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        To
-                      </label>
-                      <CryptoAmountInput
-                        currencies={currencies}
-                        selectedCurrency={toCurrency}
-                        onCurrencyChange={setToCurrency}
-                        value={toAmount}
-                        onChange={() => {}} // Read-only for now
-                        label=""
-                        disabled={true}
-                      />
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-neutral-700">To</label>
+                      <div className="flex items-center space-x-3">
+                        <div className="relative flex-1">
+                          <input 
+                            type="number"
+                            value={toAmount}
+                            onChange={handleToAmountChange}
+                            placeholder="0.00"
+                            className="w-full p-3 pr-24 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <span className="text-sm text-neutral-500">{toWallet.symbol}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="relative">
+                          <button className="flex items-center space-x-2 p-3 border border-neutral-300 rounded-lg">
+                            <div className="w-6 h-6 rounded-full bg-neutral-100 flex items-center justify-center">
+                              <span className="text-xs">{toWallet.symbol}</span>
+                            </div>
+                            <span className="font-medium text-neutral-800">{toWallet.name}</span>
+                            <FiChevronDown className="text-neutral-400" />
+                          </button>
+                          {/* Dropdown would go here */}
+                        </div>
+                      </div>
+                      
+                      <div className="text-xs">
+                        <span className="text-neutral-500">
+                          Balance: {formatCryptoAmount(toWallet.balance, toWallet.symbol)}
+                        </span>
+                      </div>
                     </div>
-
+                    
                     {/* Exchange Rate */}
-                    <div className="px-4 py-3 bg-gray-50 rounded-lg text-sm text-gray-600">
-                      <div className="flex justify-between mb-1">
-                        <span>Exchange Rate</span>
-                        <span>
-                          1 {fromCurrency.symbol} = {getExchangeRate(fromCurrency.id, toCurrency.id)} {toCurrency.symbol}
-                        </span>
+                    <div className="flex items-center justify-between mt-6 p-3 bg-neutral-50 rounded-lg">
+                      <div className="text-sm">
+                        <span className="text-neutral-500">Exchange Rate</span>
+                        <div className="font-medium text-neutral-800">
+                          1 {fromWallet.symbol} ≈ {rate} {toWallet.symbol}
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Fee</span>
-                        <span>
-                          {calculateFee()} {fromCurrency.symbol} ({FEE_PERCENTAGE * 100}%)
-                        </span>
-                      </div>
+                      <button className="text-primary-500 p-1 hover:bg-primary-50 rounded">
+                        <FiRefreshCw size={16} />
+                      </button>
                     </div>
-
-                    {/* Error Message */}
-                    {fromCurrency.id === toCurrency.id && (
-                      <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-lg text-amber-700 text-sm">
-                        <FiAlertCircle className="h-4 w-4" />
-                        <span>Please select different assets for exchange</span>
+                    
+                    {/* Warning for same currency */}
+                    {fromWallet.id === toWallet.id && (
+                      <div className="mt-4 p-3 bg-amber-50 text-amber-800 rounded-lg flex items-start">
+                        <FiAlertTriangle className="mr-2 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm">
+                          You've selected the same currency for both sides. Please select different currencies to swap.
+                        </p>
                       </div>
                     )}
                     
-                    {Number(fromAmount) > fromCurrency.balance.value && (
-                      <div className="flex items-center gap-2 p-3 bg-red-50 rounded-lg text-red-700 text-sm">
-                        <FiAlertCircle className="h-4 w-4" />
-                        <span>Insufficient balance</span>
-                      </div>
-                    )}
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="confirmation"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="py-6"
-                  >
-                    <div className="flex flex-col items-center">
-                      <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                        <svg 
-                          className="h-8 w-8 text-green-600" 
-                          fill="none"
-                          viewBox="0 0 24 24" 
-                          stroke="currentColor"
-                        >
-                          <motion.path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                            initial={{ pathLength: 0 }}
-                            animate={{ pathLength: 1 }}
-                            transition={{ duration: 0.6 }}
-                          />
-                        </svg>
-                      </div>
-                      
-                      <h3 className="text-xl font-semibold text-center mb-2">Exchange Complete</h3>
-                      <p className="text-gray-600 text-center mb-6">
-                        Your assets have been successfully exchanged
-                      </p>
-                      
-                      <div className="w-full px-4 py-3 bg-gray-50 rounded-lg mb-6">
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-gray-600">From</span>
-                          <span className="font-medium">{fromAmount} {fromCurrency.symbol}</span>
-                        </div>
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-gray-600">To</span>
-                          <span className="font-medium">{toAmount} {toCurrency.symbol}</span>
-                        </div>
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-gray-600">Fee</span>
-                          <span className="font-medium">{calculateFee()} {fromCurrency.symbol}</span>
-                        </div>
-                        <div className="flex justify-between items-center py-2 border-t border-gray-200 mt-2 pt-2">
-                          <span className="text-gray-600">Transaction ID</span>
-                          <span className="font-mono text-sm">tx_{Math.random().toString(36).substring(2, 10)}</span>
-                        </div>
-                      </div>
-                      
-                      <Button onClick={handleReset} className="w-full">
-                        New Exchange
-                      </Button>
+                    {/* Exchange Button */}
+                    <div className="mt-6">
+                      <button 
+                        onClick={handleExchange}
+                        disabled={!isExchangeValid || isLoading}
+                        className={`w-full py-3 rounded-lg flex justify-center items-center ${
+                          isExchangeValid && !isLoading
+                            ? 'bg-primary-500 hover:bg-primary-600 text-white' 
+                            : 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
+                        } transition-colors`}
+                      >
+                        {isLoading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </>
+                        ) : (
+                          'Swap Tokens'
+                        )}
+                      </button>
                     </div>
-                  </motion.div>
+                  </>
                 )}
-              </AnimatePresence>
-            </CardContent>
-            {!showConfirmation && (
-              <CardFooter>
-                <Button 
-                  className="w-full"
-                  disabled={isExchangeDisabled()}
-                  loading={isLoading}
-                  onClick={handleExchange}
-                >
-                  {fromCurrency.id === toCurrency.id ? "Select Different Assets" : "Exchange"}
-                </Button>
-              </CardFooter>
-            )}
-          </Card>
-
-          {/* Chart Card */}
-          <Card className="lg:col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle>
-                {fromCurrency.symbol}/{toCurrency.symbol} Rate
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                <FiRefreshCw className="h-4 w-4 text-gray-400" />
-                <span className="text-xs text-gray-500">Updated just now</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <PriceChart
-                data={chartData}
-                currency="USD"
-                symbol={`${fromCurrency.symbol}/${toCurrency.symbol}`}
-                percentChange={2.34}
-                timeRanges={['1D', '1W', '1M', '3M', '1Y']}
-                onTimeRangeChange={setTimeRange}
-                chartHeight={300}
-              />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Additional Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Exchange Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="flex flex-col">
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                  <FiInfo className="h-4 w-4 text-indigo-500" />
-                  Fees
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Our exchange fee is {FEE_PERCENTAGE * 100}% per transaction. 
-                  This helps us maintain the platform and provide security.
-                </p>
-              </div>
-              
-              <div className="flex flex-col">
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                  <FiInfo className="h-4 w-4 text-indigo-500" />
-                  Processing Time
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Most exchanges are processed instantly, but may take longer 
-                  during periods of high network congestion.
-                </p>
-              </div>
-              
-              <div className="flex flex-col">
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                  <FiInfo className="h-4 w-4 text-indigo-500" />
-                  Rate Protection
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Exchange rates are locked for 30 seconds once you confirm. 
-                  After that, the current market rate will apply.
-                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            
+            {/* Exchange Chart */}
+            <div className="lg:col-span-7">
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 h-full">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-lg font-medium text-neutral-800">
+                    {fromWallet.symbol}/{toWallet.symbol} Exchange Rate
+                  </h2>
+                  <div className="flex space-x-2">
+                    <button className="px-3 py-1 text-sm bg-primary-50 text-primary-700 rounded-full">
+                      1D
+                    </button>
+                    <button className="px-3 py-1 text-sm text-neutral-600 hover:bg-neutral-100 rounded-full">
+                      1W
+                    </button>
+                    <button className="px-3 py-1 text-sm text-neutral-600 hover:bg-neutral-100 rounded-full">
+                      1M
+                    </button>
+                    <button className="px-3 py-1 text-sm text-neutral-600 hover:bg-neutral-100 rounded-full">
+                      1Y
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="h-[300px]">
+                  {priceData.length > 0 && (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={priceData}
+                        margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#6366F1" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis 
+                          dataKey="date" 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12, fill: '#9CA3AF' }}
+                        />
+                        <YAxis 
+                          domain={['dataMin', 'dataMax']} 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12, fill: '#9CA3AF' }}
+                          width={60}
+                        />
+                        <Tooltip 
+                          formatter={(value: number) => [`${value.toFixed(8)} ${toWallet.symbol}`, `Price`]}
+                          labelFormatter={(label: string) => `Date: ${label}`}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="price" 
+                          stroke="#6366F1" 
+                          fillOpacity={1}
+                          fill="url(#colorPrice)" 
+                          strokeWidth={2}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+                
+                {/* Additional Info */}
+                <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-neutral-200">
+                  <div>
+                    <p className="text-sm text-neutral-500">24h Change</p>
+                    <p className="font-medium text-accent-green">+2.45%</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-neutral-500">24h Volume</p>
+                    <p className="font-medium text-neutral-900">$45.3M</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-neutral-500">Liquidity</p>
+                    <p className="font-medium text-neutral-900">$120.2M</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Recent Exchanges */}
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+            <h2 className="text-lg font-medium text-neutral-800 mb-4">Recent Exchanges</h2>
+            
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-neutral-200">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      From
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      To
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      Exchange Rate
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-neutral-200">
+                  {/* No exchanges yet message */}
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-sm text-center text-neutral-500">
+                      No exchange history yet. Your recent exchanges will appear here.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
-    </AppShell>
+    </div>
   )
 }
