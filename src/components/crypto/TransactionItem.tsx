@@ -1,151 +1,161 @@
 'use client'
 
 import React from 'react'
-import { cn, formatCurrency, truncateAddress, getRelativeTime } from '@/lib/utils'
-import {
-  FiArrowUpRight,
-  FiArrowDownLeft,
-  FiClock,
-  FiCheck,
-  FiX
-} from 'react-icons/fi'
+import { cn, formatCurrency, truncateAddress, formatTimeAgo } from '@/lib/utils'
+import { 
+  FaArrowUp, 
+  FaArrowDown, 
+  FaCheck, 
+  FaClock, 
+  FaTimes,
+  FaExchangeAlt
+} from 'react-icons/fa'
 
-type TransactionType = 'sent' | 'received' | 'pending' | 'failed'
-type TransactionStatus = 'pending' | 'confirmed' | 'failed'
+export type TransactionType = 'send' | 'receive' | 'swap' | 'stake'
+export type TransactionStatus = 'pending' | 'confirmed' | 'failed'
 
-interface TransactionItemProps {
+interface Transaction {
   id: string
   type: TransactionType
-  status: TransactionStatus
   amount: number
   currency: string
+  usdValue: number
   to?: string
   from?: string
+  status: TransactionStatus
   timestamp: Date
   confirmations?: number
+  hash: string
+  recipient?: {
+    name?: string
+    address: string
+  }
+  sender?: {
+    name?: string
+    address: string
+  }
+}
+
+interface TransactionItemProps {
+  transaction: Transaction
   className?: string
+  onClick?: () => void
 }
 
-const statusConfig = {
-  pending: {
-    icon: FiClock,
-    color: 'text-orange-600',
-    bg: 'bg-orange-100',
-    text: 'Pending'
-  },
-  confirmed: {
-    icon: FiCheck,
-    color: 'text-green-600',
-    bg: 'bg-green-100',
-    text: 'Confirmed'
-  },
-  failed: {
-    icon: FiX,
-    color: 'text-red-600',
-    bg: 'bg-red-100',
-    text: 'Failed'
+const getTransactionIcon = (type: TransactionType, status: TransactionStatus) => {
+  if (status === 'pending') {
+    return <FaClock className="text-yellow-500" />
+  }
+  
+  if (status === 'failed') {
+    return <FaTimes className="text-red-500" />
+  }
+  
+  const iconMap = {
+    send: <FaArrowUp className="text-red-500" />,
+    receive: <FaArrowDown className="text-green-500" />,
+    swap: <FaExchangeAlt className="text-blue-500" />,
+    stake: <FaCheck className="text-purple-500" />,
+  }
+  
+  return iconMap[type]
+}
+
+const getTransactionTitle = (transaction: Transaction) => {
+  const { type, recipient, sender } = transaction
+  
+  switch (type) {
+    case 'send':
+      return recipient?.name ? `Sent to ${recipient.name}` : 'Sent'
+    case 'receive':
+      return sender?.name ? `Received from ${sender.name}` : 'Received'
+    case 'swap':
+      return 'Swapped'
+    case 'stake':
+      return 'Staked'
+    default:
+      return 'Transaction'
   }
 }
 
-const typeConfig = {
-  sent: {
-    icon: FiArrowUpRight,
-    color: 'text-red-600',
-    prefix: '-',
-    label: 'Sent to'
-  },
-  received: {
-    icon: FiArrowDownLeft,
-    color: 'text-green-600',
-    prefix: '+',
-    label: 'Received from'
-  },
-  pending: {
-    icon: FiClock,
-    color: 'text-orange-600',
-    prefix: '',
-    label: 'Pending'
-  },
-  failed: {
-    icon: FiX,
-    color: 'text-red-600',
-    prefix: '',
-    label: 'Failed'
+const getStatusBadge = (status: TransactionStatus, confirmations?: number) => {
+  switch (status) {
+    case 'pending':
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+          <div className="w-2 h-2 bg-yellow-400 rounded-full mr-1 animate-pulse"></div>
+          Pending
+        </span>
+      )
+    case 'confirmed':
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          <FaCheck className="w-2 h-2 mr-1" />
+          Confirmed {confirmations && `• ${confirmations} confirmations`}
+        </span>
+      )
+    case 'failed':
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          <FaTimes className="w-2 h-2 mr-1" />
+          Failed
+        </span>
+      )
   }
 }
 
-export function TransactionItem({
-  id,
-  type,
-  status,
-  amount,
-  currency,
-  to,
-  from,
-  timestamp,
-  confirmations = 0,
-  className
-}: TransactionItemProps) {
-  const typeInfo = typeConfig[type]
-  const statusInfo = statusConfig[status]
-  const TypeIcon = typeInfo.icon
-  const StatusIcon = statusInfo.icon
-  const address = type === 'sent' ? to : from
-
+export const TransactionItem: React.FC<TransactionItemProps> = ({
+  transaction,
+  className,
+  onClick,
+}) => {
+  const { type, amount, currency, usdValue, status, timestamp, hash, recipient, sender } = transaction
+  
+  const isNegative = type === 'send'
+  const displayAddress = type === 'send' ? recipient?.address : sender?.address
+  
   return (
-    <div className={cn(
-      'flex items-center gap-4 p-4 rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 transition-all duration-200',
-      className
-    )}>
-      {/* Transaction Type Icon */}
-      <div className={cn('h-10 w-10 rounded-full flex items-center justify-center', {
-        'bg-red-100': type === 'sent' || type === 'failed',
-        'bg-green-100': type === 'received',
-        'bg-orange-100': type === 'pending',
-      })}>
-        <TypeIcon className={cn('h-5 w-5', typeInfo.color)} />
-      </div>
-
-      {/* Transaction Details */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-neutral-900 truncate">
-              {typeInfo.label} {address && truncateAddress(address)}
+    <div
+      className={cn(
+        'flex items-center justify-between p-4 hover:bg-gray-50 transition-colors duration-150 cursor-pointer border-b border-gray-100 last:border-b-0',
+        className
+      )}
+      onClick={onClick}
+    >
+      <div className="flex items-center space-x-3">
+        <div className="flex-shrink-0">
+          {getTransactionIcon(type, status)}
+        </div>
+        
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center space-x-2">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {getTransactionTitle(transaction)}
             </p>
-            <p className="text-xs text-neutral-500 font-mono truncate">
-              {id}
-            </p>
+            {getStatusBadge(status, transaction.confirmations)}
           </div>
           
-          <div className="text-right ml-4">
-            <p className={cn('text-sm font-semibold', {
-              'text-red-600': type === 'sent',
-              'text-green-600': type === 'received',
-              'text-neutral-900': type === 'pending' || type === 'failed',
-            })}>
-              {typeInfo.prefix}{formatCurrency(amount, currency)}
-            </p>
-            <p className="text-xs text-neutral-500">
-              {getRelativeTime(timestamp)}
-            </p>
-          </div>
-        </div>
-
-        {/* Status and Confirmations */}
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center gap-2">
-            <div className={cn('inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium', statusInfo.bg, statusInfo.color)}>
-              <StatusIcon className="h-3 w-3" />
-              {statusInfo.text}
-            </div>
-            
-            {status === 'confirmed' && confirmations > 0 && (
-              <span className="text-xs text-neutral-500">
-                {confirmations} confirmations
+          <div className="flex items-center space-x-2 text-xs text-gray-500">
+            {displayAddress && (
+              <span className="font-mono">
+                {truncateAddress(displayAddress)}
               </span>
             )}
+            <span>•</span>
+            <span>{formatTimeAgo(timestamp)}</span>
           </div>
+        </div>
+      </div>
+      
+      <div className="text-right">
+        <div className={cn(
+          'text-sm font-medium',
+          isNegative ? 'text-red-600' : 'text-green-600'
+        )}>
+          {isNegative ? '-' : '+'}{amount} {currency}
+        </div>
+        <div className="text-xs text-gray-500">
+          {formatCurrency(usdValue)}
         </div>
       </div>
     </div>

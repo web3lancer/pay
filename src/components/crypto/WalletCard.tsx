@@ -1,83 +1,131 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Card, CardContent, CardFooter } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { cn, formatCurrency, formatCrypto, truncateAddress } from '@/lib/utils'
-import {
-  FaEthereum,
-  FaBitcoin
+import { 
+  FaBitcoin, 
+  FaEthereum, 
+  FaDollarSign,
+  FaEllipsisV,
+  FaPaperPlane,
+  FaDownload,
+  FaExchangeAlt
 } from 'react-icons/fa'
-import {
-  FiSend,
-  FiDownload,
-  FiRepeat,
-  FiMoreHorizontal
-} from 'react-icons/fi'
 
-interface WalletCardProps {
-  name: string
-  address: string
-  balance: {
-    crypto: number
-    usd: number
-  }
+interface CryptoToken {
   symbol: string
+  name: string
+  balance: number
+  usdValue: number
+  address: string
   icon?: React.ReactNode
-  className?: string
 }
 
-export function WalletCard({ 
-  name, 
-  address, 
-  balance, 
-  symbol, 
-  icon = <FaBitcoin className="h-5 w-5" />,
-  className 
-}: WalletCardProps) {
+interface WalletCardProps {
+  wallet: {
+    name: string
+    address: string
+    tokens: CryptoToken[]
+    totalUsdValue: number
+  }
+  className?: string
+  onSend?: () => void
+  onReceive?: () => void
+  onSwap?: () => void
+}
+
+const getTokenIcon = (symbol: string) => {
+  const iconMap: Record<string, React.ReactNode> = {
+    BTC: <FaBitcoin className="text-orange-500" />,
+    ETH: <FaEthereum className="text-blue-500" />,
+    USD: <FaDollarSign className="text-green-500" />,
+  }
+  
+  return iconMap[symbol] || <div className="w-4 h-4 bg-gray-400 rounded-full" />
+}
+
+export const WalletCard: React.FC<WalletCardProps> = ({
+  wallet,
+  className,
+  onSend,
+  onReceive,
+  onSwap,
+}) => {
+  const primaryToken = wallet.tokens[0] // Assume first token is primary
+  
   return (
-    <Card className={cn('group', className)}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
-              {icon}
-            </div>
-            <div>
-              <CardTitle className="text-base">{name}</CardTitle>
-              <p className="text-xs text-neutral-500 font-mono">
-                {truncateAddress(address)}
-              </p>
-            </div>
+    <Card className={cn('relative overflow-hidden', className)} variant="elevated">
+      <CardContent className="p-6">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-gray-900">{wallet.name}</h3>
+            <p className="text-sm text-gray-500 font-mono">
+              {truncateAddress(wallet.address)}
+            </p>
           </div>
-          <button className="p-2 text-neutral-400 hover:text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity">
-            <FiMoreHorizontal className="h-4 w-4" />
-          </button>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pt-0">
-        <div className="space-y-2 mb-4">
-          <p className="text-2xl font-bold text-neutral-900">
-            {formatCurrency(balance.usd)}
-          </p>
-          <p className="text-sm text-neutral-600 font-mono">
-            {formatCrypto(balance.crypto, symbol)}
-          </p>
+          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
+            <FaEllipsisV />
+          </Button>
         </div>
         
-        <div className="flex gap-2">
-          <Button size="sm" className="flex-1" icon={<FiSend className="h-4 w-4" />}>
+        {/* Balance */}
+        <div className="mb-6">
+          <div className="text-2xl font-bold text-gray-900">
+            {formatCurrency(wallet.totalUsdValue)}
+          </div>
+          {primaryToken && (
+            <div className="text-sm text-gray-600">
+              {formatCrypto(primaryToken.balance, primaryToken.symbol)}
+            </div>
+          )}
+        </div>
+        
+        {/* Token List */}
+        <div className="space-y-2 mb-6">
+          {wallet.tokens.slice(0, 3).map((token, index) => (
+            <div key={index} className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                {getTokenIcon(token.symbol)}
+                <div>
+                  <div className="text-sm font-medium">{token.symbol}</div>
+                  <div className="text-xs text-gray-500">{token.name}</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium">
+                  {formatCrypto(token.balance, token.symbol, 4)}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {formatCurrency(token.usdValue)}
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {wallet.tokens.length > 3 && (
+            <div className="text-xs text-gray-500 text-center pt-2">
+              +{wallet.tokens.length - 3} more tokens
+            </div>
+          )}
+        </div>
+      </CardContent>
+      
+      <CardFooter className="px-6 pb-6">
+        <div className="flex space-x-2 w-full">
+          <Button size="sm" onClick={onSend} leftIcon={<FaPaperPlane />} className="flex-1">
             Send
           </Button>
-          <Button size="sm" variant="secondary" className="flex-1" icon={<FiDownload className="h-4 w-4" />}>
+          <Button size="sm" variant="secondary" onClick={onReceive} leftIcon={<FaDownload />} className="flex-1">
             Receive
           </Button>
-          <Button size="sm" variant="ghost" icon={<FiRepeat className="h-4 w-4" />}>
+          <Button size="sm" variant="ghost" onClick={onSwap} leftIcon={<FaExchangeAlt />} className="flex-1">
             Swap
           </Button>
         </div>
-      </CardContent>
+      </CardFooter>
     </Card>
   )
 }
