@@ -42,6 +42,8 @@ const wallets = [
   }
 ]
 
+import { AppShell } from '@/components/layout/AppShell'
+
 export function WalletsClient() {
   const [activeWallet, setActiveWallet] = useState(wallets[0].id)
 
@@ -52,8 +54,7 @@ export function WalletsClient() {
   const selectedWallet = wallets.find(wallet => wallet.id === activeWallet) || wallets[0]
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      {/* AppShell would go here in a real implementation */}
+    <AppShell>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex flex-col space-y-6">
           {/* Page Header */}
@@ -189,6 +190,6 @@ export function WalletsClient() {
           </div>
         </div>
       </div>
-    </div>
+    </AppShell>
   )
 }

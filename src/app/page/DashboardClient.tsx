@@ -48,10 +48,11 @@ const priceAlerts = [
 
 const activeRequests = 3
 
+import { AppShell } from '@/components/layout/AppShell'
+
 export function DashboardClient() {
   return (
-    <div className="min-h-screen bg-neutral-50">
-      {/* AppShell would go here in a real implementation */}
+    <AppShell>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content */}
@@ -203,6 +204,6 @@ export function DashboardClient() {
           </div>
         </div>
       </div>
-    </div>
+    </AppShell>
   )
 }

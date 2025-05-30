@@ -42,6 +42,8 @@ const STEPS = {
   CONFIRMATION: 4
 }
 
+import { AppShell } from '@/components/layout/AppShell'
+
 export function SendClient() {
   const [currentStep, setCurrentStep] = useState(STEPS.SELECT_WALLET)
   const [selectedWallet, setSelectedWallet] = useState(wallets[0])
@@ -73,8 +75,7 @@ export function SendClient() {
   const totalWithFee = totalAmount + estimatedFee
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      {/* AppShell would go here in a real implementation */}
+    <AppShell>
       <div className="container mx-auto px-4 py-8 max-w-xl">
         <div className="flex flex-col space-y-6">
           {/* Page Header */}
