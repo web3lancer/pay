@@ -1,163 +1,153 @@
 'use client'
 
 import React from 'react'
-import { cn, formatCurrency, truncateAddress, formatTimeAgo } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import { format } from 'date-fns'
 import { 
-  FaArrowUp, 
-  FaArrowDown, 
-  FaCheck, 
-  FaClock, 
-  FaTimes,
-  FaExchangeAlt
-} from 'react-icons/fa'
+  FiArrowUpRight, 
+  FiArrowDownLeft, 
+  FiClock, 
+  FiCheckCircle,
+  FiXCircle,
+} from 'react-icons/fi'
+import { cn } from '@/lib/utils'
 
-export type TransactionType = 'send' | 'receive' | 'swap' | 'stake'
-export type TransactionStatus = 'pending' | 'confirmed' | 'failed'
-
-interface Transaction {
-  id: string
-  type: TransactionType
-  amount: number
-  currency: string
-  usdValue: number
-  to?: string
-  from?: string
-  status: TransactionStatus
-  timestamp: Date
-  confirmations?: number
-  hash: string
-  recipient?: {
-    name?: string
-    address: string
-  }
-  sender?: {
-    name?: string
-    address: string
-  }
-}
+type TransactionStatus = 'pending' | 'confirmed' | 'failed'
+type TransactionType = 'sent' | 'received' | 'swapped'
 
 interface TransactionItemProps {
-  transaction: Transaction
-  className?: string
+  type: TransactionType
+  status: TransactionStatus
+  amount: {
+    value: number
+    currency: string
+  }
+  fiatValue: number
+  recipient: {
+    name?: string
+    address: string
+  }
+  timestamp: Date
+  confirmations?: number
   onClick?: () => void
+  className?: string
 }
 
-const getTransactionIcon = (type: TransactionType, status: TransactionStatus) => {
-  if (status === 'pending') {
-    return <FaClock className="text-yellow-500" />
-  }
-  
-  if (status === 'failed') {
-    return <FaTimes className="text-red-500" />
-  }
-  
-  const iconMap = {
-    send: <FaArrowUp className="text-red-500" />,
-    receive: <FaArrowDown className="text-green-500" />,
-    swap: <FaExchangeAlt className="text-blue-500" />,
-    stake: <FaCheck className="text-purple-500" />,
-  }
-  
-  return iconMap[type]
-}
-
-const getTransactionTitle = (transaction: Transaction) => {
-  const { type, recipient, sender } = transaction
-  
-  switch (type) {
-    case 'send':
-      return recipient?.name ? `Sent to ${recipient.name}` : 'Sent'
-    case 'receive':
-      return sender?.name ? `Received from ${sender.name}` : 'Received'
-    case 'swap':
-      return 'Swapped'
-    case 'stake':
-      return 'Staked'
-    default:
-      return 'Transaction'
-  }
-}
-
-const getStatusBadge = (status: TransactionStatus, confirmations?: number) => {
-  switch (status) {
-    case 'pending':
-      return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-          <div className="w-2 h-2 bg-yellow-400 rounded-full mr-1 animate-pulse"></div>
-          Pending
-        </span>
-      )
-    case 'confirmed':
-      return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          <FaCheck className="w-2 h-2 mr-1" />
-          Confirmed {confirmations && `• ${confirmations} confirmations`}
-        </span>
-      )
-    case 'failed':
-      return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-          <FaTimes className="w-2 h-2 mr-1" />
-          Failed
-        </span>
-      )
-  }
-}
-
-export const TransactionItem: React.FC<TransactionItemProps> = ({
-  transaction,
-  className,
+export function TransactionItem({
+  type,
+  status,
+  amount,
+  fiatValue,
+  recipient,
+  timestamp,
+  confirmations = 0,
   onClick,
-}) => {
-  const { type, amount, currency, usdValue, status, timestamp, hash, recipient, sender } = transaction
+  className
+}: TransactionItemProps) {
+  // Determine the time display (either relative or exact)
+  const timeDisplay = getTimeDisplay(timestamp)
   
-  const isNegative = type === 'send'
-  const displayAddress = type === 'send' ? recipient?.address : sender?.address
+  // Format the address for display
+  const displayAddress = `${recipient.address.substring(0, 6)}...${recipient.address.substring(
+    recipient.address.length - 4
+  )}`
+  
+  // Format the amount with proper sign
+  const amountPrefix = type === 'received' ? '+' : type === 'sent' ? '-' : ''
   
   return (
-    <div
+    <motion.div 
       className={cn(
-        'flex items-center justify-between p-4 hover:bg-gray-50 transition-colors duration-150 cursor-pointer border-b border-gray-100 last:border-b-0',
+        'rounded-lg p-3 cursor-pointer transition-colors',
+        'hover:bg-gray-50',
         className
       )}
+      whileTap={{ scale: 0.99 }}
       onClick={onClick}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ 
+        duration: 0.3,
+        ease: [0.25, 1, 0.5, 1] // ease-out-quart
+      }}
     >
-      <div className="flex items-center space-x-3">
-        <div className="flex-shrink-0">
-          {getTransactionIcon(type, status)}
-        </div>
-        
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium text-gray-900 truncate">
-              {getTransactionTitle(transaction)}
-            </p>
-            {getStatusBadge(status, transaction.confirmations)}
-          </div>
-          
-          <div className="flex items-center space-x-2 text-xs text-gray-500">
-            {displayAddress && (
-              <span className="font-mono">
-                {truncateAddress(displayAddress)}
-              </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            'h-8 w-8 rounded-full flex items-center justify-center',
+            type === 'sent' ? 'bg-red-100 text-red-600' : 
+            type === 'received' ? 'bg-green-100 text-green-600' : 
+            'bg-blue-100 text-blue-600'
+          )}>
+            {type === 'sent' ? (
+              <FiArrowUpRight className="h-4 w-4" />
+            ) : type === 'received' ? (
+              <FiArrowDownLeft className="h-4 w-4" />
+            ) : (
+              <FiClock className="h-4 w-4" />
             )}
-            <span>•</span>
-            <span>{formatTimeAgo(timestamp)}</span>
           </div>
+          <div>
+            <p className="font-medium text-gray-900">
+              {type === 'sent' ? 'Sent to ' : type === 'received' ? 'Received from ' : 'Swapped '}
+              {recipient.name || displayAddress}
+            </p>
+            <p className="text-xs text-gray-500 font-mono">{displayAddress}</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className={cn(
+            'font-semibold',
+            type === 'sent' ? 'text-red-600' : 
+            type === 'received' ? 'text-green-600' : 
+            'text-blue-600'
+          )}>
+            {amountPrefix}{amount.value} {amount.currency}
+          </p>
+          <p className="text-xs text-gray-500">
+            ${Math.abs(fiatValue).toFixed(2)} USD
+          </p>
         </div>
       </div>
       
-      <div className="text-right">
-        <div className={cn(
-          'text-sm font-medium',
-          isNegative ? 'text-red-600' : 'text-green-600'
-        )}>
-          {isNegative ? '-' : '+'}{amount} {currency}
-        </div>
-        <div className="text-xs text-gray-500">
-          {formatCurrency(usdValue)}
-        </div>
+      {/* Status Line */}
+      <div className="flex items-center gap-1 mt-2">
+        {status === 'pending' ? (
+          <>
+            <FiClock className="h-3 w-3 text-amber-500" />
+            <span className="text-xs text-amber-500">Pending</span>
+          </>
+        ) : status === 'confirmed' ? (
+          <>
+            <FiCheckCircle className="h-3 w-3 text-green-500" />
+            <span className="text-xs text-green-500">
+              Confirmed {confirmations > 0 && `• ${confirmations} confirmation${confirmations !== 1 ? 's' : ''}`}
+            </span>
+          </>
+        ) : (
+          <>
+            <FiXCircle className="h-3 w-3 text-red-500" />
+            <span className="text-xs text-red-500">Failed</span>
+          </>
+        )}
+        <span className="text-xs text-gray-400 ml-auto">{timeDisplay}</span>
       </div>
-    </div>
+    </motion.div>
   )
+}
+
+// Helper function to display relative time
+function getTimeDisplay(timestamp: Date): string {
+  const now = new Date()
+  const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60))
+  
+  if (diffInMinutes < 1) return 'Just now'
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+  
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  if (diffInHours < 24) return `${diffInHours}h ago`
+  
+  if (diffInHours < 48) return 'Yesterday'
+  
+  return format(timestamp, 'MMM d, yyyy')
 }

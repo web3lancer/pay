@@ -8,14 +8,15 @@ type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success'
 type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 const getButtonClasses = (variant: ButtonVariant, size: ButtonSize) => {
-  const baseClasses = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gpu-accelerated'
+  // Added transition duration from animations.md
+  const baseClasses = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transform-gpu'
   
   const variantClasses = {
-    primary: 'bg-indigo-600 text-white hover:bg-indigo-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/25 active:translate-y-0 focus:ring-indigo-500',
-    secondary: 'bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 hover:-translate-y-0.5 hover:shadow-md focus:ring-gray-500',
+    primary: 'bg-indigo-600 text-white hover:bg-indigo-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/25 active:translate-y-0 active:duration-100 focus:ring-indigo-500',
+    secondary: 'bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 hover:-translate-y-1 hover:shadow-md focus:ring-gray-500',
     ghost: 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 hover:backdrop-blur-sm focus:ring-indigo-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-red-500/25 active:translate-y-0 focus:ring-red-500',
-    success: 'bg-green-600 text-white hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-500/25 active:translate-y-0 focus:ring-green-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-red-500/25 active:translate-y-0 active:duration-100 focus:ring-red-500',
+    success: 'bg-green-600 text-white hover:bg-green-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-green-500/25 active:translate-y-0 active:duration-100 focus:ring-green-500',
   }
   
   const sizeClasses = {
