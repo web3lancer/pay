@@ -25,6 +25,7 @@ export function AuthClient({ mode }: AuthClientProps) {
     sendPhoneOTP,
     loginWithEmailOTP,
     loginWithMagicURL,
+    loginWithPhoneOTP,
     signInWithGoogle, 
     signInWithGithub,
     isLoading 
@@ -143,11 +144,12 @@ export function AuthClient({ mode }: AuthClientProps) {
         }
       } else if (authMethod === 'phone_otp') {
         if (otpSent && formData.otp) {
-          // Handle phone OTP login
-          console.log('Phone OTP login not implemented yet')
+          await loginWithPhoneOTP(userId, formData.otp)
+          router.push('/dashboard')
         } else {
-          // Send phone OTP
-          console.log('Phone OTP not implemented yet')
+          const response = await sendPhoneOTP(formData.phone)
+          setUserId(response.userId)
+          setOtpSent(true)
         }
       }
     } catch (error: any) {
@@ -301,6 +303,14 @@ export function AuthClient({ mode }: AuthClientProps) {
               <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
                 <p className="text-sm text-blue-600">
                   OTP sent to your email! Enter the 6-digit code below.
+                </p>
+              </div>
+            )}
+
+            {otpSent && authMethod === 'phone_otp' && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-sm text-blue-600">
+                  OTP sent to your phone! Enter the 6-digit code below.
                 </p>
               </div>
             )}

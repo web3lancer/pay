@@ -1,20 +1,22 @@
-import { Client, Account, Databases, Storage, OAuthProvider } from 'appwrite'
+import { Client, Account, Databases, Storage, ID, Query } from 'appwrite'
 
-export const client = new Client()
+// Initialize Appwrite client
+const client = new Client()
 
 client
   .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
   .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!)
 
+// Initialize services
 export const account = new Account(client)
 export const databases = new Databases(client)
 export const storage = new Storage(client)
+export { ID, Query }
 
-// Export constants
+// Database and collection IDs
 export const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DB_ID!
 
-// Collections
-export const COLLECTIONS = {
+export const COLLECTION_IDS = {
   USERS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_USERS!,
   WALLETS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_WALLETS!,
   TOKENS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_TOKENS!,
@@ -25,8 +27,7 @@ export const COLLECTIONS = {
   API_KEYS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_API_KEYS!,
 }
 
-// Storage buckets
-export const BUCKETS = {
+export const BUCKET_IDS = {
   USER_ASSETS: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_USER_ASSETS!,
   APP_ASSETS: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_APP_ASSETS!,
   DOCUMENTS: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_DOCUMENTS!,
@@ -35,5 +36,4 @@ export const BUCKETS = {
   TEMP_FILES: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_TEMP_FILES!,
 }
 
-// OAuth providers
-export { OAuthProvider }
+export default client
