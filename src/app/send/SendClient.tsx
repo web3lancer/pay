@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { FiCheck, FiAlertTriangle, FiChevronRight, FiCamera } from 'react-icons/fi'
+import { FiCheck, FiChevronRight, FiCamera, FiAlertTriangle, FiRefreshCw } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
 import { AppShell } from '@/components/layout/AppShell'
 

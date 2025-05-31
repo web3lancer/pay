@@ -1,13 +1,98 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
-import { FiUser, FiLock, FiBell, FiGlobe, FiShield, FiDollarSign, FiToggleLeft, FiToggleRight, FiInfo } from 'react-icons/fi'
 import { useAuth } from '@/contexts/AuthContext'
+import { motion } from 'framer-motion'
+import { FiUser, FiShield, FiBell, FiGlobe, FiLock, FiDollarSign, FiInfo } from 'react-icons/fi'
+import { AppShell } from '@/components/layout/AppShell'
+
+// Simple tab components
+const Tabs = ({ defaultValue, children, onValueChange }: any) => {
+  const [activeTab, setActiveTab] = useState(defaultValue)
+  
+  return (
+    <div className="w-full">
+      {React.Children.map(children, child => 
+        React.cloneElement(child, { activeTab, setActiveTab })
+      )}
+    </div>
+  )
+}
+
+const TabsList = ({ children, activeTab, setActiveTab }: any) => (
+  <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-6">
+    {React.Children.map(children, child => 
+      React.cloneElement(child, { activeTab, setActiveTab })
+    )}
+  </div>
+)
+
+const TabsTrigger = ({ value, children, activeTab, setActiveTab }: any) => (
+  <button
+    onClick={() => setActiveTab(value)}
+    className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+      activeTab === value 
+        ? 'bg-white text-neutral-900 shadow-sm' 
+        : 'text-neutral-600 hover:text-neutral-900'
+    }`}
+  >
+    {children}
+  </button>
+)
+
+const TabsContent = ({ value, children, activeTab }: any) => 
+  activeTab === value ? <div>{children}</div> : null
+
+const Card = ({ children, className = '' }: any) => (
+  <div className={`bg-white rounded-lg shadow-sm border border-neutral-200 ${className}`}>
+    {children}
+  </div>
+)
+
+const CardHeader = ({ children }: any) => (
+  <div className="p-6 pb-4">{children}</div>
+)
+
+const CardTitle = ({ children }: any) => (
+  <h3 className="text-lg font-semibold text-neutral-900">{children}</h3>
+)
+
+const CardDescription = ({ children }: any) => (
+  <p className="text-sm text-neutral-600 mt-1">{children}</p>
+)
+
+const CardContent = ({ children, className = '' }: any) => (
+  <div className={`px-6 ${className}`}>{children}</div>
+)
+
+const CardFooter = ({ children, className = '' }: any) => (
+  <div className={`p-6 pt-4 ${className}`}>{children}</div>
+)
+
+const Button = ({ children, className = '', variant = 'primary', ...props }: any) => (
+  <button
+    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+      variant === 'primary' 
+        ? 'bg-primary-500 text-white hover:bg-primary-600' 
+        : variant === 'secondary'
+        ? 'bg-neutral-200 text-neutral-800 hover:bg-neutral-300'
+        : 'text-neutral-600 hover:bg-neutral-100'
+    } ${className}`}
+    {...props}
+  >
+    {children}
+  </button>
+)
+
+const Input = ({ label, className = '', ...props }: any) => (
+  <div className="space-y-1">
+    {label && <label className="block text-sm font-medium text-neutral-700">{label}</label>}
+    <input
+      className={`w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${className}`}
+      {...props}
+    />
+  </div>
+)
 
 export function SettingsClient() {
   const { user, updateProfile, isLoading } = useAuth()

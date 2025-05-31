@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FiArrowRight, FiRefreshCw, FiChevronDown, FiAlertTriangle, FiCheck } from 'react-icons/fi'
+import { FiCheck, FiChevronDown, FiArrowRight, FiRefreshCw, FiAlertTriangle } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { ResponsiveContainer, AreaChart, XAxis, YAxis, Tooltip, Area } from 'recharts'
 import { AppShell } from '@/components/layout/AppShell'
 
 // Define types
