@@ -1,4 +1,5 @@
-import { account, databases, storage, client, ID, OAuthProvider, DATABASE_ID, COLLECTIONS } from './appwrite'
+import { account, databases, storage, ID, DATABASE_ID, COLLECTION_IDS } from './appwrite'
+import { OAuthProvider } from 'appwrite'
 
 export interface AppwriteUser {
   $id: string
@@ -313,7 +314,7 @@ export class AuthService {
 
       return await databases.createDocument(
         DATABASE_ID,
-        COLLECTIONS.USERS,
+        COLLECTION_IDS.USERS,
         user.$id,
         profileData
       )
@@ -324,7 +325,7 @@ export class AuthService {
 
   async getUserProfile(userId: string): Promise<UserProfile | null> {
     try {
-      return await databases.getDocument(DATABASE_ID, COLLECTIONS.USERS, userId) as UserProfile
+      return await databases.getDocument(DATABASE_ID, COLLECTION_IDS.USERS, userId) as unknown as UserProfile
     } catch (error) {
       return null
     }
@@ -339,7 +340,7 @@ export class AuthService {
 
       return await databases.updateDocument(
         DATABASE_ID,
-        COLLECTIONS.USERS,
+        COLLECTION_IDS.USERS,
         userId,
         updateData
       )
@@ -365,7 +366,7 @@ export class AuthService {
 
       return await databases.createDocument(
         DATABASE_ID,
-        COLLECTIONS.SECURITY_LOGS,
+        COLLECTION_IDS.SECURITY_LOGS,
         ID.unique(),
         logData
       )

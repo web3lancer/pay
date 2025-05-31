@@ -9,6 +9,7 @@ import {
   COLLECTION_IDS, 
   ID 
 } from '@/lib/appwrite'
+import { DatabaseService } from '@/lib/database'
 
 interface User extends Models.User<Models.Preferences> {
   profile?: {
@@ -134,11 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getUserProfile = async (userId: string) => {
     try {
-      const profile = await databases.getDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.USERS,
-        userId
-      )
+      const profile = await DatabaseService.getUser(userId)
       return {
         displayName: profile.displayName,
         profileImage: profile.profileImage,
@@ -158,37 +155,72 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const createUserProfile = async (userId: string, email: string, name: string) => {
     try {
-      await databases.createDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.USERS,
+      console.log('Creating user profile for:', { userId, email, name })
+      
+      const userProfile = await DatabaseService.createUser({
         userId,
-        {
-          userId,
-          email,
-          username: email.split('@')[0],
-          displayName: name,
-          kycStatus: 'pending',
-          kycLevel: 0,
-          twoFactorEnabled: false,
-          isActive: true,
-          preferredCurrency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY || 'USD',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
-      )
-    } catch (error) {
+        email,
+        username: email.split('@')[0],
+        displayName: name || email.split('@')[0],
+        kycStatus: 'pending',
+        kycLevel: 0,
+        twoFactorEnabled: false,
+        isActive: true,
+        preferredCurrency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY || 'USD',
+      })
+      
+      console.log('User profile created successfully:', userProfile.$id)
+      return userProfile
+    } catch (error: any) {
       console.error('Failed to create user profile:', error)
-      // Don't throw error as this is not critical for OAuth login
+      
+      // Check if it's a document already exists error
+      if (error?.code === 409 || error?.type === 'document_already_exists') {
+        console.log('User profile already exists, continuing...')
+        return null
+      }
+      
+      // Log more detailed error information
+      console.error('Error details:', {
+        code: error?.code,
+        type: error?.type,
+        message: error?.message,
+        response: error?.response
+      })
+      
+      // For critical signup flows, we should throw the error
+      throw error
     }
   }
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
+      console.log('Starting signup process for:', { email, name })
+      
+      // Create the Appwrite account first
       const response = await account.create(ID.unique(), email, password, name)
-      await createUserProfile(response.$id, email, name)
+      console.log('Appwrite account created:', response)
+      
+      // Create user profile in database
+      try {
+        await createUserProfile(response.$id, email, name)
+        console.log('User profile creation completed')
+      } catch (profileError) {
+        console.error('User profile creation failed:', profileError)
+        // Continue with signup even if profile creation fails
+      }
+      
+      // Send verification email
       await account.createVerification(window.location.origin + '/auth/verify')
+      console.log('Verification email sent')
+      
+      // Create session
       await account.createEmailPasswordSession(email, password)
+      console.log('Session created')
+      
+      // Check user and update state
       await checkUser()
+      console.log('Signup process completed successfully')
     } catch (error) {
       console.error('Sign up failed:', error)
       throw error
@@ -309,15 +341,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!user) throw new Error('No user logged in')
       
-      await databases.updateDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.USERS,
-        user.$id,
-        {
-          ...data,
-          updatedAt: new Date().toISOString(),
-        }
-      )
+      await DatabaseService.updateUser(user.$id, data)
       
       setUser(prev => prev ? {
         ...prev,
