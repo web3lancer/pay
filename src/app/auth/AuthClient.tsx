@@ -63,7 +63,7 @@ function AuthClientContent({ mode }: AuthClientProps) {
     try {
       setIsSubmitting(true)
       await loginWithMagicURL(urlUserId, secret)
-      router.push('/')
+      // Don't redirect - let AuthGuard handle it
     } catch (error: any) {
       setErrors([error.message || 'Failed to authenticate with magic link'])
     } finally {
@@ -129,14 +129,14 @@ function AuthClientContent({ mode }: AuthClientProps) {
         } else {
           await signIn(formData.email, formData.password)
         }
-        router.push('/')
+        // Don't redirect here - let AuthGuard handle it based on profile completion status
       } else if (authMethod === 'magic_url') {
         await sendMagicURL(formData.email)
         setMagicLinkSent(true)
       } else if (authMethod === 'email_otp') {
         if (otpSent && formData.otp) {
           await loginWithEmailOTP(userId, formData.otp)
-          router.push('/')
+          // Don't redirect - let AuthGuard handle it
         } else {
           const response = await sendEmailOTP(formData.email)
           setUserId(response.userId)
@@ -145,7 +145,7 @@ function AuthClientContent({ mode }: AuthClientProps) {
       } else if (authMethod === 'phone_otp') {
         if (otpSent && formData.otp) {
           await loginWithPhoneOTP(userId, formData.otp)
-          router.push('/')
+          // Don't redirect - let AuthGuard handle it
         } else {
           const response = await sendPhoneOTP(formData.phone)
           setUserId(response.userId)
@@ -317,7 +317,7 @@ function AuthClientContent({ mode }: AuthClientProps) {
 
             {/* Auth Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name field for signup */}
+              {/* Name field for signup with email/password only */}
               {mode === 'signup' && authMethod === 'email_password' && (
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
