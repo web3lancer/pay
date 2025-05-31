@@ -1,16 +1,131 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
+import { useAuth } from '@/contexts/AuthContext'
+import { DatabaseService, Transaction } from '@/lib/database'
 import Link from 'next/link'
 
+interface WalletSummary {
+  blockchain: string
+  symbol: string
+  balance: number
+  usdValue: number
+  icon: string
+}
+
 export default function DashboardPage() {
+  const { user, userProfile, isLoading: authLoading } = useAuth()
+  const [totalBalance, setTotalBalance] = useState(0)
+  const [walletSummaries, setWalletSummaries] = useState<WalletSummary[]>([])
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (user && userProfile) {
+      loadDashboardData()
+    }
+  }, [user, userProfile])
+
+  const loadDashboardData = async () => {
+    if (!user) return
+    
+    setIsLoading(true)
+    try {
+      // Fetch user's wallets
+      const wallets = await DatabaseService.getUserWallets(user.$id)
+      
+      // Fetch recent transactions
+      const transactions = await DatabaseService.getUserTransactions(user.$id, 5)
+      setRecentTransactions(transactions)
+
+      // Calculate wallet summaries and total balance
+      let total = 0
+      const summaries: WalletSummary[] = []
+      
+      for (const wallet of wallets) {
+        const icon = getBlockchainIcon(wallet.blockchain)
+        const symbol = getBlockchainSymbol(wallet.blockchain)
+        
+        // For demo, using wallet.balance * mock price
+        const mockPrice = getMockPrice(wallet.blockchain)
+        const usdValue = wallet.balance * mockPrice
+        total += usdValue
+        
+        summaries.push({
+          blockchain: wallet.blockchain,
+          symbol,
+          balance: wallet.balance,
+          usdValue,
+          icon
+        })
+      }
+      
+      setTotalBalance(total)
+      setWalletSummaries(summaries)
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const getBlockchainIcon = (blockchain: string) => {
+    const icons: Record<string, string> = {
+      bitcoin: '₿',
+      ethereum: 'Ξ',
+      polygon: '⬟',
+      bsc: '🟡'
+    }
+    return icons[blockchain] || '🪙'
+  }
+
+  const getBlockchainSymbol = (blockchain: string) => {
+    const symbols: Record<string, string> = {
+      bitcoin: 'BTC',
+      ethereum: 'ETH',
+      polygon: 'MATIC',
+      bsc: 'BNB'
+    }
+    return symbols[blockchain] || blockchain.toUpperCase()
+  }
+
+  const getMockPrice = (blockchain: string) => {
+    const prices: Record<string, number> = {
+      bitcoin: 45000,
+      ethereum: 2500,
+      polygon: 0.8,
+      bsc: 300
+    }
+    return prices[blockchain] || 1
+  }
+
+  if (authLoading) {
+    return (
+      <AppShell>
+        <div className="container mx-auto px-4 py-6 max-w-7xl">
+          <div className="animate-pulse">
+            <div className="h-8 bg-neutral-200 rounded w-64 mb-4"></div>
+            <div className="h-4 bg-neutral-200 rounded w-96 mb-8"></div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-32 bg-neutral-200 rounded-xl"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </AppShell>
+    )
+  }
+
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* Dashboard Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-neutral-900">Welcome back!</h1>
+          <h1 className="text-2xl font-bold text-neutral-900">
+            Welcome back{userProfile?.displayName ? `, ${userProfile.displayName}` : ''}!
+          </h1>
           <p className="text-neutral-700 mt-1">Your crypto dashboard is ready.</p>
         </div>
 
