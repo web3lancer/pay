@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const newUrl = newSearch ? `${currentPath}?${newSearch}` : currentPath
 
         if (window.location.search !== (newSearch ? `?${newSearch}` : '')) {
-          router.replace(newUrl, { shallow: true })
+          router.replace(newUrl, { scroll: false })
         }
 
         setTimeout(() => {
@@ -259,6 +259,89 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const createGuestSession = async () => {
+    try {
+      console.log('Creating guest session...')
+      await account.createAnonymousSession()
+      console.log('Guest session created successfully')
+      
+      // Check user state after creating guest session
+      await checkUser()
+      console.log('Guest session setup completed')
+    } catch (error) {
+      console.error('Guest session creation failed:', error)
+      throw error
+    }
+  }
+
+  const convertGuestToUser = async (email: string, password: string, name: string) => {
+    try {
+      if (!user || !isGuest) {
+        throw new Error('No guest session to convert')
+      }
+      
+      console.log('Converting guest session to user account...')
+      
+      // Update the anonymous account with email and password
+      await account.updateEmail(email, password)
+      await account.updateName(name)
+      
+      console.log('Guest account converted successfully')
+      
+      // Check user state after conversion - they'll need to complete profile
+      await checkUser()
+      console.log('Guest conversion completed')
+    } catch (error) {
+      console.error('Guest conversion failed:', error)
+      throw error
+    }
+  }
+
+  const signUp = async (email: string, password: string, name: string) => {
+    try {
+      console.log('Starting signup process for:', { email, name })
+      
+      // Create the Appwrite account first
+      const response = await account.create(ID.unique(), email, password, name)
+      console.log('Appwrite account created:', response)
+      
+      // Create session to authenticate the user
+      await account.createEmailPasswordSession(email, password)
+      console.log('Session created - user is now authenticated')
+      
+      // Send verification email
+      try {
+        await account.createVerification(window.location.origin + '/auth/verify')
+        console.log('Verification email sent')
+      } catch (verificationError) {
+        console.error('Verification email failed:', verificationError)
+        // Don't throw - this is not critical for signup
+      }
+      
+      // Check user state - they will be redirected to profile completion
+      await checkUser()
+      console.log('Signup process completed successfully')
+    } catch (error) {
+      console.error('Sign up failed:', error)
+      throw error
+    }
+  }
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      console.log('Starting sign in process for:', email)
+      await account.createEmailPasswordSession(email, password)
+      console.log('Email/password session created successfully')
+      
+      // Let checkUser handle profile creation and state management
+      await checkUser()
+      console.log('Sign in completed successfully')
+    } catch (error) {
+      console.error('Sign in failed:', error)
+      throw error
+    }
+  }
+
   const signOut = async () => {
     try {
       await account.deleteSession('current')
@@ -269,6 +352,209 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Sign out failed:', error)
       setUser(null)
       setIsAuthenticated(false)
+      throw error
+    }
+  }
+
+  // OAuth methods - These trigger redirects, don't return promises
+  const signInWithGoogle = () => {
+    try {
+      account.createOAuth2Session(
+        OAuthProvider.Google,
+        `${window.location.origin}`, // Success redirect
+        `${window.location.origin}/auth/login` // Failure redirect
+      )
+    } catch (error) {
+      console.error('Google sign in failed:', error)
+    }
+  }
+
+  const signInWithGithub = () => {
+    try {
+      account.createOAuth2Session(
+        OAuthProvider.Github,
+        `${window.location.origin}`, // Success redirect
+        `${window.location.origin}/auth/login` // Failure redirect
+      )
+    } catch (error) {
+      console.error('GitHub sign in failed:', error)
+    }
+  }
+
+  // Other auth methods...
+  const sendMagicURL = async (email: string) => {
+    try {
+      await account.createMagicURLToken(
+        ID.unique(),
+        email,
+        `${window.location.origin}/auth/login?userId={userId}&secret={secret}`
+      )
+    } catch (error) {
+      console.error('Magic URL failed:', error)
+      throw error
+    }
+  }
+
+  const loginWithMagicURL = async (userId: string, secret: string) => {
+    try {
+      console.log('Logging in with Magic URL for user:', userId)
+      await account.updateMagicURLSession(userId, secret)
+      console.log('Magic URL session created successfully')
+      
+      // Let checkUser handle profile creation and state management
+      await checkUser()
+      console.log('Magic URL login completed')
+    } catch (error) {
+      console.error('Magic URL login failed:', error)
+      throw error
+    }
+  }
+
+  const sendEmailOTP = async (email: string) => {
+    try {
+      const response = await account.createEmailToken(ID.unique(), email)
+      return { userId: response.userId }
+    } catch (error) {
+      console.error('Email OTP failed:', error)
+      throw error
+    }
+  }
+
+  const loginWithEmailOTP = async (userId: string, otp: string) => {
+    try {
+      console.log('Logging in with Email OTP for user:', userId)
+      await account.createSession(userId, otp)
+      console.log('Email OTP session created successfully')
+      
+      // Let checkUser handle profile creation and state management
+      await checkUser()
+      console.log('Email OTP login completed')
+    } catch (error) {
+      console.error('Email OTP login failed:', error)
+      throw error
+    }
+  }
+
+  const sendPhoneOTP = async (phone: string) => {
+    try {
+      const response = await account.createPhoneToken(ID.unique(), phone)
+      return { userId: response.userId }
+    } catch (error) {
+      console.error('Phone OTP failed:', error)
+      throw error
+    }
+  }
+
+  const loginWithPhoneOTP = async (userId: string, otp: string) => {
+    try {
+      console.log('Logging in with Phone OTP for user:', userId)
+      await account.createSession(userId, otp)
+      console.log('Phone OTP session created successfully')
+      
+      // Let checkUser handle profile creation and state management
+      await checkUser()
+      console.log('Phone OTP login completed')
+    } catch (error) {
+      console.error('Phone OTP login failed:', error)
+      throw error
+    }
+  }
+
+  const completeProfile = async (data: { username: string; displayName: string; email: string }) => {
+    try {
+      if (!user) throw new Error('No user logged in')
+      
+      console.log('Completing user profile with data:', data)
+      
+      // Get the latest Appwrite user data to ensure we have current info
+      const currentAppwriteUser = await account.get()
+      
+      const profileData = {
+        userId: user.$id,
+        email: data.email || currentAppwriteUser.email,
+        username: data.username,
+        displayName: data.displayName,
+        kycStatus: 'pending' as const,
+        kycLevel: 0,
+        twoFactorEnabled: false,
+        isActive: true,
+        preferredCurrency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY || 'USD',
+      }
+      
+      await DatabaseService.createUser(profileData)
+      console.log('Profile completed successfully')
+      
+      // Fetch the complete profile after creation
+      const newProfile = await getUserProfile(user.$id)
+      setUser(prev => prev ? {
+        ...prev,
+        profile: newProfile,
+        needsProfileCompletion: false
+      } : null)
+      
+      console.log('Profile completion finished, user state updated')
+    } catch (error) {
+      console.error('Profile completion failed:', error)
+      throw error
+    }
+  }
+
+  const updateProfile = async (data: Partial<User['profile']>) => {
+    try {
+      if (!user) throw new Error('No user logged in')
+      if (!data) throw new Error('No data provided')
+      
+      // Regular profile update for existing profiles
+      await DatabaseService.updateUser(user.$id, data)
+      
+      setUser(prev => prev ? {
+        ...prev,
+        profile: { ...prev.profile, ...data }
+      } : null)
+    } catch (error) {
+      console.error('Profile update failed:', error)
+      throw error
+    }
+  }
+
+  const enableTwoFactor = async () => {
+    try {
+      await account.createMfaAuthenticator(AuthenticatorType.Totp)
+    } catch (error) {
+      console.error('Enable 2FA failed:', error)
+      throw error
+    }
+  }
+
+  const disableTwoFactor = async () => {
+    try {
+      await account.deleteMfaAuthenticator(AuthenticatorType.Totp)
+    } catch (error) {
+      console.error('Disable 2FA failed:', error)
+      throw error
+    }
+  }
+
+  const sendEmailVerification = async () => {
+    try {
+      await account.createVerification(window.location.origin + '/auth/verify')
+    } catch (error) {
+      console.error('Email verification failed:', error)
+      throw error
+    }
+  }
+
+  const verifyEmail = async (userId: string, secret: string) => {
+    try {
+      console.log('Verifying email for user:', userId)
+      await account.updateVerification(userId, secret)
+      console.log('Email verification successful')
+      
+      // Let checkUser handle profile creation and state management
+      await checkUser()
+      console.log('Email verification completed')
+    } catch (error) {
+      console.error('Email verification confirmation failed:', error)
       throw error
     }
   }
