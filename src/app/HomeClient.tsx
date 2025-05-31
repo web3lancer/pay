@@ -8,6 +8,14 @@ import { AppShell } from '@/components/layout/AppShell'
 export function HomeClient() {
   const { user, isAuthenticated, isLoading, signOut } = useAuth()
 
+  // Debug logging
+  console.log('HomeClient - Auth State:', {
+    user,
+    isAuthenticated,
+    isLoading,
+    userExists: !!user
+  })
+
   const handleSignOut = async () => {
     try {
       await signOut()
@@ -63,7 +71,7 @@ export function HomeClient() {
                     <div>
                       <p className="text-sm font-medium text-neutral-900">Full Name</p>
                       <p className="text-sm text-neutral-600">
-                        {user.profile?.displayName || user.name || 'Not provided'}
+                        {user.name || 'Not provided'}
                       </p>
                     </div>
                   </div>
@@ -90,7 +98,7 @@ export function HomeClient() {
                     <div>
                       <p className="text-sm font-medium text-neutral-900">KYC Status</p>
                       <p className="text-sm text-neutral-600">
-                        {user.profile?.kycStatus || 'Pending'}
+                        {user.prefs?.kycStatus || 'Pending'}
                       </p>
                     </div>
                   </div>
@@ -102,7 +110,7 @@ export function HomeClient() {
                     <div>
                       <p className="text-sm font-medium text-neutral-900">2FA Enabled</p>
                       <p className="text-sm text-neutral-600">
-                        {user.profile?.twoFactorEnabled ? 'Yes' : 'No'}
+                        {user.prefs?.twoFactorEnabled ? 'Yes' : 'No'}
                       </p>
                     </div>
                   </div>
