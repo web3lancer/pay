@@ -100,9 +100,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             userId: currentUser.$id
           })
           
-          // For OAuth users, ensure profile exists
+          // For OAuth users, ensure profile exists - but let the main flow handle it
+          // This is just for logging OAuth-specific info
           if (session.provider && session.provider !== 'email') {
-            await ensureOAuthUserProfile(currentUser, session.provider)
+            console.log('OAuth user detected with provider:', session.provider)
           }
         } catch (sessionError) {
           console.log('Could not get session info:', sessionError)
@@ -110,7 +111,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         // Fetch user profile from database
         const userProfile = await getUserProfile(currentUser.$id)
-        setUser({ ...currentUser, profile: userProfile })
+        
+        // If no profile exists, create one (this handles both signup and OAuth scenarios)
+        if (!userProfile || Object.keys(userProfile).length === 0) {
+          console.log('No user profile found, creating one...')
+          try {
+            await createUserProfile(currentUser.$id, currentUser.email, currentUser.name)
+            // Fetch the profile again after creation
+            const newProfile = await getUserProfile(currentUser.$id)
+            setUser({ ...currentUser, profile: newProfile })
+          } catch (profileError) {
+            console.error('Failed to create user profile:', profileError)
+            // Set user without profile - they can complete it later
+            setUser({ ...currentUser, profile: {} })
+          }
+        } else {
+          setUser({ ...currentUser, profile: userProfile })
+        }
+        
         setIsAuthenticated(true)
       }
     } catch (error) {
@@ -124,12 +142,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const ensureOAuthUserProfile = async (user: Models.User<Models.Preferences>, provider: string) => {
     try {
-      // Check if profile already exists
-      await databases.getDocument(DATABASE_ID, COLLECTION_IDS.USERS, user.$id)
+      // Check if profile already exists using DatabaseService
+      await DatabaseService.getUser(user.$id)
+      console.log('OAuth user profile already exists')
     } catch (error) {
       // Profile doesn't exist, create it for OAuth user
       console.log('Creating profile for OAuth user')
-      await createUserProfile(user.$id, user.email, user.name)
+      try {
+        await createUserProfile(user.$id, user.email, user.name)
+      } catch (profileError) {
+        console.error('Failed to create OAuth user profile:', profileError)
+        // Don't throw - user can complete profile later
+      }
     }
   }
 
@@ -201,24 +225,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await account.create(ID.unique(), email, password, name)
       console.log('Appwrite account created:', response)
       
-      // Create user profile in database
-      try {
-        await createUserProfile(response.$id, email, name)
-        console.log('User profile creation completed')
-      } catch (profileError) {
-        console.error('User profile creation failed:', profileError)
-        // Continue with signup even if profile creation fails
-      }
+      // Create session to authenticate the user
+      await account.createEmailPasswordSession(email, password)
+      console.log('Session created - user is now authenticated')
       
       // Send verification email
-      await account.createVerification(window.location.origin + '/auth/verify')
-      console.log('Verification email sent')
+      try {
+        await account.createVerification(window.location.origin + '/auth/verify')
+        console.log('Verification email sent')
+      } catch (verificationError) {
+        console.error('Verification email failed:', verificationError)
+        // Don't throw - this is not critical for signup
+      }
       
-      // Create session
-      await account.createEmailPasswordSession(email, password)
-      console.log('Session created')
-      
-      // Check user and update state
+      // Let checkUser handle profile creation since user is now authenticated
       await checkUser()
       console.log('Signup process completed successfully')
     } catch (error) {
@@ -229,8 +249,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Starting sign in process for:', email)
       await account.createEmailPasswordSession(email, password)
+      console.log('Email/password session created successfully')
+      
+      // Let checkUser handle profile creation and state management
       await checkUser()
+      console.log('Sign in completed successfully')
     } catch (error) {
       console.error('Sign in failed:', error)
       throw error
@@ -289,8 +314,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithMagicURL = async (userId: string, secret: string) => {
     try {
+      console.log('Logging in with Magic URL for user:', userId)
       await account.updateMagicURLSession(userId, secret)
+      console.log('Magic URL session created successfully')
+      
+      // Let checkUser handle profile creation and state management
       await checkUser()
+      console.log('Magic URL login completed')
     } catch (error) {
       console.error('Magic URL login failed:', error)
       throw error
@@ -309,8 +339,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithEmailOTP = async (userId: string, otp: string) => {
     try {
+      console.log('Logging in with Email OTP for user:', userId)
       await account.createSession(userId, otp)
+      console.log('Email OTP session created successfully')
+      
+      // Let checkUser handle profile creation and state management
       await checkUser()
+      console.log('Email OTP login completed')
     } catch (error) {
       console.error('Email OTP login failed:', error)
       throw error
@@ -329,8 +364,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithPhoneOTP = async (userId: string, otp: string) => {
     try {
+      console.log('Logging in with Phone OTP for user:', userId)
       await account.createSession(userId, otp)
+      console.log('Phone OTP session created successfully')
+      
+      // Let checkUser handle profile creation and state management
       await checkUser()
+      console.log('Phone OTP login completed')
     } catch (error) {
       console.error('Phone OTP login failed:', error)
       throw error
@@ -382,8 +422,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const verifyEmail = async (userId: string, secret: string) => {
     try {
+      console.log('Verifying email for user:', userId)
       await account.updateVerification(userId, secret)
+      console.log('Email verification successful')
+      
+      // Let checkUser handle profile creation and state management
       await checkUser()
+      console.log('Email verification completed')
     } catch (error) {
       console.error('Email verification confirmation failed:', error)
       throw error
