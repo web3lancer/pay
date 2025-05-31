@@ -3,6 +3,7 @@ import './globals.css'
 import { Providers } from '@/components/providers'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { WalletProvider } from '@/contexts/WalletContext'
+import { TransactionProvider } from '@/contexts/TransactionContext'
 
 export const metadata: Metadata = {
   title: 'Pay by Web3Lancer',
@@ -19,9 +20,11 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthProvider>
           <WalletProvider>
-            <Providers>
-              {children}
-            </Providers>
+            <TransactionProvider>
+              <Providers>
+                {children}
+              </Providers>
+            </TransactionProvider>
           </WalletProvider>
         </AuthProvider>
       </body>

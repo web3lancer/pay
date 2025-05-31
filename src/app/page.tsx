@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
 import { useAuth } from '@/contexts/AuthContext'
 import { useWallet } from '@/contexts/WalletContext'
+import { useTransaction } from '@/contexts/TransactionContext'
 import { DatabaseService, Transaction } from '@/lib/database'
 import Link from 'next/link'
 
@@ -18,9 +19,9 @@ interface WalletSummary {
 export default function DashboardPage() {
   const { user, userProfile, isLoading: authLoading, refreshProfile } = useAuth()
   const { wallets, defaultWallet, isLoading: walletsLoading, refreshWallets } = useWallet()
+  const { transactions, isLoading: transactionsLoading } = useTransaction()
   const [totalBalance, setTotalBalance] = useState(0)
   const [walletSummaries, setWalletSummaries] = useState<WalletSummary[]>([])
-  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [balanceVisible, setBalanceVisible] = useState(true)
 
@@ -35,10 +36,6 @@ export default function DashboardPage() {
     
     setIsLoading(true)
     try {
-      // Fetch recent transactions
-      const transactions = await DatabaseService.getUserTransactions(user.$id, 5)
-      setRecentTransactions(transactions)
-
       // Use wallets from context instead of fetching again
       if (wallets.length > 0) {
         // Calculate wallet summaries and total balance

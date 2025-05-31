@@ -339,9 +339,9 @@ export class DatabaseService {
   }
 
   // Payment Request operations
-  static async createPaymentRequest(requestData: Omit<PaymentRequest, 'requestId' | 'createdAt'>) {
+  static async createPaymentRequest(requestData: Omit<PaymentRequest, 'requestId' | 'createdAt'>): Promise<PaymentRequest> {
     const requestId = ID.unique()
-    return await databases.createDocument(
+    const document = await databases.createDocument(
       DATABASE_ID,
       COLLECTION_IDS.PAYMENT_REQUESTS,
       requestId,
@@ -351,6 +351,7 @@ export class DatabaseService {
         createdAt: new Date().toISOString(),
       }
     )
+    return document as unknown as PaymentRequest
   }
 
   static async getUserPaymentRequests(userId: string, type: 'sent' | 'received' = 'sent'): Promise<PaymentRequest[]> {
@@ -367,20 +368,36 @@ export class DatabaseService {
   }
 
   static async getPaymentRequest(requestId: string): Promise<PaymentRequest> {
-    return await databases.getDocument(
+    const document = await databases.getDocument(
       DATABASE_ID,
       COLLECTION_IDS.PAYMENT_REQUESTS,
       requestId
-    ) as unknown as PaymentRequest
+    )
+    return document as unknown as PaymentRequest
   }
 
-  static async updatePaymentRequest(requestId: string, updates: Partial<PaymentRequest>) {
-    return await databases.updateDocument(
+  static async updatePaymentRequest(requestId: string, updates: Partial<PaymentRequest>): Promise<void> {
+    await databases.updateDocument(
       DATABASE_ID,
       COLLECTION_IDS.PAYMENT_REQUESTS,
       requestId,
-      updates
+      {
+        ...updates,
+        updatedAt: new Date().toISOString()
+      }
     )
+  }
+
+  static async getPaymentRequestByInvoice(invoiceNumber: string): Promise<PaymentRequest> {
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_IDS.PAYMENT_REQUESTS,
+      [Query.equal('invoiceNumber', invoiceNumber)]
+    )
+    if (response.documents.length === 0) {
+      throw new Error('Payment request not found')
+    }
+    return response.documents[0] as unknown as PaymentRequest
   }
 
   // Exchange Rate operations
