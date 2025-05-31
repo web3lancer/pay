@@ -17,9 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <Providers>
-          <AuthGuard>
             {children}
-          </AuthGuard>
         </Providers>
       </body>
     </html>
