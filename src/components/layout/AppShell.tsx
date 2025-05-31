@@ -22,24 +22,43 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
-      <div className="lg:hidden">
-        <TopBar onMenuClick={handleMenuToggle} mobile={true} />
-      </div>
-      
-      {/* Desktop Header */}
-      <div className="hidden lg:block">
-        <TopBar onMenuClick={handleMenuToggle} mobile={false} />
+      {/* Top Bar - Fixed across all screen sizes */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <div className="lg:hidden">
+          <TopBar onMenuClick={handleMenuToggle} mobile={true} />
+        </div>
+        <div className="hidden lg:block">
+          <TopBar onMenuClick={handleMenuToggle} mobile={false} />
+        </div>
       </div>
 
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />
+      {/* Main Layout Container */}
+      <div className="pt-16 min-h-screen">
+        {/* Desktop Layout */}
+        <div className="hidden lg:flex h-full">
+          {/* Sidebar */}
+          <div className="w-64 flex-shrink-0">
+            <Sidebar isOpen={true} onClose={() => {}} />
+          </div>
+          
+          {/* Main Content */}
+          <div className="flex-1 pb-8">
+            <main>
+              {children}
+            </main>
+          </div>
+        </div>
 
-      {/* Main Content */}
-      <div className="lg:pl-64">
-        <main className="pt-16 pb-20 lg:pb-8">
-          {children}
-        </main>
+        {/* Mobile Layout */}
+        <div className="lg:hidden">
+          {/* Mobile Sidebar Overlay */}
+          <Sidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />
+          
+          {/* Mobile Main Content */}
+          <main className="pb-20">
+            {children}
+          </main>
+        </div>
       </div>
       
       {/* Mobile Bottom Navigation */}
