@@ -24,12 +24,14 @@ interface User extends Models.User<Models.Preferences> {
     timezone?: string
     preferredCurrency?: string
   }
+  needsProfileCompletion?: boolean
 }
 
 interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
+  needsProfileCompletion: boolean
   signUp: (email: string, password: string, name: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
@@ -42,6 +44,7 @@ interface AuthContextType {
   signInWithGoogle: () => void
   signInWithGithub: () => void
   updateProfile: (data: Partial<User['profile']>) => Promise<void>
+  completeProfile: (data: { username: string; displayName: string; email: string }) => Promise<void>
   enableTwoFactor: () => Promise<void>
   disableTwoFactor: () => Promise<void>
   sendEmailVerification: () => Promise<void>
@@ -54,6 +57,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  // Computed property to check if user needs to complete profile
+  const needsProfileCompletion = Boolean(
+    isAuthenticated && 
+    user && 
+    (!user.profile || !user.profile.username || !user.profile.displayName)
+  )
 
   // Check if user is logged in on app start
   useEffect(() => {
@@ -103,61 +113,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           phoneVerification: currentUser.phoneVerification
         })
 
-        // Log session info for debugging OAuth
-        let sessionProvider = 'email'
-        try {
-          const session = await account.getSession('current')
-          sessionProvider = session.provider || 'email'
-          console.log('Session info:', {
-            provider: session.provider,
-            providerUid: session.providerUid,
-            userId: currentUser.$id
-          })
-        } catch (sessionError) {
-          console.log('Could not get session info:', sessionError)
-        }
-        
         // Try to fetch user profile from our database
         let userProfile = null
+        let profileExists = false
+        
         try {
           userProfile = await getUserProfile(currentUser.$id)
           console.log('Found existing user profile:', userProfile)
+          profileExists = Boolean(userProfile && userProfile.username && userProfile.displayName)
         } catch (profileError) {
-          console.log('No existing user profile found')
+          console.log('No existing user profile found:', profileError)
+          profileExists = false
         }
         
-        // If no profile exists or profile is incomplete, handle based on auth method
-        if (!userProfile || Object.keys(userProfile).length === 0 || !userProfile.username) {
-          console.log('User profile missing or incomplete')
-          
-          // For email/password signup, we can create profile immediately
-          // For OAuth/OTP, we need the user to complete their profile
-          if (sessionProvider === 'email' && currentUser.email && currentUser.name) {
-            console.log('Creating profile for email/password user')
-            try {
-              await createUserProfile(currentUser.$id, currentUser.email, currentUser.name)
-              // Fetch the profile again after creation
-              userProfile = await getUserProfile(currentUser.$id)
-              setUser({ ...currentUser, profile: userProfile })
-            } catch (profileError) {
-              console.error('Failed to create user profile:', profileError)
-              // Set user without profile - they can complete it later
-              setUser({ ...currentUser, profile: {} })
-            }
-          } else {
-            console.log('OAuth/OTP user needs to complete profile')
-            // Set user with minimal profile, they'll be redirected to complete it
-            setUser({ ...currentUser, profile: {} })
-          }
-        } else {
-          console.log('User has complete profile')
-          setUser({ ...currentUser, profile: userProfile })
+        // Determine if this is a complete profile
+        const hasCompleteProfile = profileExists && userProfile && userProfile.username && userProfile.displayName
+        
+        console.log('Profile status:', {
+          profileExists,
+          hasCompleteProfile,
+          userProfile
+        })
+        
+        // Set the user with profile completion status
+        const userWithProfile = {
+          ...currentUser,
+          profile: userProfile || {},
+          needsProfileCompletion: !hasCompleteProfile
         }
         
+        setUser(userWithProfile)
         setIsAuthenticated(true)
+        
+        console.log('User state set:', {
+          authenticated: true,
+          needsProfileCompletion: !hasCompleteProfile,
+          profileData: userProfile
+        })
       }
     } catch (error) {
-      console.log('No user session found')
+      console.log('No user session found:', error)
       setUser(null)
       setIsAuthenticated(false)
     } finally {
@@ -264,7 +259,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Don't throw - this is not critical for signup
       }
       
-      // Let checkUser handle profile creation since user is now authenticated
+      // Check user state - they will be redirected to profile completion
       await checkUser()
       console.log('Signup process completed successfully')
     } catch (error) {
@@ -403,47 +398,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const updateProfile = async (data: Partial<User['profile']>) => {
+  const completeProfile = async (data: { username: string; displayName: string; email: string }) => {
     try {
       if (!user) throw new Error('No user logged in')
       
-      // If this is a profile completion (no existing profile), create the full profile
-      if (!user.profile || Object.keys(user.profile).length === 0 || !user.profile.username) {
-        console.log('Creating initial user profile during completion...')
-        
-        // Get the latest Appwrite user data to ensure we have current info
-        const currentAppwriteUser = await account.get()
-        
-        const profileData = {
-          userId: user.$id,
-          email: currentAppwriteUser.email,
-          username: data.username || currentAppwriteUser.email?.split('@')[0] || 'user',
-          displayName: data.displayName || currentAppwriteUser.name || 'User',
-          kycStatus: 'pending' as const,
-          kycLevel: 0,
-          twoFactorEnabled: false,
-          isActive: true,
-          preferredCurrency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY || 'USD',
-          ...(data || {}) // Include any additional data passed
-        }
-        
-        await DatabaseService.createUser(profileData)
-        
-        // Fetch the complete profile after creation
-        const newProfile = await getUserProfile(user.$id)
-        setUser(prev => prev ? {
-          ...prev,
-          profile: newProfile
-        } : null)
-      } else {
-        // Regular profile update
-        await DatabaseService.updateUser(user.$id, data)
-        
-        setUser(prev => prev ? {
-          ...prev,
-          profile: { ...prev.profile, ...data }
-        } : null)
+      console.log('Completing user profile with data:', data)
+      
+      // Get the latest Appwrite user data to ensure we have current info
+      const currentAppwriteUser = await account.get()
+      
+      const profileData = {
+        userId: user.$id,
+        email: data.email || currentAppwriteUser.email,
+        username: data.username,
+        displayName: data.displayName,
+        kycStatus: 'pending' as const,
+        kycLevel: 0,
+        twoFactorEnabled: false,
+        isActive: true,
+        preferredCurrency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY || 'USD',
       }
+      
+      await DatabaseService.createUser(profileData)
+      console.log('Profile completed successfully')
+      
+      // Fetch the complete profile after creation
+      const newProfile = await getUserProfile(user.$id)
+      setUser(prev => prev ? {
+        ...prev,
+        profile: newProfile,
+        needsProfileCompletion: false
+      } : null)
+      
+      console.log('Profile completion finished, user state updated')
+    } catch (error) {
+      console.error('Profile completion failed:', error)
+      throw error
+    }
+  }
+
+  const updateProfile = async (data: Partial<User['profile']>) => {
+    try {
+      if (!user) throw new Error('No user logged in')
+      if (!data) throw new Error('No data provided')
+      
+      // Regular profile update for existing profiles
+      await DatabaseService.updateUser(user.$id, data)
+      
+      setUser(prev => prev ? {
+        ...prev,
+        profile: { ...prev.profile, ...data }
+      } : null)
     } catch (error) {
       console.error('Profile update failed:', error)
       throw error
@@ -496,6 +501,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     isLoading,
     isAuthenticated,
+    needsProfileCompletion,
     signUp,
     signIn,
     signOut,
@@ -508,6 +514,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithGoogle,
     signInWithGithub,
     updateProfile,
+    completeProfile,
     enableTwoFactor,
     disableTwoFactor,
     sendEmailVerification,
