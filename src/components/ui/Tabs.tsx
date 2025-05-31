@@ -1,150 +1,150 @@
 'use client'
 
-import React from 'react'
-import { motion } from 'framer-motion'
+import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 
-interface TabsProps {
-  value: string
-  onValueChange: (value: string) => void
+export interface TabsProps {
+  value?: string
+  defaultValue?: string
+  onValueChange?: (value: string) => void
   children: React.ReactNode
   className?: string
 }
 
-export function Tabs({ value, onValueChange, children, className }: TabsProps) {
-  // Create a context to share the active tab value
-  const TabContext = React.createContext<{
-    value: string
-    onValueChange: (value: string) => void
-  }>({
-    value,
-    onValueChange
-  })
+export function Tabs({
+  value: controlledValue,
+  defaultValue,
+  onValueChange,
+  children,
+  className,
+  ...props
+}: TabsProps) {
+  const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue)
+  const value = controlledValue !== undefined ? controlledValue : uncontrolledValue
+  
+  const handleValueChange = (newValue: string) => {
+    setUncontrolledValue(newValue)
+    onValueChange?.(newValue)
+  }
 
   return (
-    <TabContext.Provider value={{ value, onValueChange }}>
-      <div className={cn('w-full', className)}>{children}</div>
-    </TabContext.Provider>
-  )
-}
-
-interface TabsListProps {
-  children: React.ReactNode
-  className?: string
-}
-
-export function TabsList({ children, className }: TabsListProps) {
-  return (
-    <div 
-      className={cn(
-        'inline-flex h-10 items-center justify-center rounded-lg bg-gray-100 p-1',
-        className
-      )}
+    <div
+      className={cn('flex flex-col gap-2', className)}
+      {...props}
+      data-value={value}
     >
-      {children}
+      {React.Children.map(children, child => {
+        if (React.isValidElement(child)) {
+          return React.cloneElement(child as React.ReactElement, {
+            value,
+            onValueChange: handleValueChange,
+          })
+        }
+        return child
+      })}
     </div>
   )
 }
 
-interface TabsTriggerProps {
-  value: string
-  children: React.ReactNode
-  className?: string
+export interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> {
+  value?: string
+  onValueChange?: (value: string) => void
 }
 
-export function TabsTrigger({ value, children, className }: TabsTriggerProps) {
-  // Get the active tab value from context
-  const TabContext = React.createContext<{
-    value: string
-    onValueChange: (value: string) => void
-  }>({
-    value: '',
-    onValueChange: () => {}
-  })
+export function TabsList({
+  value,
+  onValueChange,
+  children,
+  className,
+  ...props
+}: TabsListProps) {
+  return (
+    <div 
+      role="tablist" 
+      className={cn(
+        'flex items-center w-max p-1 bg-neutral-100 rounded-lg',
+        className
+      )}
+      {...props}
+    >
+      {React.Children.map(children, child => {
+        if (React.isValidElement(child)) {
+          return React.cloneElement(child as React.ReactElement, {
+            value,
+            onValueChange,
+          })
+        }
+        return child
+      })}
+    </div>
+  )
+}
 
-  const { value: activeValue, onValueChange } = React.useContext(TabContext)
-  const isActive = activeValue === value
+export interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  value: string
+  parentValue?: string
+  onValueChange?: (value: string) => void
+}
+
+export function TabsTrigger({
+  value,
+  parentValue,
+  onValueChange,
+  children,
+  className,
+  ...props
+}: TabsTriggerProps) {
+  const isActive = parentValue === value
+  
+  const handleClick = () => {
+    onValueChange?.(value)
+  }
 
   return (
     <button
+      role="tab"
+      type="button"
+      aria-selected={isActive}
+      data-state={isActive ? 'active' : 'inactive'}
       className={cn(
-        'relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all',
+        'inline-flex items-center justify-center px-3.5 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-all',
         isActive
-          ? 'text-gray-900'
-          : 'text-gray-500 hover:text-gray-900',
+          ? 'bg-white text-neutral-900 shadow'
+          : 'text-neutral-600 hover:text-neutral-900',
         className
       )}
-      onClick={() => onValueChange(value)}
+      onClick={handleClick}
+      {...props}
     >
-      {isActive && (
-        <motion.span
-          layoutId="activeTab"
-          className="absolute inset-0 z-10 bg-white rounded-md shadow-sm"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            type: 'spring',
-            stiffness: 500,
-            damping: 30
-          }}
-        />
-      )}
-      <span className="relative z-20">{children}</span>
+      {children}
     </button>
   )
 }
 
-interface TabsContentProps {
+export interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
   value: string
-  children: React.ReactNode
-  className?: string
+  parentValue?: string
 }
 
-export function TabsContent({ value, children, className }: TabsContentProps) {
-  // Get the active tab value from context
-  const TabContext = React.createContext<{
-    value: string
-    onValueChange: (value: string) => void
-  }>({
-    value: '',
-    onValueChange: () => {}
-  })
+export function TabsContent({
+  value,
+  parentValue,
+  children,
+  className,
+  ...props
+}: TabsContentProps) {
+  const isActive = parentValue === value
 
-  const { value: activeValue } = React.useContext(TabContext)
-  const isActive = activeValue === value
+  if (!isActive) return null
 
-  // Define animation variants for entering and exiting
-  const variants = {
-    enter: {
-      opacity: 1,
-      y: 0,
-      display: 'block',
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 1, 0.5, 1] // ease-out-quart
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: 10,
-      transition: {
-        duration: 0.2
-      },
-      transitionEnd: {
-        display: 'none'
-      }
-    }
-  }
-
-  // Fix context issues in this example by manually checking if active
   return (
-    <motion.div
-      className={cn('mt-2', className)}
-      variants={variants}
-      animate={isActive ? 'enter' : 'exit'}
-      initial="exit"
+    <div
+      role="tabpanel"
+      data-state={isActive ? 'active' : 'inactive'}
+      className={cn(className)}
+      {...props}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
