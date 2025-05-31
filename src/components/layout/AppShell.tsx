@@ -23,11 +23,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Bar - Fixed across all screen sizes */}
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <div className="lg:hidden">
+      <div className="fixed top-0 left-0 right-0 z-50 h-16">
+        <div className="lg:hidden h-full">
           <TopBar onMenuClick={handleMenuToggle} mobile={true} />
         </div>
-        <div className="hidden lg:block">
+        <div className="hidden lg:block h-full">
           <TopBar onMenuClick={handleMenuToggle} mobile={false} />
         </div>
       </div>
@@ -37,7 +37,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         {/* Desktop Layout */}
         <div className="hidden lg:block">
           {/* Fixed Sidebar for Desktop */}
-          <div className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] overflow-hidden z-40">
+          <div className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] overflow-hidden z-40 border-t-0">
             <Sidebar isOpen={true} onClose={() => {}} />
           </div>
           

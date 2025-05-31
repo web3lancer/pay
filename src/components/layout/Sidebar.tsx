@@ -35,12 +35,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       
       {/* Sidebar */}
       <div className={cn(
-        'fixed top-16 left-0 z-50 h-full w-64 bg-white border-r border-neutral-200 transform transition-transform duration-300 ease-in-out',
-        'lg:translate-x-0 lg:static lg:inset-0',
+        'bg-white border-r border-neutral-200 h-full w-full',
+        // Mobile styles - only show on mobile when open
+        'lg:hidden fixed top-0 left-0 z-50 h-[100vh] w-64 transform transition-transform duration-300 ease-in-out',
         {
           'translate-x-0': isOpen,
           '-translate-x-full': !isOpen,
-        }
+        },
+        // Desktop styles - simple relative positioning since AppShell handles fixed
+        'lg:block lg:relative lg:h-full lg:w-full lg:transform-none lg:transition-none'
       )}>
         <div className="flex flex-col h-full">
           <nav className="flex-1 px-4 py-6 space-y-2">
