@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { DatabaseService, Wallet } from '@/lib/database'
 import { useAuth } from './AuthContext'
@@ -69,11 +71,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       const isFirstWallet = wallets.length === 0
 
       const newWallet = await DatabaseService.createWallet({
-        userId: user.$id,
-        ...walletData,
-        isDefault: isFirstWallet,
-        isActive: true,
-        balance: 0
+          userId: user.$id,
+          ...walletData,
+          isDefault: isFirstWallet,
+          isActive: true,
+          balance: 0,
+          name: '',
+          address: ''
       })
 
       // Log security event

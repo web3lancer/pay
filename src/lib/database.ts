@@ -23,12 +23,14 @@ export interface UserProfile {
 export interface Wallet {
   walletId: string
   userId: string
-  walletName: string
+  name: string // Using 'name' for consistency with UI components
+  walletName: string // Database field name
   walletType: 'hot' | 'cold' | 'hardware' | 'imported'
   blockchain: string
   publicKey: string
   encryptedPrivateKey?: string
-  walletAddress: string
+  address: string // Using 'address' for consistency with UI
+  walletAddress: string // Database field name
   derivationPath?: string
   isDefault: boolean
   isActive: boolean
@@ -76,6 +78,7 @@ export interface Transaction {
   confirmations: number
   createdAt: string
   confirmedAt?: string
+  timestamp?: string // For backwards compatibility
 }
 
 export interface PaymentRequest {
@@ -204,11 +207,17 @@ export class DatabaseService {
       walletId,
       {
         ...walletData,
+        walletName: walletData.name, // Map name to walletName for database
+        walletAddress: walletData.address, // Map address to walletAddress for database
         walletId,
         createdAt: new Date().toISOString(),
       }
     )
-    return document as unknown as Wallet
+    const wallet = document as unknown as Wallet
+    // Map database fields back to interface fields
+    wallet.name = wallet.walletName
+    wallet.address = wallet.walletAddress
+    return wallet
   }
 
   static async getUserWallets(userId: string): Promise<Wallet[]> {
@@ -221,7 +230,13 @@ export class DatabaseService {
         Query.orderDesc('createdAt')
       ]
     )
-    return response.documents as unknown as Wallet[]
+    const wallets = response.documents as unknown as Wallet[]
+    // Map database fields to interface fields
+    return wallets.map(wallet => ({
+      ...wallet,
+      name: wallet.walletName || wallet.name,
+      address: wallet.walletAddress || wallet.address
+    }))
   }
 
   static async getWallet(walletId: string): Promise<Wallet> {
@@ -381,10 +396,7 @@ export class DatabaseService {
       DATABASE_ID,
       COLLECTION_IDS.PAYMENT_REQUESTS,
       requestId,
-      {
-        ...updates,
-        updatedAt: new Date().toISOString()
-      }
+      updates
     )
   }
 
