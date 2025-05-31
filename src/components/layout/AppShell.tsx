@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
@@ -11,16 +10,8 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const { isAuthenticated, isLoading } = useAuth()
-  const router = useRouter()
+  const { isLoading } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  // Check authentication status
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login')
-    }
-  }, [isAuthenticated, isLoading, router])
 
   // If still loading, show a loading spinner
   if (isLoading) {
@@ -29,11 +20,6 @@ export function AppShell({ children }: AppShellProps) {
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary-500 border-t-transparent"></div>
       </div>
     )
-  }
-
-  // If not authenticated, don't render anything (will redirect)
-  if (!isAuthenticated) {
-    return null
   }
 
   return (
