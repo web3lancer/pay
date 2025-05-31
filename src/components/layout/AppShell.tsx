@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
+import { BottomNavigation } from './BottomNavigation'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -43,9 +44,12 @@ export function AppShell({ children }: AppShellProps) {
           onMenuClick={() => setMobileMenuOpen(true)}
           mobile 
         />
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
+        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 pb-20">
           {children}
         </main>
+        
+        {/* Mobile Bottom Navigation */}
+        <BottomNavigation />
       </div>
     </div>
   )
