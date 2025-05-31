@@ -136,3 +136,23 @@ export const formatLargeNumber = (num: number): string => {
   if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
   return num.toString();
 };
+
+export const truncateString = (str: string, startChars: number = 6, endChars: number = 4): string => {
+  if (str.length <= startChars + endChars) {
+    return str;
+  }
+  return `${str.slice(0, startChars)}...${str.slice(-endChars)}`;
+};
+
+export const formatCryptoAmount = (amount: number, symbol: string): string => {
+  // Format crypto amounts with appropriate decimal places
+  let decimals = 8; // Default for most cryptocurrencies
+  
+  // Adjust decimals based on symbol
+  if (symbol === 'BTC') decimals = 8;
+  else if (symbol === 'ETH') decimals = 6;
+  else if (symbol === 'USDC' || symbol === 'USDT') decimals = 2;
+  
+  const formattedAmount = amount.toFixed(decimals).replace(/\.?0+$/, '');
+  return `${formattedAmount} ${symbol}`;
+};
