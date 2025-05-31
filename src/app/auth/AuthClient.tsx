@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiLoader, FiShield, FiSmartphone, FiGithub } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
@@ -14,7 +14,7 @@ interface AuthClientProps {
 
 type AuthMethod = 'email_password' | 'magic_url' | 'email_otp' | 'phone_otp'
 
-export function AuthClient({ mode }: AuthClientProps) {
+function AuthClientContent({ mode }: AuthClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { 
@@ -539,5 +539,17 @@ export function AuthClient({ mode }: AuthClientProps) {
         </motion.div>
       </div>
     </div>
+  )
+}
+
+export function AuthClient({ mode }: AuthClientProps) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      </div>
+    }>
+      <AuthClientContent mode={mode} />
+    </Suspense>
   )
 }
