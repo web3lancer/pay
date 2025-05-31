@@ -173,7 +173,7 @@ export function WalletsClient() {
                     <h2 className="text-xl font-semibold text-neutral-900">{selectedWallet.name}</h2>
                     <div className="flex items-center mt-1">
                       <p className="text-sm text-neutral-500">{selectedWallet.address}</p>
-                      <button className="ml-2 text-primary-500 text-sm hover:text-primary-600">
+                      <button className="ml-2 text-cyan-500 text-sm hover:text-cyan-600">
                         Copy
                       </button>
                     </div>
@@ -201,11 +201,11 @@ export function WalletsClient() {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-4 mb-8">
-                  <button className="flex-1 flex items-center justify-center py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors">
+                  <button className="flex-1 flex items-center justify-center py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors">
                     <span className="mr-2">📤</span>
                     Send
                   </button>
-                  <button className="flex-1 flex items-center justify-center py-3 bg-white border border-primary-500 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                  <button className="flex-1 flex items-center justify-center py-3 bg-white border border-cyan-500 text-cyan-500 hover:bg-cyan-50 rounded-lg transition-colors">
                     <span className="mr-2">📥</span>
                     Receive
                   </button>
@@ -219,7 +219,7 @@ export function WalletsClient() {
                 <div>
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-medium text-neutral-800">Recent Transactions</h3>
-                    <button className="text-primary-500 text-sm hover:text-primary-600 transition-colors">
+                    <button className="text-cyan-500 text-sm hover:text-cyan-600 transition-colors">
                       View All
                     </button>
                   </div>
