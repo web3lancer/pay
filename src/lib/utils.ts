@@ -440,33 +440,6 @@ export const truncateString = (str: string, startChars: number = 6, endChars: nu
   return `${str.slice(0, startChars)}...${str.slice(-endChars)}`;
 };
 
-export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
-
-export const formatCryptoAmount = (amount: number, symbol: string): string => {
-  // Format crypto amounts with appropriate decimal places
-  let decimals = 8; // Default for most cryptocurrencies
-  
-  // Adjust decimals based on symbol
-  if (symbol === 'BTC') decimals = 8;
-  else if (symbol === 'ETH') decimals = 6;
-  else if (symbol === 'USDC' || symbol === 'USDT') decimals = 2;
-  
-  const formattedAmount = amount.toFixed(decimals).replace(/\.?0+$/, '');
-  return `${formattedAmount} ${symbol}`;
-};
-
-export const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
 export const validateWalletAddress = (address: string): boolean => {
   // Basic Ethereum address validation
   const ethRegex = /^0x[a-fA-F0-9]{40}$/;
@@ -474,11 +447,6 @@ export const validateWalletAddress = (address: string): boolean => {
   const btcRegex = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$/;
   
   return ethRegex.test(address) || btcRegex.test(address);
-};
-
-export const shortenAddress = (address: string, chars: number = 4): string => {
-  if (!address) return '';
-  return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`;
 };
 
 export const generateTransactionId = (): string => {
