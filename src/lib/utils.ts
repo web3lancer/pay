@@ -510,26 +510,9 @@ export const getTimeAgo = (timestamp: number): string => {
   return `${days}d ago`;
 };
 
-export const copyToClipboard = async (text: string): Promise<boolean> => {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch (err) {
-    console.error('Failed to copy text: ', err);
-    return false;
-  }
-};
-
 export const isValidAmount = (amount: string | number): boolean => {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
   return !isNaN(num) && num > 0;
-};
-
-export const formatLargeNumber = (num: number): string => {
-  if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
-  if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
-  if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
-  return num.toString();
 };
 
 export const getRandomGradient = (): string => {
