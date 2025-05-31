@@ -6,8 +6,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import { motion } from 'framer-motion'
 import { FiCheck, FiX, FiLoader } from 'react-icons/fi'
 import Link from 'next/link'
+import { SearchParamsWrapper } from '@/components/SearchParamsWrapper'
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { verifyEmail } = useAuth()
@@ -116,5 +117,13 @@ export default function VerifyEmailPage() {
         </motion.div>
       </div>
     </div>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <SearchParamsWrapper>
+      <VerifyEmailContent />
+    </SearchParamsWrapper>
   )
 }

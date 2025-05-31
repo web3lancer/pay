@@ -6,8 +6,9 @@ import { motion } from 'framer-motion'
 import { FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
 import { account } from '@/lib/appwrite'
 import Link from 'next/link'
+import { SearchParamsWrapper } from '@/components/SearchParamsWrapper'
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [formData, setFormData] = useState({
@@ -225,5 +226,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </Suspense>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <SearchParamsWrapper>
+      <ResetPasswordContent />
+    </SearchParamsWrapper>
   )
 }
