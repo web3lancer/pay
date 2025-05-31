@@ -1,9 +1,35 @@
 'use client'
 
 import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { FiSend, FiDownload, FiRepeat, FiMoreVertical, FiPlus } from 'react-icons/fi'
-import { truncateString, formatCurrency, formatCryptoAmount } from '@/lib/utils'
+// import { motion } from 'framer-motion'
+// import { FiSend, FiDownload, FiRepeat, FiMoreVertical, FiPlus } from 'react-icons/fi'
+
+// Simplified utility functions
+const truncateString = (str: string, startChars: number = 6, endChars: number = 4): string => {
+  if (str.length <= startChars + endChars) {
+    return str;
+  }
+  return `${str.slice(0, startChars)}...${str.slice(-endChars)}`;
+};
+
+const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
+
+const formatCryptoAmount = (amount: number, symbol: string): string => {
+  let decimals = 8;
+  if (symbol === 'BTC') decimals = 8;
+  else if (symbol === 'ETH') decimals = 6;
+  else if (symbol === 'USDC' || symbol === 'USDT') decimals = 2;
+  
+  const formattedAmount = amount.toFixed(decimals).replace(/\.?0+$/, '');
+  return `${formattedAmount} ${symbol}`;
+};
 
 // Mock data for wallets
 const wallets = [
@@ -64,7 +90,7 @@ export function WalletsClient() {
               <p className="text-sm text-neutral-500">Manage your crypto wallets</p>
             </div>
             <button className="flex items-center px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors">
-              <FiPlus className="mr-2" />
+              <span className="mr-2">+</span>
               Add Wallet
             </button>
           </div>
@@ -76,21 +102,14 @@ export function WalletsClient() {
               <h2 className="text-lg font-medium text-neutral-800">Your Wallets</h2>
               <div className="bg-white rounded-xl shadow-sm border border-neutral-200 divide-y divide-neutral-200">
                 {wallets.map((wallet, index) => (
-                  <motion.div
+                  <div
                     key={wallet.id}
-                    className={`p-4 cursor-pointer ${
+                    className={`p-4 cursor-pointer transition-all duration-300 ${
                       activeWallet === wallet.id 
                         ? 'bg-primary-50 border-l-4 border-primary-500' 
                         : 'hover:bg-neutral-50'
                     }`}
                     onClick={() => handleWalletSelect(wallet.id)}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 0.3,
-                      ease: [0.25, 1, 0.5, 1],
-                      delay: index * 0.1
-                    }}
                   >
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
