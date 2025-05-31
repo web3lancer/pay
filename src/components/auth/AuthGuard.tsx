@@ -20,13 +20,14 @@ export function AuthGuard({
   const pathname = usePathname()
 
   useEffect(() => {
-    // Don't redirect while loading
-    if (isLoading) return
-
-    // For non-protected routes, never redirect for auth
+    // For non-protected routes, NEVER redirect - return immediately
     if (!requireAuth) {
+      console.log('AuthGuard: requireAuth=false, allowing access without redirects')
       return
     }
+
+    // Don't redirect while loading
+    if (isLoading) return
 
     // If auth is required and user is not authenticated (and not a guest), redirect to login
     if (requireAuth && !isAuthenticated && !isGuest) {
@@ -62,13 +63,22 @@ export function AuthGuard({
     )
   }
 
-  // Show children if authenticated (including guests) and no profile completion needed
-  if ((isAuthenticated || isGuest) && !needsProfileCompletion) {
+  // For non-protected routes, ALWAYS show children regardless of auth state
+  if (!requireAuth) {
     return <>{children}</>
   }
 
-  // Show children for non-protected routes
-  if (!requireAuth) {
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  // Show children if authenticated (including guests) and no profile completion needed
+  if ((isAuthenticated || isGuest) && !needsProfileCompletion) {
     return <>{children}</>
   }
 

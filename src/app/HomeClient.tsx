@@ -4,14 +4,17 @@ import { useAuth } from '@/contexts/AuthContext'
 import { motion } from 'framer-motion'
 import { FiUser, FiMail, FiShield, FiLogOut } from 'react-icons/fi'
 import { AppShell } from '@/components/layout/AppShell'
+import { GuestSessionButton } from '@/components/auth/GuestSessionButton'
+import { GuestConversion } from '@/components/auth/GuestConversion'
 
 export function HomeClient() {
-  const { user, isAuthenticated, isLoading, signOut } = useAuth()
+  const { user, isAuthenticated, isGuest, isLoading, signOut } = useAuth()
 
   // Debug logging
   console.log('HomeClient - Auth State:', {
     user,
     isAuthenticated,
+    isGuest,
     isLoading,
     userExists: !!user
   })
@@ -44,9 +47,9 @@ export function HomeClient() {
           <div className="bg-white shadow rounded-lg mb-8">
             <div className="px-6 py-4 border-b border-neutral-200 flex justify-between items-center">
               <h1 className="text-2xl font-bold text-neutral-900">
-                {isAuthenticated ? 'Dashboard' : 'Welcome to LancerPay'}
+                {isAuthenticated && !isGuest ? 'Dashboard' : isGuest ? 'Dashboard (Guest)' : 'Welcome to LancerPay'}
               </h1>
-              {isAuthenticated && (
+              {(isAuthenticated || isGuest) && (
                 <button
                   onClick={handleSignOut}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-neutral-700 bg-neutral-100 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
@@ -60,6 +63,13 @@ export function HomeClient() {
 
           {isAuthenticated && user ? (
             <>
+              {/* Guest Conversion Banner - Show for guest users */}
+              {isGuest && (
+                <div className="mb-8">
+                  <GuestConversion />
+                </div>
+              )}
+
               {/* User Info Card - Only shown when authenticated */}
               <div className="bg-white shadow rounded-lg p-6 mb-8">
                 <h2 className="text-lg font-semibold text-neutral-900 mb-4">Account Information</h2>
@@ -150,6 +160,24 @@ export function HomeClient() {
                   <p className="text-sm text-neutral-600">
                     Fast and reliable cross-border transactions
                   </p>
+                </div>
+              </div>
+
+              {/* Call to Action for non-authenticated users */}
+              <div className="text-center mb-8">
+                <div className="inline-flex gap-4">
+                  <GuestSessionButton 
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    onSuccess={() => window.location.reload()}
+                  >
+                    Try as Guest
+                  </GuestSessionButton>
+                  <a 
+                    href="/auth/login"
+                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    Sign In / Sign Up
+                  </a>
                 </div>
               </div>
             </>
