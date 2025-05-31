@@ -10,95 +10,86 @@ interface AuthGuardProps {
   redirectTo?: string
 }
 
-export function AuthGuard({ 
-  children, 
-  requireAuth = true, 
-  redirectTo = '/auth/login' 
+export function AuthGuard({
+  children,
+  requireAuth = true,
+  redirectTo = '/auth/login'
 }: AuthGuardProps) {
-  const { user, isLoading, isAuthenticated, isGuest, needsProfileCompletion } = useAuth()
-  const router = useRouter()
-  const pathname = usePathname()
+  const { isLoading, isAuthenticated, isGuest, needsProfileCompletion } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
 
+  // Effect for handling redirects ONLY on protected routes
   useEffect(() => {
-    // For non-protected routes, NEVER redirect - return immediately
+    // If authentication is NOT required for this route, DO NOTHING.
     if (!requireAuth) {
-      console.log('AuthGuard: requireAuth=false, allowing access without redirects')
-      return
+      return;
     }
 
-    // Don't redirect while loading
-    if (isLoading) return
-
-    // If auth is required and user is not authenticated (and not a guest), redirect to login
-    if (requireAuth && !isAuthenticated && !isGuest) {
-      console.log('Auth required but user not authenticated, redirecting to login')
-      router.push(redirectTo)
-      return
+    // For protected routes (requireAuth = true):
+    if (isLoading) {
+      return; // Wait for auth state to resolve before making redirect decisions
     }
 
-    // If user is authenticated (not guest) but needs profile completion
+    // Condition 1: Not authenticated and not a guest -> redirect to login
+    if (!isAuthenticated && !isGuest) {
+      router.push(redirectTo);
+      return;
+    }
+
+    // Condition 2: Authenticated (not guest) but needs profile completion
     if (isAuthenticated && !isGuest && needsProfileCompletion) {
-      // Don't redirect if already on profile completion page
       if (pathname !== '/auth/complete-profile') {
-        console.log('User needs profile completion, redirecting...')
-        router.push('/auth/complete-profile')
-        return
+        router.push('/auth/complete-profile');
+        return;
       }
     }
 
-    // If user has complete profile but is on completion page, redirect to dashboard
+    // Condition 3: Authenticated (not guest), profile complete, but on /auth/complete-profile page
     if (isAuthenticated && !isGuest && !needsProfileCompletion && pathname === '/auth/complete-profile') {
-      console.log('Profile already complete, redirecting to dashboard...')
-      router.push('/dashboard')
-      return
+      router.push('/'); // Redirect to homepage (or a specific dashboard route if preferred)
+      return;
     }
-  }, [isLoading, isAuthenticated, isGuest, needsProfileCompletion, pathname, router, requireAuth, redirectTo])
+  }, [isLoading, isAuthenticated, isGuest, needsProfileCompletion, pathname, router, requireAuth, redirectTo]);
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
+  // --- Rendering Logic ---
 
-  // For non-protected routes, ALWAYS show children regardless of auth state
+  // Priority 1: If authentication is NOT required, render children immediately.
   if (!requireAuth) {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
-  // Show loading spinner while checking authentication
+  // From this point, requireAuth IS TRUE.
+
+  // Priority 2: If loading auth state for a protected route, show a loading spinner.
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
-    )
+    );
   }
 
-  // Show children if authenticated (including guests) and no profile completion needed
-  if ((isAuthenticated || isGuest) && !needsProfileCompletion) {
-    return <>{children}</>
+  // Priority 3: Conditions for rendering children on a protected route.
+  // Render children if:
+  // 1. User is a guest (guests bypass profile completion for this guard's purpose).
+  // 2. User is authenticated, not a guest, and profile is complete.
+  // 3. User is authenticated, not a guest, needs profile completion, BUT IS ALREADY ON THE PROFILE COMPLETION PAGE.
+  if (isGuest || 
+      (isAuthenticated && !isGuest && !needsProfileCompletion) || 
+      (isAuthenticated && !isGuest && needsProfileCompletion && pathname === '/auth/complete-profile')) {
+    return <>{children}</>;
   }
 
-  // Allow guests to access the app even if auth is required
-  if (isGuest) {
-    return <>{children}</>
-  }
-
-  // Show profile completion if needed (authenticated users only, not guests)
-  if (isAuthenticated && !isGuest && needsProfileCompletion && pathname === '/auth/complete-profile') {
-    return <>{children}</>
-  }
-
-  // Show loading while redirecting
+  // Fallback for protected routes: If none of the above conditions to render children are met,
+  // it implies a redirect is or should be happening via useEffect.
+  // Show a loading spinner while the redirect takes effect.
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Redirecting...</p>
+        <p className="text-gray-600">Loading...</p>
       </div>
     </div>
-  )
+  );
 }
