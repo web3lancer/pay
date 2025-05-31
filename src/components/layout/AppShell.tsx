@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { BottomNavigation } from './BottomNavigation'
+import { FiHome, FiSend, FiCreditCard, FiTrendingUp, FiSettings, FiCamera } from 'react-icons/fi'
 
 interface AppShellProps {
   children: React.ReactNode

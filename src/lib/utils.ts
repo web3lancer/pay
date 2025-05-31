@@ -58,39 +58,227 @@ export function formatRelativeTime(date: Date): string {
 /**
  * Format currency values with proper decimal places
  */
-export function formatCurrency(
-  amount: number,
-  currency = 'USD',
-  locale = 'en-US'
-): string {
-  return new Intl.NumberFormat(locale, {
+export function formatCurrency(amount: number | string, currency: string = 'USD'): string {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount
+  
+  if (isNaN(num)) return '$0.00'
+  
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency
-  }).format(amount)
+    currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(num)
 }
 
 /**
  * Format crypto amounts with appropriate decimal places
  */
-export function formatCryptoAmount(
-  amount: number,
-  symbol: string,
-  significantDigits = 6
-): string {
-  // Different symbols may have different decimal place conventions
-  const decimalPlaces: { [key: string]: number } = {
-    'BTC': 8,
-    'ETH': 6,
-    'USDC': 2,
-    'USDT': 2,
-    'SOL': 4,
-    'DOT': 4
+export function formatCryptoAmount(amount: number | string, symbol: string, decimals: number = 8): string {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount
+  
+  if (isNaN(num)) return '0'
+  
+  // Format based on the amount size
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(2)}M ${symbol}`
+  } else if (num >= 1000) {
+    return `${(num / 1000).toFixed(2)}K ${symbol}`
+  } else if (num >= 1) {
+    return `${num.toFixed(4)} ${symbol}`
+  } else {
+    return `${num.toFixed(decimals)} ${symbol}`
+  }
+}
+
+/**
+ * Format address with truncation
+ */
+export function formatAddress(address: string, startLength: number = 6, endLength: number = 4): string {
+  if (!address || address.length < startLength + endLength) return address
+  
+  return `${address.slice(0, startLength)}...${address.slice(-endLength)}`
+}
+
+/**
+ * Format percentage values
+ */
+export function formatPercentage(value: number): string {
+  const sign = value >= 0 ? '+' : ''
+  return `${sign}${value.toFixed(2)}%`
+}
+
+/**
+ * Format time ago
+ */
+export function formatTimeAgo(date: Date): string {
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+  
+  if (diffInSeconds < 60) return 'Just now'
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`
+  
+  return date.toLocaleDateString()
+}
+
+/**
+ * Validation utilities
+ */
+export function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+export function isValidBitcoinAddress(address: string): boolean {
+  // Basic Bitcoin address validation (simplified)
+  const btcRegex = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$/
+  return btcRegex.test(address)
+}
+
+export function isValidEthereumAddress(address: string): boolean {
+  // Basic Ethereum address validation
+  const ethRegex = /^0x[a-fA-F0-9]{40}$/
+  return ethRegex.test(address)
+}
+
+export function getNetworkFromAddress(address: string): string {
+  if (isValidBitcoinAddress(address)) return 'bitcoin'
+  if (isValidEthereumAddress(address)) return 'ethereum'
+  return 'unknown'
+}
+
+/**
+ * Price utilities
+ */
+export function calculatePriceChange(current: number, previous: number): number {
+  if (previous === 0) return 0
+  return ((current - previous) / previous) * 100
+}
+
+export function formatMarketCap(marketCap: number): string {
+  if (marketCap >= 1e12) return `$${(marketCap / 1e12).toFixed(2)}T`
+  if (marketCap >= 1e9) return `$${(marketCap / 1e9).toFixed(2)}B`
+  if (marketCap >= 1e6) return `$${(marketCap / 1e6).toFixed(2)}M`
+  if (marketCap >= 1e3) return `$${(marketCap / 1e3).toFixed(2)}K`
+  return `$${marketCap.toFixed(2)}`
+}
+
+/**
+ * Transaction utilities
+ */
+export function generateTransactionId(): string {
+  return Math.random().toString(36).substr(2, 9) + Date.now().toString(36)
+}
+
+export function getTransactionStatusColor(status: string): string {
+  switch (status.toLowerCase()) {
+    case 'confirmed':
+    case 'completed':
+    case 'success':
+      return 'text-green-600'
+    case 'pending':
+    case 'processing':
+      return 'text-yellow-600'
+    case 'failed':
+    case 'error':
+    case 'cancelled':
+      return 'text-red-600'
+    default:
+      return 'text-neutral-600'
+  }
+}
+
+export function getTransactionStatusBg(status: string): string {
+  switch (status.toLowerCase()) {
+    case 'confirmed':
+    case 'completed':
+    case 'success':
+      return 'bg-green-100'
+    case 'pending':
+    case 'processing':
+      return 'bg-yellow-100'
+    case 'failed':
+    case 'error':
+    case 'cancelled':
+      return 'bg-red-100'
+    default:
+      return 'bg-neutral-100'
+  }
+}
+
+/**
+ * Storage utilities
+ */
+export function setLocalStorage(key: string, value: any): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch (error) {
+    console.error('Error saving to localStorage:', error)
+  }
+}
+
+export function getLocalStorage<T>(key: string, defaultValue?: T): T | null {
+  try {
+    const item = localStorage.getItem(key)
+    return item ? JSON.parse(item) : defaultValue || null
+  } catch (error) {
+    console.error('Error reading from localStorage:', error)
+    return defaultValue || null
+  }
+}
+
+export function removeLocalStorage(key: string): void {
+  try {
+    localStorage.removeItem(key)
+  } catch (error) {
+    console.error('Error removing from localStorage:', error)
+  }
+}
+
+/**
+ * Clipboard utilities
+ */
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch (error) {
+    console.error('Failed to copy to clipboard:', error)
+    return false
+  }
+}
+
+/**
+ * URL utilities
+ */
+export function generateShareableUrl(username: string, base?: string): string {
+  const baseUrl = base || 'https://pay.web3lancer.website'
+  return `${baseUrl}/pay/${username}`
+}
+
+export function generateQRData(type: 'profile' | 'payment', data: any): string {
+  if (type === 'profile') {
+    return generateShareableUrl(data.username)
   }
   
-  const places = decimalPlaces[symbol] || significantDigits
+  if (type === 'payment') {
+    let qrData = `${data.currency.toLowerCase()}:${data.address}`
+    const params = new URLSearchParams()
+    
+    if (data.amount) params.set('amount', data.amount.toString())
+    if (data.message) params.set('message', data.message)
+    if (data.label) params.set('label', data.label)
+    
+    if (params.toString()) {
+      qrData += `?${params.toString()}`
+    }
+    
+    return qrData
+  }
   
-  // Use toFixed for exact decimal places
-  return `${amount.toFixed(places)} ${symbol}`
+  return data.toString()
 }
 
 /**
