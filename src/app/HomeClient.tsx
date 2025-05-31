@@ -1,25 +1,16 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { FiUser, FiMail, FiShield, FiLogOut } from 'react-icons/fi'
+import { AppShell } from '@/components/layout/AppShell'
 
-export default function DashboardPage() {
+export function HomeClient() {
   const { user, isAuthenticated, isLoading, signOut } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login')
-    }
-  }, [isAuthenticated, isLoading, router])
 
   const handleSignOut = async () => {
     try {
       await signOut()
-      router.push('/auth/login')
     } catch (error) {
       console.error('Sign out failed:', error)
     }
@@ -31,10 +22,6 @@ export default function DashboardPage() {
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
       </div>
     )
-  }
-
-  if (!isAuthenticated || !user) {
-    return null
   }
 
   return (
