@@ -35,14 +35,14 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       {/* Main Layout Container */}
       <div className="pt-16 min-h-screen">
         {/* Desktop Layout */}
-        <div className="hidden lg:flex h-full">
-          {/* Sidebar */}
-          <div className="w-64 flex-shrink-0">
+        <div className="hidden lg:block">
+          {/* Fixed Sidebar for Desktop */}
+          <div className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] overflow-hidden z-40">
             <Sidebar isOpen={true} onClose={() => {}} />
           </div>
           
-          {/* Main Content */}
-          <div className="flex-1 pb-8">
+          {/* Main Content with left margin for sidebar */}
+          <div className="ml-64 pb-8">
             <main>
               {children}
             </main>

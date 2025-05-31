@@ -35,15 +35,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       
       {/* Sidebar */}
       <div className={cn(
-        'bg-white border-r border-neutral-200',
-        // Mobile styles
-        'lg:hidden fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-64 transform transition-transform duration-300 ease-in-out',
+        'fixed top-16 left-0 z-50 h-full w-64 bg-white border-r border-neutral-200 transform transition-transform duration-300 ease-in-out',
+        'lg:translate-x-0 lg:static lg:inset-0',
         {
           'translate-x-0': isOpen,
           '-translate-x-full': !isOpen,
-        },
-        // Desktop styles
-        'lg:block lg:static lg:h-full lg:transform-none lg:transition-none'
+        }
       )}>
         <div className="flex flex-col h-full">
           <nav className="flex-1 px-4 py-6 space-y-2">
