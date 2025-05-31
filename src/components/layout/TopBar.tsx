@@ -66,10 +66,10 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
 
         {mobile && (
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary-500 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">LP</span>
+            <div className="h-8 w-8 rounded-lg bg-cyan-500 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">W3</span>
             </div>
-            <span className="font-semibold text-neutral-900">LancerPay</span>
+            <span className="font-semibold text-neutral-900">Web3Lancer Pay</span>
           </div>
         )}
 
@@ -82,7 +82,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             <input
               type="text"
               placeholder="Search transactions, addresses..."
-              className="w-96 pl-10 pr-4 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+              className="w-96 pl-10 pr-4 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-200"
             />
           </div>
         )}
@@ -91,29 +91,15 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
       {/* Center Section - Logo for desktop */}
       {!mobile && (
         <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-primary-500 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">LP</span>
+          <div className="h-8 w-8 rounded-lg bg-cyan-500 flex items-center justify-center">
+            <span className="text-white font-bold text-sm">W3</span>
           </div>
-          <span className="font-semibold text-neutral-900">LancerPay</span>
+          <span className="font-semibold text-neutral-900">Web3Lancer Pay</span>
         </div>
       )}
 
       {/* Right Section */}
       <div className="flex items-center gap-3">
-        {/* Quick Actions - Desktop */}
-        {!mobile && (
-          <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" icon={<FiPlus className="h-4 w-4" />}>
-              Add Wallet
-            </Button>
-            <Link href="/send">
-              <Button size="sm" icon={<FiSend className="h-4 w-4" />}>
-                Send
-              </Button>
-            </Link>
-          </div>
-        )}
-
         {/* Notifications */}
         <button className="relative p-2 text-neutral-600 hover:text-neutral-900 transition-colors">
           <FiBell className="h-5 w-5" />
@@ -128,7 +114,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
           >
-            <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center">
               {isAuthenticated && user?.prefs?.profileImage ? (
                 <img 
                   src={user.prefs.profileImage} 
@@ -136,7 +122,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                   className="h-8 w-8 rounded-full object-cover" 
                 />
               ) : (
-                <FiUser className="h-4 w-4 text-primary-600" />
+                <FiUser className="h-4 w-4 text-cyan-600" />
               )}
             </div>
             {!mobile && (
@@ -203,7 +189,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                 <>
                   {/* Unauthenticated User Header */}
                   <div className="px-4 py-3 border-b border-neutral-200">
-                    <p className="text-sm font-medium text-neutral-900">Welcome to LancerPay</p>
+                    <p className="text-sm font-medium text-neutral-900">Welcome to Web3Lancer Pay</p>
                     <p className="text-xs text-neutral-500">Sign in to access your account</p>
                   </div>
                   
