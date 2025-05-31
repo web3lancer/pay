@@ -4,6 +4,7 @@ import { Providers } from '@/components/providers'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { WalletProvider } from '@/contexts/WalletContext'
 import { TransactionProvider } from '@/contexts/TransactionContext'
+import { PaymentRequestProvider } from '@/contexts/PaymentRequestContext'
 
 export const metadata: Metadata = {
   title: 'Pay by Web3Lancer',
@@ -21,9 +22,11 @@ export default function RootLayout({
         <AuthProvider>
           <WalletProvider>
             <TransactionProvider>
-              <Providers>
-                {children}
-              </Providers>
+              <PaymentRequestProvider>
+                <Providers>
+                  {children}
+                </Providers>
+              </PaymentRequestProvider>
             </TransactionProvider>
           </WalletProvider>
         </AuthProvider>

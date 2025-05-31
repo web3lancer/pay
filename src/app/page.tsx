@@ -1,117 +1,36 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useWallet } from '@/contexts/WalletContext'
 import { useTransaction } from '@/contexts/TransactionContext'
-import { DatabaseService, Transaction } from '@/lib/database'
+import { usePaymentRequest } from '@/contexts/PaymentRequestContext'
+import { AppShell } from '@/components/AppShell'
+import { FiSend, FiPlus, FiArrowRight, FiTrendingUp, FiRefreshCw, FiCheck, FiCode } from 'react-icons/fi'
 import Link from 'next/link'
 
-interface WalletSummary {
-  blockchain: string
-  symbol: string
-  balance: number
-  usdValue: number
-  icon: string
-}
-
-export default function DashboardPage() {
-  const { user, userProfile, isLoading: authLoading, refreshProfile } = useAuth()
-  const { wallets, defaultWallet, isLoading: walletsLoading, refreshWallets } = useWallet()
-  const { transactions, isLoading: transactionsLoading } = useTransaction()
+export default function Dashboard() {
+  const { user, userProfile } = useAuth()
+  const { wallets, defaultWallet, isLoading: walletsLoading } = useWallet()
+  const { transactions } = useTransaction()
+  const { paymentRequests, getActiveRequests, getPaidRequests } = usePaymentRequest()
   const [totalBalance, setTotalBalance] = useState(0)
-  const [walletSummaries, setWalletSummaries] = useState<WalletSummary[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [balanceVisible, setBalanceVisible] = useState(true)
 
+  // Calculate total balance
   useEffect(() => {
-    if (user && userProfile && !walletsLoading) {
-      loadDashboardData()
-    }
-  }, [user, userProfile, wallets, walletsLoading])
+    const total = wallets.reduce((sum, wallet) => {
+      return sum + parseFloat(wallet.balance?.toString() || '0')
+    }, 0)
+    setTotalBalance(total)
+  }, [wallets])
 
-  const loadDashboardData = async () => {
-    if (!user) return
-    
-    setIsLoading(true)
-    try {
-      // Use wallets from context instead of fetching again
-      if (wallets.length > 0) {
-        // Calculate wallet summaries and total balance
-        let total = 0
-        const summaries: WalletSummary[] = []
-        
-        for (const wallet of wallets) {
-          const icon = getBlockchainIcon(wallet.blockchain)
-          const symbol = getBlockchainSymbol(wallet.blockchain)
-          
-          // For demo, using wallet.balance * mock price
-          const mockPrice = getMockPrice(wallet.blockchain)
-          const usdValue = wallet.balance * mockPrice
-          total += usdValue
-          
-          summaries.push({
-            blockchain: wallet.blockchain,
-            symbol,
-            balance: wallet.balance,
-            usdValue,
-            icon
-          })
-        }
-        
-        setTotalBalance(total)
-        setWalletSummaries(summaries)
-      }
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const getBlockchainIcon = (blockchain: string) => {
-    const icons: Record<string, string> = {
-      bitcoin: '₿',
-      ethereum: 'Ξ',
-      polygon: '⬟',
-      bsc: '🟡'
-    }
-    return icons[blockchain] || '🪙'
-  }
-
-  const getBlockchainSymbol = (blockchain: string) => {
-    const symbols: Record<string, string> = {
-      bitcoin: 'BTC',
-      ethereum: 'ETH',
-      polygon: 'MATIC',
-      bsc: 'BNB'
-    }
-    return symbols[blockchain] || blockchain.toUpperCase()
-  }
-
-  const getMockPrice = (blockchain: string) => {
-    const prices: Record<string, number> = {
-      bitcoin: 45000,
-      ethereum: 2500,
-      polygon: 0.8,
-      bsc: 300
-    }
-    return prices[blockchain] || 1
-  }
-
-  if (authLoading) {
+  if (!user) {
     return (
       <AppShell>
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          <div className="animate-pulse">
-            <div className="h-8 bg-neutral-200 rounded w-64 mb-4"></div>
-            <div className="h-4 bg-neutral-200 rounded w-96 mb-8"></div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-neutral-200 rounded-xl"></div>
-              ))}
-            </div>
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-neutral-900 mb-4">Welcome to Web3 Pay</h1>
+            <p className="text-neutral-600 mb-8">Please sign in to access your dashboard</p>
           </div>
         </div>
       </AppShell>
@@ -120,155 +39,215 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        {/* Dashboard Header */}
+      <div className="container mx-auto px-4 py-6">
+        {/* Welcome Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-neutral-900">
-            Welcome back{userProfile?.displayName ? `, ${userProfile.displayName}` : ''}!
+          <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+            Welcome back, {userProfile?.fullName || user.name || 'User'}!
           </h1>
-          <p className="text-neutral-700 mt-1">
-            Your crypto dashboard is ready.
-            {userProfile?.kycStatus === 'pending' && (
-              <span className="ml-2 text-amber-600 font-medium">
-                ⚠️ KYC verification pending
-              </span>
-            )}
-            {userProfile?.kycStatus === 'verified' && (
-              <span className="ml-2 text-green-600 font-medium">
-                ✅ KYC verified
-              </span>
-            )}
+          <p className="text-neutral-600">
+            Manage your crypto wallets and transactions
           </p>
-          {userProfile && (
-            <div className="mt-2 text-sm text-neutral-600">
-              Account: {userProfile.email} • 
-              Username: @{userProfile.username} • 
-              {userProfile.twoFactorEnabled ? (
-                <span className="text-green-600">🔒 2FA Enabled</span>
-              ) : (
-                <span className="text-amber-600">🔓 2FA Disabled</span>
-              )}
-            </div>
-          )}
         </div>
 
-        {/* Quick Action Widgets */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Link href="/send" className="bg-white p-6 rounded-xl shadow-sm border border-neutral-200 hover:border-cyan-500 hover:shadow-md transition-all group">
-            <div className="w-12 h-12 rounded-full bg-cyan-100 flex items-center justify-center mb-4 group-hover:bg-cyan-200 transition-colors">
-              <span className="text-2xl">📤</span>
-            </div>
-            <h3 className="text-lg font-medium text-neutral-900">Send</h3>
-            <p className="mt-1 text-sm text-neutral-600">Send crypto to anyone, anywhere.</p>
-          </Link>
-
-          <Link href="/requests" className="bg-white p-6 rounded-xl shadow-sm border border-neutral-200 hover:border-cyan-500 hover:shadow-md transition-all group">
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
-              <span className="text-2xl">📥</span>
-            </div>
-            <h3 className="text-lg font-medium text-neutral-900">Receive</h3>
-            <p className="mt-1 text-sm text-neutral-600">Request and receive payments.</p>
-          </Link>
-
-          <Link href="/exchange" className="bg-white p-6 rounded-xl shadow-sm border border-neutral-200 hover:border-cyan-500 hover:shadow-md transition-all group">
-            <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mb-4 group-hover:bg-purple-200 transition-colors">
-              <span className="text-2xl">🔄</span>
-            </div>
-            <h3 className="text-lg font-medium text-neutral-900">Exchange</h3>
-            <p className="mt-1 text-sm text-neutral-600">Swap between cryptocurrencies.</p>
-          </Link>
-
-          <Link href="/scan" className="bg-white p-6 rounded-xl shadow-sm border border-neutral-200 hover:border-cyan-500 hover:shadow-md transition-all group">
-            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4 group-hover:bg-green-200 transition-colors">
-              <span className="text-2xl">📷</span>
-            </div>
-            <h3 className="text-lg font-medium text-neutral-900">Scan</h3>
-            <p className="mt-1 text-sm text-neutral-600">Scan QR codes to pay quickly.</p>
-          </Link>
-        </div>
-
-        {/* Balance Summary */}
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mb-8">
-          <h2 className="text-xl font-semibold text-neutral-900 mb-4">Your Balances</h2>
+        {/* Balance Overview */}
+        <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-neutral-600">Total Balance</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-1">$12,345.67</p>
-              <div className="flex items-center mt-1 text-green-600">
-                <span className="text-sm font-medium">↑ 3.2%</span>
-                <span className="text-xs text-neutral-500 ml-2">past 24h</span>
-              </div>
+              <p className="text-cyan-100 mb-2">Total Portfolio Balance</p>
+              <h2 className="text-4xl font-bold">
+                ${totalBalance.toFixed(2)}
+              </h2>
+              <p className="text-cyan-100 mt-2">
+                {wallets.length} {wallets.length === 1 ? 'Wallet' : 'Wallets'}
+              </p>
             </div>
-            
-            <div className="flex space-x-3">
-              <Link 
-                href="/wallets" 
-                className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors"
+            <div className="text-right">
+              <button
+                onClick={() => window.location.reload()}
+                className="p-3 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
               >
-                View Wallets
-              </Link>
-            </div>
-          </div>
-          
-          {/* Quick wallet summary */}
-          <div className="mt-6 space-y-3">
-            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-              <div className="flex items-center">
-                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-                  <span className="text-amber-600">₿</span>
-                </div>
-                <div className="ml-3">
-                  <p className="font-medium text-neutral-900">Bitcoin</p>
-                  <p className="text-xs text-neutral-500">0.45 BTC</p>
-                </div>
-              </div>
-              <p className="font-medium text-neutral-900">$10,245.00</p>
-            </div>
-            
-            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-              <div className="flex items-center">
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="text-blue-600">Ξ</span>
-                </div>
-                <div className="ml-3">
-                  <p className="font-medium text-neutral-900">Ethereum</p>
-                  <p className="text-xs text-neutral-500">1.23 ETH</p>
-                </div>
-              </div>
-              <p className="font-medium text-neutral-900">$2,100.67</p>
+                <FiRefreshCw className="w-6 h-6" />
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Quick Actions */}
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <Link
+            href="/send"
+            className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-xl p-6 hover:from-cyan-600 hover:to-blue-700 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <FiSend className="w-8 h-8" />
+              <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Send Money</h3>
+            <p className="text-cyan-100">Send crypto to any wallet address</p>
+          </Link>
+
+          <Link
+            href="/requests/create"
+            className="bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-xl p-6 hover:from-purple-600 hover:to-pink-700 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <FiCode className="w-8 h-8" />
+              <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Request Payment</h3>
+            <p className="text-purple-100">Create invoices and payment requests</p>
+          </Link>
+
+          <Link
+            href="/wallets/create"
+            className="bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl p-6 hover:from-green-600 hover:to-emerald-700 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <FiPlus className="w-8 h-8" />
+              <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Add Wallet</h3>
+            <p className="text-green-100">Create or import a new wallet</p>
+          </Link>
+        </div>
+
+        {/* Stats */}
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-neutral-900">Active Requests</h3>
+              <FiCode className="w-6 h-6 text-yellow-500" />
+            </div>
+            <div className="text-3xl font-bold text-neutral-900 mb-2">
+              {getActiveRequests().length}
+            </div>
+            <Link
+              href="/requests"
+              className="text-cyan-600 hover:text-cyan-700 text-sm font-medium"
+            >
+              View all requests
+            </Link>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-neutral-900">Paid Requests</h3>
+              <FiCheck className="w-6 h-6 text-green-500" />
+            </div>
+            <div className="text-3xl font-bold text-neutral-900 mb-2">
+              {getPaidRequests().length}
+            </div>
+            <p className="text-neutral-500 text-sm">This month</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-neutral-900">Total Transactions</h3>
+              <FiTrendingUp className="w-6 h-6 text-blue-500" />
+            </div>
+            <div className="text-3xl font-bold text-neutral-900 mb-2">
+              {transactions.length}
+            </div>
+            <Link
+              href="/transactions"
+              className="text-cyan-600 hover:text-cyan-700 text-sm font-medium"
+            >
+              View history
+            </Link>
+          </div>
+        </div>
+
+        {/* Recent Payment Requests */}
+        {getActiveRequests().length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-neutral-900">Recent Payment Requests</h2>
+              <Link
+                href="/requests"
+                className="text-cyan-600 hover:text-cyan-700 text-sm font-medium"
+              >
+                View All
+              </Link>
+            </div>
+            
+            <div className="space-y-4">
+              {getActiveRequests().slice(0, 3).map((request) => (
+                <div key={request.requestId} className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-full bg-yellow-100">
+                      <FiCode className="w-4 h-4 text-yellow-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-neutral-900">
+                        {request.invoiceNumber}
+                      </div>
+                      <div className="text-sm text-neutral-500">
+                        {request.description || 'Payment request'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-medium text-neutral-900">
+                      {request.amount} {request.tokenId.toUpperCase()}
+                    </div>
+                    <div className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">
+                      pending
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Recent Transactions */}
         <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-neutral-900">Recent Transactions</h2>
-            <Link href="/history" className="text-cyan-500 hover:text-cyan-600 text-sm font-medium">
+            <Link
+              href="/transactions"
+              className="text-cyan-600 hover:text-cyan-700 text-sm font-medium"
+            >
               View All
             </Link>
           </div>
           
-          <div className="space-y-4">
-            {/* Empty state */}
-            <div className="py-12 text-center">
-              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 mb-4">
-                <span className="text-2xl">📊</span>
-              </div>
-              <h3 className="text-lg font-medium text-neutral-900 mb-2">No transactions yet</h3>
-              <p className="text-neutral-600 max-w-sm mx-auto">
-                When you make your first transaction, it will appear here for quick access.
-              </p>
-              <div className="mt-6">
-                <Link 
-                  href="/send" 
-                  className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors"
-                >
-                  Make Your First Transaction
-                </Link>
-              </div>
+          {transactions.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-neutral-500">No transactions yet</p>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              {transactions.slice(0, 5).map((tx) => (
+                <div key={tx.transactionId} className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-full ${tx.type === 'send' ? 'bg-red-100' : 'bg-green-100'}`}>
+                      <FiSend className={`w-4 h-4 ${tx.type === 'send' ? 'text-red-600' : 'text-green-600'}`} />
+                    </div>
+                    <div>
+                      <div className="font-medium text-neutral-900">
+                        {tx.type === 'send' ? 'Sent' : 'Received'}
+                      </div>
+                      <div className="text-sm text-neutral-500">
+                        {tx.description || `${tx.type} transaction`}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`font-medium ${tx.type === 'send' ? 'text-red-600' : 'text-green-600'}`}>
+                      {tx.type === 'send' ? '-' : '+'}{tx.amount} {tx.tokenId.toUpperCase()}
+                    </div>
+                    <div className={`text-xs px-2 py-1 rounded-full ${
+                      tx.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {tx.status}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </AppShell>
