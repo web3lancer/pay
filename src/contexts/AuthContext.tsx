@@ -57,10 +57,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     checkUser()
     
+    // Enhanced OAuth redirect detection
+    const handleOAuthRedirect = async () => {
+      // Check if this is an OAuth redirect by looking for common OAuth parameters
+      const urlParams = new URLSearchParams(window.location.search)
+      const hasOAuthParams = urlParams.has('code') || urlParams.has('state') || 
+                           window.location.hash.includes('access_token') ||
+                           document.referrer.includes('accounts.google.com') ||
+                           document.referrer.includes('github.com')
+      
+      if (hasOAuthParams) {
+        console.log('OAuth redirect detected, checking for session...')
+        // Wait a bit longer for OAuth session to be established
+        setTimeout(() => {
+          checkUser()
+        }, 1500)
+      }
+    }
+    
+    handleOAuthRedirect()
+    
     // Additional check for OAuth redirects with delay
     const timer = setTimeout(() => {
       checkUser()
-    }, 2000)
+    }, 3000)
     
     return () => clearTimeout(timer)
   }, [])
@@ -78,6 +98,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             providerUid: session.providerUid,
             userId: currentUser.$id
           })
+          
+          // For OAuth users, ensure profile exists
+          if (session.provider && session.provider !== 'email') {
+            await ensureOAuthUserProfile(currentUser, session.provider)
+          }
         } catch (sessionError) {
           console.log('Could not get session info:', sessionError)
         }
@@ -93,6 +118,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(false)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const ensureOAuthUserProfile = async (user: Models.User<Models.Preferences>, provider: string) => {
+    try {
+      // Check if profile already exists
+      await databases.getDocument(DATABASE_ID, COLLECTION_IDS.USERS, user.$id)
+    } catch (error) {
+      // Profile doesn't exist, create it for OAuth user
+      console.log('Creating profile for OAuth user')
+      await createUserProfile(user.$id, user.email, user.name)
     }
   }
 
@@ -185,8 +221,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       account.createOAuth2Session(
         OAuthProvider.Google,
-        `${window.location.origin}/`,
-        `${window.location.origin}/auth/login`
+        `${window.location.origin}`, // Success redirect
+        `${window.location.origin}/auth/login` // Failure redirect
       )
     } catch (error) {
       console.error('Google sign in failed:', error)
@@ -197,8 +233,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       account.createOAuth2Session(
         OAuthProvider.Github,
-        `${window.location.origin}/`,
-        `${window.location.origin}/auth/login`
+        `${window.location.origin}`, // Success redirect
+        `${window.location.origin}/auth/login` // Failure redirect
       )
     } catch (error) {
       console.error('GitHub sign in failed:', error)

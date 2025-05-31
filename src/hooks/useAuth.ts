@@ -26,8 +26,8 @@ interface AuthContextType {
   loginWithEmailOTP: (userId: string, otp: string) => Promise<void>
   sendPhoneOTP: (phone: string) => Promise<{ userId: string }>
   loginWithPhoneOTP: (userId: string, otp: string) => Promise<void>
-  signInWithGoogle: () => Promise<void>
-  signInWithGithub: () => Promise<void>
+  signInWithGoogle: () => void
+  signInWithGithub: () => void
   updateEmail: (email: string, password: string) => Promise<void>
   updatePassword: (password: string, oldPassword: string) => Promise<void>
   createVerification: (url: string) => Promise<void>
@@ -124,18 +124,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(currentUser)
   }
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = () => {
     account.createOAuth2Session(
       OAuthProvider.Google,
-      `${window.location.origin}/`,
+      `${window.location.origin}`,
       `${window.location.origin}/auth/login`
     )
   }
 
-  const signInWithGithub = async () => {
+  const signInWithGithub = () => {
     account.createOAuth2Session(
       OAuthProvider.Github,
-      `${window.location.origin}/`,
+      `${window.location.origin}`,
       `${window.location.origin}/auth/login`
     )
   }
