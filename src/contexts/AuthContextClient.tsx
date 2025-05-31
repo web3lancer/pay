@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { Models } from 'appwrite'
 import { DatabaseService, UserProfile } from '@/lib/database'
 import { account } from "@/lib/appwrite";
@@ -205,5 +205,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 // const AuthContext = createContext<AuthContextType | undefined>(undefined)
 // export the AuthContext itself, not the useAuth
 
+
+// const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
 
 // export AuthContext

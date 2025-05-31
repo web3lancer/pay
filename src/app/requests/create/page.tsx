@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { usePaymentRequest } from '@/contexts/PaymentRequestContext'
+import { useExchangeRate } from '@/contexts/ExchangeRateContext'
 import { AppShell } from '@/components/AppShell'
-import { FiArrowLeft, FiQrCode, FiMail, FiCalendar, FiDollarSign, FiAlertCircle, FiCheck } from 'react-icons/fi'
+import { FiArrowLeft, FiCode, FiMail, FiCalendar, FiDollarSign, FiAlertCircle, FiCheck } from 'react-icons/fi'
 import Link from 'next/link'
 
 export default function CreateRequestPage() {

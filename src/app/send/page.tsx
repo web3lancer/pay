@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useWallet } from '@/contexts/WalletContext'
 import { useTransaction } from '@/contexts/TransactionContext'
+import { useExchangeRate } from '@/contexts/ExchangeRateContext'
 import { AppShell } from '@/components/AppShell'
 import { FiArrowLeft, FiSend, FiAlertCircle, FiCheck } from 'react-icons/fi'
 import Link from 'next/link'
@@ -14,6 +15,7 @@ export default function SendPage() {
   const { user } = useAuth()
   const { wallets, defaultWallet } = useWallet()
   const { sendTransaction } = useTransaction()
+  const { calculateUsdValue, formatUsdValue } = useExchangeRate()
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
@@ -27,6 +29,11 @@ export default function SendPage() {
   })
 
   const selectedWallet = wallets.find(w => w.walletId === formData.fromWalletId)
+
+  // Calculate USD equivalent for amount preview
+  const usdEquivalent = selectedWallet && formData.amount 
+    ? calculateUsdValue(formData.amount, selectedWallet.blockchain)
+    : 0
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -236,6 +243,11 @@ export default function SendPage() {
             {selectedWallet && parseFloat(formData.amount) > selectedWallet.balance && (
               <p className="text-sm text-red-500 mt-1">
                 Insufficient balance. Available: {selectedWallet.balance}
+              </p>
+            )}
+            {usdEquivalent > 0 && (
+              <p className="text-sm text-neutral-500 mt-1">
+                Approx. USD Value: {formatUsdValue(usdEquivalent)}
               </p>
             )}
           </div>
