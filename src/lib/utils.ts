@@ -1,136 +1,63 @@
-import clsx, { ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
 
-export function cn(...inputs: ClassValue[]): string {
+export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/**
- * Truncates a string based on specified start and end lengths
- */
-export function truncateString(
-  str: string,
-  startLength = 6,
-  endLength = 4,
-  separator = '...'
-): string {
-  if (!str) return ''
-  if (str.length <= startLength + endLength) return str
-  
-  return `${str.substring(0, startLength)}${separator}${str.substring(str.length - endLength)}`
-}
-
-/**
- * Formats a date relative to current time
- */
-export function formatRelativeTime(date: Date): string {
-  const now = new Date()
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-  
-  if (diffInSeconds < 60) {
-    return `${diffInSeconds} second${diffInSeconds !== 1 ? 's' : ''} ago`
-  }
-  
-  const diffInMinutes = Math.floor(diffInSeconds / 60)
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`
-  }
-  
-  const diffInHours = Math.floor(diffInMinutes / 60)
-  if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`
-  }
-  
-  const diffInDays = Math.floor(diffInHours / 24)
-  if (diffInDays < 30) {
-    return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`
-  }
-  
-  const diffInMonths = Math.floor(diffInDays / 30)
-  if (diffInMonths < 12) {
-    return `${diffInMonths} month${diffInMonths !== 1 ? 's' : ''} ago`
-  }
-  
-  const diffInYears = Math.floor(diffInMonths / 12)
-  return `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`
-}
-
-/**
- * Format currency values with proper decimal places
- */
-export function formatCurrency(amount: number | string, currency: string = 'USD'): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount
-  
-  if (isNaN(num)) return '$0.00'
-  
+// Crypto formatting utilities
+export function formatCurrency(amount: number, currency: string = 'USD'): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(num)
+    maximumFractionDigits: 2,
+  }).format(amount)
 }
 
-/**
- * Format crypto amounts with appropriate decimal places
- */
-export function formatCryptoAmount(amount: number | string, symbol: string, decimals: number = 8): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount
+export function formatCryptoAmount(amount: number, symbol: string, precision: number = 6): string {
+  // Adjust precision based on amount size
+  let actualPrecision = precision
+  if (amount >= 1000) actualPrecision = 2
+  else if (amount >= 100) actualPrecision = 3
+  else if (amount >= 10) actualPrecision = 4
+  else if (amount >= 1) actualPrecision = 5
   
-  if (isNaN(num)) return '0'
+  const formatted = amount.toFixed(actualPrecision)
   
-  // Format based on the amount size
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(2)}M ${symbol}`
-  } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(2)}K ${symbol}`
-  } else if (num >= 1) {
-    return `${num.toFixed(4)} ${symbol}`
-  } else {
-    return `${num.toFixed(decimals)} ${symbol}`
+  // Remove trailing zeros
+  const cleaned = parseFloat(formatted).toString()
+  
+  return `${cleaned} ${symbol}`
+}
+
+export function formatPercentage(percentage: number): string {
+  const sign = percentage >= 0 ? '+' : ''
+  return `${sign}${percentage.toFixed(2)}%`
+}
+
+export function formatCompactNumber(num: number): string {
+  const formatter = new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 1
+  })
+  return formatter.format(num)
+}
+
+export function formatLargeNumber(num: number): string {
+  if (num >= 1e9) {
+    return (num / 1e9).toFixed(2) + 'B'
   }
+  if (num >= 1e6) {
+    return (num / 1e6).toFixed(2) + 'M'
+  }
+  if (num >= 1e3) {
+    return (num / 1e3).toFixed(2) + 'K'
+  }
+  return num.toString()
 }
 
-/**
- * Format address with truncation
- */
-export function formatAddress(address: string, startLength: number = 6, endLength: number = 4): string {
-  if (!address || address.length < startLength + endLength) return address
-  
-  return `${address.slice(0, startLength)}...${address.slice(-endLength)}`
-}
-
-/**
- * Format percentage values
- */
-export function formatPercentage(value: number): string {
-  const sign = value >= 0 ? '+' : ''
-  return `${sign}${value.toFixed(2)}%`
-}
-
-/**
- * Format time ago
- */
-export function formatTimeAgo(date: Date): string {
-  const now = new Date()
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-  
-  if (diffInSeconds < 60) return 'Just now'
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
-  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`
-  
-  return date.toLocaleDateString()
-}
-
-/**
- * Validation utilities
- */
-export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
-
+// Address validation
 export function isValidBitcoinAddress(address: string): boolean {
   // Basic Bitcoin address validation (simplified)
   const btcRegex = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$/
@@ -143,185 +70,363 @@ export function isValidEthereumAddress(address: string): boolean {
   return ethRegex.test(address)
 }
 
-export function getNetworkFromAddress(address: string): string {
-  if (isValidBitcoinAddress(address)) return 'bitcoin'
-  if (isValidEthereumAddress(address)) return 'ethereum'
-  return 'unknown'
-}
-
-/**
- * Price utilities
- */
-export function calculatePriceChange(current: number, previous: number): number {
-  if (previous === 0) return 0
-  return ((current - previous) / previous) * 100
-}
-
-export function formatMarketCap(marketCap: number): string {
-  if (marketCap >= 1e12) return `$${(marketCap / 1e12).toFixed(2)}T`
-  if (marketCap >= 1e9) return `$${(marketCap / 1e9).toFixed(2)}B`
-  if (marketCap >= 1e6) return `$${(marketCap / 1e6).toFixed(2)}M`
-  if (marketCap >= 1e3) return `$${(marketCap / 1e3).toFixed(2)}K`
-  return `$${marketCap.toFixed(2)}`
-}
-
-/**
- * Transaction utilities
- */
-export function generateTransactionId(): string {
-  return Math.random().toString(36).substr(2, 9) + Date.now().toString(36)
-}
-
-export function getTransactionStatusColor(status: string): string {
-  switch (status.toLowerCase()) {
-    case 'confirmed':
-    case 'completed':
-    case 'success':
-      return 'text-green-600'
-    case 'pending':
-    case 'processing':
-      return 'text-yellow-600'
-    case 'failed':
-    case 'error':
-    case 'cancelled':
-      return 'text-red-600'
+export function isValidCryptoAddress(address: string, network: string): boolean {
+  switch (network.toLowerCase()) {
+    case 'bitcoin':
+    case 'btc':
+      return isValidBitcoinAddress(address)
+    case 'ethereum':
+    case 'eth':
+      return isValidEthereumAddress(address)
     default:
-      return 'text-neutral-600'
+      return false
   }
 }
 
-export function getTransactionStatusBg(status: string): string {
-  switch (status.toLowerCase()) {
-    case 'confirmed':
-    case 'completed':
-    case 'success':
-      return 'bg-green-100'
-    case 'pending':
-    case 'processing':
-      return 'bg-yellow-100'
-    case 'failed':
-    case 'error':
-    case 'cancelled':
-      return 'bg-red-100'
+export function shortenAddress(address: string, chars: number = 4): string {
+  if (!address) return ''
+  if (address.length <= chars * 2 + 2) return address
+  
+  return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`
+}
+
+// QR code data generation
+export function generateQRData(type: 'payment' | 'profile' | 'address', data: any): string {
+  switch (type) {
+    case 'payment':
+      return `web3lancer://pay?to=${data.address}&amount=${data.amount}&currency=${data.currency}&message=${encodeURIComponent(data.message || '')}`
+    case 'profile':
+      return `web3lancer://profile/${data.username}`
+    case 'address':
+      return data.address
     default:
-      return 'bg-neutral-100'
+      return ''
   }
 }
 
-/**
- * Storage utilities
- */
-export function setLocalStorage(key: string, value: any): void {
+export function parseQRData(qrData: string): { type: string, data: any } | null {
+  try {
+    if (qrData.startsWith('web3lancer://pay')) {
+      const url = new URL(qrData)
+      return {
+        type: 'payment',
+        data: {
+          address: url.searchParams.get('to'),
+          amount: url.searchParams.get('amount'),
+          currency: url.searchParams.get('currency'),
+          message: url.searchParams.get('message')
+        }
+      }
+    } else if (qrData.startsWith('web3lancer://profile')) {
+      const username = qrData.replace('web3lancer://profile/', '')
+      return {
+        type: 'profile',
+        data: { username }
+      }
+    } else if (isValidBitcoinAddress(qrData) || isValidEthereumAddress(qrData)) {
+      return {
+        type: 'address',
+        data: { address: qrData }
+      }
+    }
+    
+    return null
+  } catch (error) {
+    return null
+  }
+}
+
+// Storage utilities
+export function setStorageItem(key: string, value: any): void {
   try {
     localStorage.setItem(key, JSON.stringify(value))
   } catch (error) {
-    console.error('Error saving to localStorage:', error)
+    console.warn('Failed to set storage item:', error)
   }
 }
 
-export function getLocalStorage<T>(key: string, defaultValue?: T): T | null {
+export function getStorageItem<T>(key: string, defaultValue: T): T {
   try {
     const item = localStorage.getItem(key)
-    return item ? JSON.parse(item) : defaultValue || null
+    return item ? JSON.parse(item) : defaultValue
   } catch (error) {
-    console.error('Error reading from localStorage:', error)
-    return defaultValue || null
+    console.warn('Failed to get storage item:', error)
+    return defaultValue
   }
 }
 
-export function removeLocalStorage(key: string): void {
+export function removeStorageItem(key: string): void {
   try {
     localStorage.removeItem(key)
   } catch (error) {
-    console.error('Error removing from localStorage:', error)
+    console.warn('Failed to remove storage item:', error)
   }
 }
 
-/**
- * Clipboard utilities
- */
+// Transaction utilities
+export function getTransactionStatus(status: string): {
+  label: string
+  color: string
+  bgColor: string
+} {
+  switch (status.toLowerCase()) {
+    case 'completed':
+    case 'confirmed':
+      return {
+        label: 'Completed',
+        color: 'text-green-700',
+        bgColor: 'bg-green-100'
+      }
+    case 'pending':
+      return {
+        label: 'Pending',
+        color: 'text-yellow-700',
+        bgColor: 'bg-yellow-100'
+      }
+    case 'failed':
+    case 'error':
+      return {
+        label: 'Failed',
+        color: 'text-red-700',
+        bgColor: 'bg-red-100'
+      }
+    case 'cancelled':
+      return {
+        label: 'Cancelled',
+        color: 'text-gray-700',
+        bgColor: 'bg-gray-100'
+      }
+    default:
+      return {
+        label: 'Unknown',
+        color: 'text-gray-700',
+        bgColor: 'bg-gray-100'
+      }
+  }
+}
+
+export function getTransactionTypeIcon(type: string): string {
+  switch (type.toLowerCase()) {
+    case 'send':
+      return '↗️'
+    case 'receive':
+      return '↙️'
+    case 'swap':
+      return '🔄'
+    case 'buy':
+      return '💳'
+    case 'sell':
+      return '💰'
+    default:
+      return '💸'
+  }
+}
+
+// Time utilities
+export function formatRelativeTime(date: Date): string {
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+  
+  if (diffInSeconds < 60) {
+    return 'Just now'
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60)
+    return `${minutes}m ago`
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600)
+    return `${hours}h ago`
+  } else if (diffInSeconds < 604800) {
+    const days = Math.floor(diffInSeconds / 86400)
+    return `${days}d ago`
+  } else {
+    return date.toLocaleDateString()
+  }
+}
+
+export function formatDateTime(date: Date): string {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }).format(date)
+}
+
+// Price calculation utilities
+export function calculatePriceChange(current: number, previous: number): {
+  absolute: number
+  percentage: number
+  isPositive: boolean
+} {
+  const absolute = current - previous
+  const percentage = previous !== 0 ? (absolute / previous) * 100 : 0
+  
+  return {
+    absolute,
+    percentage,
+    isPositive: absolute >= 0
+  }
+}
+
+export function calculatePortfolioValue(holdings: Array<{
+  amount: number
+  price: number
+}>): number {
+  return holdings.reduce((total, holding) => {
+    return total + (holding.amount * holding.price)
+  }, 0)
+}
+
+// Copy to clipboard utility
 export async function copyToClipboard(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text)
     return true
   } catch (error) {
-    console.error('Failed to copy to clipboard:', error)
-    return false
-  }
-}
-
-/**
- * URL utilities
- */
-export function generateShareableUrl(username: string, base?: string): string {
-  const baseUrl = base || 'https://pay.web3lancer.website'
-  return `${baseUrl}/pay/${username}`
-}
-
-export function generateQRData(type: 'profile' | 'payment', data: any): string {
-  if (type === 'profile') {
-    return generateShareableUrl(data.username)
-  }
-  
-  if (type === 'payment') {
-    let qrData = `${data.currency.toLowerCase()}:${data.address}`
-    const params = new URLSearchParams()
-    
-    if (data.amount) params.set('amount', data.amount.toString())
-    if (data.message) params.set('message', data.message)
-    if (data.label) params.set('label', data.label)
-    
-    if (params.toString()) {
-      qrData += `?${params.toString()}`
+    // Fallback for older browsers
+    try {
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      textArea.style.position = 'fixed'
+      textArea.style.left = '-999999px'
+      textArea.style.top = '-999999px'
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      const result = document.execCommand('copy')
+      document.body.removeChild(textArea)
+      return result
+    } catch (fallbackError) {
+      console.error('Failed to copy to clipboard:', fallbackError)
+      return false
     }
-    
-    return qrData
+  }
+}
+
+// Network utilities
+export function getNetworkInfo(network: string): {
+  name: string
+  symbol: string
+  color: string
+  explorer: string
+} {
+  switch (network.toLowerCase()) {
+    case 'bitcoin':
+    case 'btc':
+      return {
+        name: 'Bitcoin',
+        symbol: 'BTC',
+        color: '#f7931a',
+        explorer: 'https://blockchair.com/bitcoin'
+      }
+    case 'ethereum':
+    case 'eth':
+      return {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        color: '#627eea',
+        explorer: 'https://etherscan.io'
+      }
+    case 'polygon':
+    case 'matic':
+      return {
+        name: 'Polygon',
+        symbol: 'MATIC',
+        color: '#8247e5',
+        explorer: 'https://polygonscan.com'
+      }
+    default:
+      return {
+        name: 'Unknown',
+        symbol: '?',
+        color: '#gray',
+        explorer: ''
+      }
+  }
+}
+
+// Animation utilities
+export function generateSparklineData(length: number = 20, volatility: number = 0.1): number[] {
+  const data: number[] = []
+  let current = 100 // Starting value
+  
+  for (let i = 0; i < length; i++) {
+    const change = (Math.random() - 0.5) * volatility * current
+    current = Math.max(0, current + change)
+    data.push(current)
   }
   
-  return data.toString()
+  return data
 }
 
-/**
- * Apply easing to animations
- */
-export const easings = {
-  easeOutExpo: [0.16, 1, 0.3, 1],
-  easeOutQuart: [0.25, 1, 0.5, 1],
-  easeInOutQuart: [0.76, 0, 0.24, 1],
-  easeSpring: [0.34, 1.56, 0.64, 1],
-  easeBounce: [0.68, -0.55, 0.265, 1.55]
+export function smoothValue(currentValue: number, targetValue: number, factor: number = 0.1): number {
+  return currentValue + (targetValue - currentValue) * factor
 }
 
-/**
- * Animation durations
- */
-export const durations = {
-  instant: 0.1,
-  quick: 0.15,
-  snappy: 0.2,
-  swift: 0.3,
-  smooth: 0.4,
-  fluid: 0.5,
-  gentle: 0.6,
-  calm: 0.8,
-  slow: 1.0,
-  patient: 1.2
+// Validation utilities
+export function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
 }
 
-/**
- * GPU acceleration styles for animations
- */
-export const gpuAccelerated = {
-  transform: 'translateZ(0)',
-  backfaceVisibility: 'hidden' as const,
-  perspective: '1000px',
-  willChange: 'transform'
+export function validatePhoneNumber(phone: string): boolean {
+  const phoneRegex = /^\+?[\d\s\-\(\)]+$/
+  return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10
 }
 
-/**
- * Check if reduced motion is preferred
- */
-export function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+export function validatePassword(password: string): {
+  isValid: boolean
+  errors: string[]
+} {
+  const errors: string[] = []
+  
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters long')
+  }
+  
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter')
+  }
+  
+  if (!/[a-z]/.test(password)) {
+    errors.push('Password must contain at least one lowercase letter')
+  }
+  
+  if (!/\d/.test(password)) {
+    errors.push('Password must contain at least one number')
+  }
+  
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    errors.push('Password must contain at least one special character')
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  }
+}
+
+// Dark mode utilities
+export function getSystemTheme(): 'light' | 'dark' {
+  if (typeof window !== 'undefined') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }
+  return 'light'
+}
+
+export function setTheme(theme: 'light' | 'dark' | 'system'): void {
+  if (typeof window === 'undefined') return
+  
+  const root = window.document.documentElement
+  
+  if (theme === 'system') {
+    const systemTheme = getSystemTheme()
+    root.classList.toggle('dark', systemTheme === 'dark')
+  } else {
+    root.classList.toggle('dark', theme === 'dark')
+  }
+  
+  setStorageItem('theme', theme)
 }

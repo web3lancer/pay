@@ -1,10 +1,5 @@
-import { HomeClient } from './HomeClient'
-import { AuthGuard } from '@/components/auth/AuthGuard'
+import { DashboardClient } from './DashboardClient'
 
 export default function HomePage() {
-  return (
-    <AuthGuard requireAuth={false}>
-      <HomeClient />
-    </AuthGuard>
-  )
+  return <DashboardClient />
 }
