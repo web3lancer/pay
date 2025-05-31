@@ -54,19 +54,6 @@ export default function ReceivePage() {
     }
   }
 
-  if (!user) {
-    return (
-      <AppShell>
-        <div className="container mx-auto px-4 py-6">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-neutral-900 mb-4">Please Sign In</h1>
-            <p className="text-neutral-600">You need to sign in to receive money</p>
-          </div>
-        </div>
-      </AppShell>
-    )
-  }
-
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-6">
