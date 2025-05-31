@@ -23,8 +23,14 @@ export function AuthGuard({
     // Don't redirect while loading
     if (isLoading) return
 
+    // For non-protected routes, never redirect for auth
+    if (!requireAuth) {
+      return
+    }
+
     // If auth is required and user is not authenticated (and not a guest), redirect to login
     if (requireAuth && !isAuthenticated && !isGuest) {
+      console.log('Auth required but user not authenticated, redirecting to login')
       router.push(redirectTo)
       return
     }
