@@ -127,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async () => {
     account.createOAuth2Session(
       OAuthProvider.Google,
-      `${window.location.origin}/dashboard`,
+      `${window.location.origin}/`,
       `${window.location.origin}/auth/login`
     )
   }
@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGithub = async () => {
     account.createOAuth2Session(
       OAuthProvider.Github,
-      `${window.location.origin}/dashboard`,
+      `${window.location.origin}/`,
       `${window.location.origin}/auth/login`
     )
   }

@@ -33,7 +33,7 @@ export default function VerifyEmailPage() {
       
       // Redirect to dashboard after 3 seconds
       setTimeout(() => {
-        router.push('/dashboard')
+        router.push('/')
       }, 3000)
     } catch (error: any) {
       setStatus('error')
@@ -76,7 +76,7 @@ export default function VerifyEmailPage() {
                 </p>
                 <div className="mt-6">
                   <Link
-                    href="/dashboard"
+                    href="/"
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                   >
                     Go to Dashboard

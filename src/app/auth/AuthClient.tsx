@@ -63,7 +63,7 @@ export function AuthClient({ mode }: AuthClientProps) {
     try {
       setIsSubmitting(true)
       await loginWithMagicURL(urlUserId, secret)
-      router.push('/dashboard')
+      router.push('/')
     } catch (error: any) {
       setErrors([error.message || 'Failed to authenticate with magic link'])
     } finally {
@@ -129,14 +129,14 @@ export function AuthClient({ mode }: AuthClientProps) {
         } else {
           await signIn(formData.email, formData.password)
         }
-        router.push('/dashboard')
+        router.push('/')
       } else if (authMethod === 'magic_url') {
         await sendMagicURL(formData.email)
         setMagicLinkSent(true)
       } else if (authMethod === 'email_otp') {
         if (otpSent && formData.otp) {
           await loginWithEmailOTP(userId, formData.otp)
-          router.push('/dashboard')
+          router.push('/')
         } else {
           const response = await sendEmailOTP(formData.email)
           setUserId(response.userId)
@@ -145,7 +145,7 @@ export function AuthClient({ mode }: AuthClientProps) {
       } else if (authMethod === 'phone_otp') {
         if (otpSent && formData.otp) {
           await loginWithPhoneOTP(userId, formData.otp)
-          router.push('/dashboard')
+          router.push('/')
         } else {
           const response = await sendPhoneOTP(formData.phone)
           setUserId(response.userId)

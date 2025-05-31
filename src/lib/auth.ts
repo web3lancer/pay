@@ -199,7 +199,7 @@ export class AuthService {
   // OAuth2 Authentication
   async signInWithOAuth(provider: OAuthProvider, successUrl?: string, failureUrl?: string) {
     try {
-      const success = successUrl || `${window.location.origin}/dashboard`
+      const success = successUrl || `${window.location.origin}/`
       const failure = failureUrl || `${window.location.origin}/auth/login`
       
       return account.createOAuth2Session(provider, success, failure)
