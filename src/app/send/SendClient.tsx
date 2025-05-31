@@ -207,7 +207,7 @@ export function SendClient() {
 
   return (
     <AppShell>
-      <div className="max-w-md mx-auto space-y-6 pb-20">
+      <div className="max-w-md mx-auto space-y-6 pb-20 px-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -218,9 +218,9 @@ export function SendClient() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => window.history.back()}
-            className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+            className="p-2 bg-white hover:bg-neutral-100 rounded-full transition-colors shadow-sm border border-neutral-200"
           >
-            <FiArrowLeft className="h-5 w-5" />
+            <FiArrowLeft className="h-5 w-5 text-neutral-800" />
           </motion.button>
           <div>
             <h1 className="text-2xl font-bold text-neutral-900">Send Crypto</h1>
@@ -244,7 +244,7 @@ export function SendClient() {
                 <motion.div
                   animate={{
                     scale: isActive ? 1.2 : 1,
-                    backgroundColor: isCompleted || isActive ? '#6366f1' : '#e5e7eb'
+                    backgroundColor: isCompleted || isActive ? '#0ea5e9' : '#e5e7eb' // cyan-500 instead of primary
                   }}
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     isCompleted || isActive ? 'text-white' : 'text-neutral-600'
@@ -254,7 +254,7 @@ export function SendClient() {
                 </motion.div>
                 {index < 3 && (
                   <div className={`w-12 h-0.5 mx-2 ${
-                    isCompleted ? 'bg-primary-500' : 'bg-neutral-200'
+                    isCompleted ? 'bg-cyan-500' : 'bg-neutral-200'
                   }`} />
                 )}
               </div>
@@ -273,7 +273,7 @@ export function SendClient() {
               className="space-y-6"
             >
               {/* Recipient Type Selector */}
-              <div className="bg-white rounded-xl border border-neutral-200 p-4">
+              <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-sm">
                 <h3 className="font-semibold text-neutral-900 mb-4">Send to</h3>
                 
                 <div className="grid grid-cols-3 gap-2 mb-4">
@@ -289,12 +289,16 @@ export function SendClient() {
                       onClick={() => setRecipientType(key as any)}
                       className={`p-3 rounded-lg border text-center transition-all ${
                         recipientType === key
-                          ? 'border-primary-500 bg-primary-50 text-primary-700'
-                          : 'border-neutral-200 hover:border-neutral-300'
+                          ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
+                          : 'border-neutral-200 hover:border-neutral-300 text-neutral-700'
                       }`}
                     >
-                      <Icon className="h-5 w-5 mx-auto mb-1" />
-                      <span className="text-xs font-medium">{label}</span>
+                      <Icon className={`h-5 w-5 mx-auto mb-1 ${
+                        recipientType === key ? 'text-cyan-600' : 'text-neutral-600'
+                      }`} />
+                      <span className={`text-xs font-medium ${
+                        recipientType === key ? 'text-cyan-700' : 'text-neutral-700'
+                      }`}>{label}</span>
                     </motion.button>
                   ))}
                 </div>
@@ -308,7 +312,7 @@ export function SendClient() {
                         placeholder="Search contacts..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                       />
                     </div>
 
@@ -324,12 +328,12 @@ export function SendClient() {
                           }}
                           className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
                             selectedContact?.id === contact.id
-                              ? 'bg-primary-50 border border-primary-200'
+                              ? 'bg-cyan-50 border border-cyan-200'
                               : 'hover:bg-neutral-50 border border-transparent'
                           }`}
                         >
                           <div className="relative">
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white text-lg">
+                            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-full flex items-center justify-center text-white text-lg">
                               {contact.avatar || contact.name.charAt(0)}
                             </div>
                             {contact.isOnline && (
@@ -363,8 +367,8 @@ export function SendClient() {
                         }
                         value={recipient}
                         onChange={(e) => setRecipient(e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
-                          errors.recipient ? 'border-red-300' : 'border-neutral-300'
+                        className={`w-full px-4 py-3 border rounded-lg bg-white text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors ${
+                          errors.recipient ? 'border-red-400 focus:border-red-400' : 'border-neutral-300'
                         }`}
                       />
                       
@@ -399,14 +403,351 @@ export function SendClient() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleNext}
                 disabled={!recipient}
-                className="w-full bg-primary-500 text-white py-3 rounded-lg font-medium hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-cyan-600 text-white py-3 rounded-lg font-semibold text-base hover:bg-cyan-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:cursor-not-allowed transition-colors shadow-md"
               >
-                Continue
+                Continue to Next Step
               </motion.button>
             </motion.div>
           )}
 
-          {/* Additional steps with similar enhanced structure... */}
+          {/* Step 2: Amount */}
+          {step === 'amount' && (
+            <motion.div
+              key="amount"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-sm">
+                <h3 className="font-semibold text-neutral-900 mb-4">Select Wallet & Amount</h3>
+
+                {/* Wallet selector */}
+                <div className="mb-6 space-y-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    From Wallet
+                  </label>
+                  <div className="space-y-2">
+                    {wallets.map(wallet => (
+                      <div
+                        key={wallet.id}
+                        onClick={() => setSelectedWallet(wallet)}
+                        className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                          selectedWallet?.id === wallet.id
+                            ? 'border-cyan-500 bg-cyan-50'
+                            : 'border-neutral-200 hover:border-neutral-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-xl">
+                              {wallet.icon}
+                            </div>
+                            <div>
+                              <p className="font-medium text-neutral-900">{wallet.name}</p>
+                              <p className="text-xs text-neutral-600">
+                                {formatCryptoAmount(wallet.balance, wallet.symbol)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium text-neutral-900">
+                              {formatCurrency(wallet.usdValue)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {errors.wallet && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm mt-1">
+                      <FiAlertCircle className="h-4 w-4" />
+                      <span>{errors.wallet}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Amount input */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Amount
+                  </label>
+                  <div className={`flex rounded-lg border overflow-hidden ${
+                    errors.amount ? 'border-red-400' : 'border-neutral-300'
+                  }`}>
+                    <input
+                      type="text"
+                      placeholder="0.00"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className="flex-1 px-4 py-3 bg-white text-neutral-900 focus:outline-none"
+                    />
+                    <div className="bg-neutral-100 flex items-center px-3 font-medium text-neutral-700">
+                      {selectedWallet?.symbol || 'CRYPTO'}
+                    </div>
+                  </div>
+                  
+                  {selectedWallet && (
+                    <div className="flex justify-between text-sm mt-1">
+                      <span className="text-neutral-600">
+                        Available: {formatCryptoAmount(selectedWallet.balance, selectedWallet.symbol)}
+                      </span>
+                      <button 
+                        className="text-cyan-600 font-medium"
+                        onClick={() => setAmount(selectedWallet.balance.toString())}
+                      >
+                        MAX
+                      </button>
+                    </div>
+                  )}
+                  
+                  {errors.amount && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm mt-1">
+                      <FiAlertCircle className="h-4 w-4" />
+                      <span>{errors.amount}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Optional Message */}
+                <div className="mt-4 space-y-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Message (Optional)
+                  </label>
+                  <textarea
+                    placeholder="Add a note to the recipient..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    rows={2}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setStep('recipient')}
+                  className="bg-white border border-neutral-300 text-neutral-700 py-3 px-5 rounded-lg font-medium hover:bg-neutral-50 transition-colors shadow-sm"
+                >
+                  Back
+                </motion.button>
+                
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleNext}
+                  disabled={!amount || !selectedWallet}
+                  className="flex-1 bg-cyan-600 text-white py-3 rounded-lg font-semibold text-base hover:bg-cyan-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:cursor-not-allowed transition-colors shadow-md"
+                >
+                  Continue to Confirm
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 3: Confirm */}
+          {step === 'confirm' && (
+            <motion.div
+              key="confirm"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-sm">
+                <h3 className="font-semibold text-neutral-900 mb-4">Confirm Transaction</h3>
+                
+                {/* Transaction Summary */}
+                <div className="space-y-4">
+                  <div className="flex justify-between py-2 border-b border-neutral-100">
+                    <span className="text-neutral-600">From</span>
+                    <span className="font-medium text-neutral-900">
+                      {selectedWallet?.name}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between py-2 border-b border-neutral-100">
+                    <span className="text-neutral-600">To</span>
+                    <span className="font-medium text-neutral-900">
+                      {recipientType === 'contact' && selectedContact
+                        ? selectedContact.name
+                        : recipient}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between py-2 border-b border-neutral-100">
+                    <span className="text-neutral-600">Amount</span>
+                    <div className="text-right">
+                      <div className="font-medium text-neutral-900">
+                        {amount} {selectedWallet?.symbol}
+                      </div>
+                      <div className="text-sm text-neutral-600">
+                        ≈ {formatCurrency(parseFloat(amount) * (selectedWallet?.usdValue || 0) / (selectedWallet?.balance || 1))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between py-2 border-b border-neutral-100">
+                    <span className="text-neutral-600">Network Fee</span>
+                    <div className="flex flex-col items-end">
+                      <select
+                        value={selectedFee}
+                        onChange={(e) => setSelectedFee(e.target.value as any)}
+                        className="bg-transparent text-right font-medium text-cyan-600 focus:outline-none cursor-pointer text-sm appearance-none"
+                      >
+                        <option value="slow">Slow</option>
+                        <option value="standard">Standard</option>
+                        <option value="fast">Fast</option>
+                      </select>
+                      <div className="text-xs text-neutral-600 mt-1">
+                        {selectedWallet && currentFee ? (
+                          <>
+                            {formatCryptoAmount(currentFee.fee, selectedWallet.symbol)} 
+                            {' '}• {currentFee.time}
+                          </>
+                        ) : (
+                          'Calculating...'
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between py-2">
+                    <span className="text-neutral-700 font-medium">Total Amount</span>
+                    <div className="text-right">
+                      <div className="font-semibold text-neutral-900">
+                        {totalAmount} {selectedWallet?.symbol}
+                      </div>
+                      <div className="text-sm text-neutral-600">
+                        Including network fee
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {message && (
+                  <div className="mt-4 p-3 bg-neutral-50 rounded-lg">
+                    <div className="text-sm text-neutral-600">Message</div>
+                    <div className="text-neutral-900">{message}</div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setStep('amount')}
+                  className="bg-white border border-neutral-300 text-neutral-700 py-3 px-5 rounded-lg font-medium hover:bg-neutral-50 transition-colors shadow-sm"
+                >
+                  Back
+                </motion.button>
+                
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleSend}
+                  disabled={isLoading}
+                  className="flex-1 bg-cyan-600 text-white py-3 rounded-lg font-semibold text-base hover:bg-cyan-700 disabled:opacity-80 disabled:cursor-not-allowed transition-colors shadow-md"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Processing...</span>
+                    </div>
+                  ) : (
+                    'Confirm & Send'
+                  )}
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 4: Success */}
+          {step === 'success' && (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="space-y-6 text-center"
+            >
+              <div className="bg-white rounded-xl border border-neutral-200 p-6 shadow-sm">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                  className="w-20 h-20 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-4"
+                >
+                  <FiCheck className="h-10 w-10 text-green-600" />
+                </motion.div>
+                
+                <h3 className="text-xl font-bold text-neutral-900 mb-2">
+                  Transaction Successful
+                </h3>
+                <p className="text-neutral-600">
+                  You've successfully sent {amount} {selectedWallet?.symbol} to {recipient}
+                </p>
+
+                <div className="border border-neutral-200 rounded-lg p-4 mt-6 mb-4 bg-neutral-50">
+                  <div className="grid grid-cols-2 gap-4 text-left">
+                    <div>
+                      <p className="text-sm text-neutral-600">Amount Sent</p>
+                      <p className="font-medium text-neutral-900">
+                        {amount} {selectedWallet?.symbol}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-neutral-600">Value</p>
+                      <p className="font-medium text-neutral-900">
+                        {formatCurrency(parseFloat(amount) * (selectedWallet?.usdValue || 0) / (selectedWallet?.balance || 1))}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-neutral-600">Recipient</p>
+                      <p className="font-medium text-neutral-900 truncate">
+                        {recipient}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-neutral-600">Time</p>
+                      <p className="font-medium text-neutral-900">
+                        {new Date().toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 pt-2">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      setRecipient('');
+                      setSelectedContact(null);
+                      setAmount('');
+                      setSelectedWallet(null);
+                      setMessage('');
+                      setStep('recipient');
+                    }}
+                    className="flex-1 bg-white border border-cyan-500 text-cyan-600 py-3 rounded-lg font-medium hover:bg-cyan-50 transition-colors"
+                  >
+                    Send Another
+                  </motion.button>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => window.location.href = '/'}
+                    className="flex-1 bg-cyan-600 text-white py-3 rounded-lg font-semibold hover:bg-cyan-700 transition-colors shadow-md"
+                  >
+                    Go to Dashboard
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     </AppShell>

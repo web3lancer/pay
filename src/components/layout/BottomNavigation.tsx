@@ -10,7 +10,7 @@ const icons = {
   home: "🏠",
   wallet: "👛",
   send: "📤",
-  receive: "📥",
+  request: "📥",
   exchange: "🔄"
 }
 
@@ -18,7 +18,7 @@ const navigation = [
   { name: 'Home', href: '/', icon: icons.home },
   { name: 'Wallets', href: '/wallets', icon: icons.wallet },
   { name: 'Send', href: '/send', icon: icons.send },
-  { name: 'Receive', href: '/requests', icon: icons.receive },
+  { name: 'Request', href: '/requests', icon: icons.receive },
   { name: 'Exchange', href: '/exchange', icon: icons.exchange },
 ]
 

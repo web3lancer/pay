@@ -14,9 +14,9 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: '🏠' },
   { name: 'Wallets', href: '/wallets', icon: '👛' },
   { name: 'Send', href: '/send', icon: '📤' },
-  { name: 'Receive', href: '/receive', icon: '📥' },
+  { name: 'Request', href: '/requests', icon: '📥' },
   { name: 'Exchange', href: '/exchange', icon: '🔄' },
-  { name: 'History', href: '/history', icon: '📋' },
+  // { name: 'History', href: '/history', icon: '📋' },
   { name: 'Settings', href: '/settings', icon: '⚙️' },
 ]
 
