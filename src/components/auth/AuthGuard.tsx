@@ -15,7 +15,7 @@ export function AuthGuard({
   requireAuth = true, 
   redirectTo = '/auth/login' 
 }: AuthGuardProps) {
-  const { user, isLoading, isAuthenticated, needsProfileCompletion } = useAuth()
+  const { user, isLoading, isAuthenticated, isGuest, needsProfileCompletion } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -23,14 +23,14 @@ export function AuthGuard({
     // Don't redirect while loading
     if (isLoading) return
 
-    // If auth is required and user is not authenticated, redirect to login
-    if (requireAuth && !isAuthenticated) {
+    // If auth is required and user is not authenticated (and not a guest), redirect to login
+    if (requireAuth && !isAuthenticated && !isGuest) {
       router.push(redirectTo)
       return
     }
 
-    // If user is authenticated but needs profile completion
-    if (isAuthenticated && needsProfileCompletion) {
+    // If user is authenticated (not guest) but needs profile completion
+    if (isAuthenticated && !isGuest && needsProfileCompletion) {
       // Don't redirect if already on profile completion page
       if (pathname !== '/auth/complete-profile') {
         console.log('User needs profile completion, redirecting...')
@@ -40,12 +40,12 @@ export function AuthGuard({
     }
 
     // If user has complete profile but is on completion page, redirect to dashboard
-    if (isAuthenticated && !needsProfileCompletion && pathname === '/auth/complete-profile') {
+    if (isAuthenticated && !isGuest && !needsProfileCompletion && pathname === '/auth/complete-profile') {
       console.log('Profile already complete, redirecting to dashboard...')
       router.push('/dashboard')
       return
     }
-  }, [isLoading, isAuthenticated, needsProfileCompletion, pathname, router, requireAuth, redirectTo])
+  }, [isLoading, isAuthenticated, isGuest, needsProfileCompletion, pathname, router, requireAuth, redirectTo])
 
   // Show loading state
   if (isLoading) {
@@ -56,8 +56,8 @@ export function AuthGuard({
     )
   }
 
-  // Show children if all conditions are met
-  if (requireAuth && isAuthenticated && !needsProfileCompletion) {
+  // Show children if authenticated (including guests) and no profile completion needed
+  if ((isAuthenticated || isGuest) && !needsProfileCompletion) {
     return <>{children}</>
   }
 
@@ -66,8 +66,13 @@ export function AuthGuard({
     return <>{children}</>
   }
 
-  // Show profile completion if needed
-  if (isAuthenticated && needsProfileCompletion && pathname === '/auth/complete-profile') {
+  // Allow guests to access the app even if auth is required
+  if (isGuest) {
+    return <>{children}</>
+  }
+
+  // Show profile completion if needed (authenticated users only, not guests)
+  if (isAuthenticated && !isGuest && needsProfileCompletion && pathname === '/auth/complete-profile') {
     return <>{children}</>
   }
 

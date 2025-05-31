@@ -31,10 +31,13 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
+  isGuest: boolean
   needsProfileCompletion: boolean
   signUp: (email: string, password: string, name: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
+  createGuestSession: () => Promise<void>
+  convertGuestToUser: (email: string, password: string, name: string) => Promise<void>
   sendMagicURL: (email: string) => Promise<void>
   loginWithMagicURL: (userId: string, secret: string) => Promise<void>
   sendEmailOTP: (email: string) => Promise<{ userId: string }>
@@ -58,10 +61,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-  // Computed property to check if user needs to complete profile
+  // Computed properties
+  const isGuest = Boolean(user && user.email === '' && !user.emailVerification)
   const needsProfileCompletion = Boolean(
     isAuthenticated && 
     user && 
+    !isGuest &&
     (!user.profile || !user.profile.username || !user.profile.displayName)
   )
 
@@ -234,6 +239,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       
       // For critical signup flows, we should throw the error
+      throw error
+    }
+  }
+
+  const createGuestSession = async () => {
+    try {
+      console.log('Creating guest session...')
+      await account.createAnonymousSession()
+      console.log('Guest session created successfully')
+      
+      // Check user state after creating guest session
+      await checkUser()
+      console.log('Guest session setup completed')
+    } catch (error) {
+      console.error('Guest session creation failed:', error)
+      throw error
+    }
+  }
+
+  const convertGuestToUser = async (email: string, password: string, name: string) => {
+    try {
+      if (!user || !isGuest) {
+        throw new Error('No guest session to convert')
+      }
+      
+      console.log('Converting guest session to user account...')
+      
+      // Update the anonymous account with email and password
+      await account.updateEmail(email, password)
+      await account.updateName(name)
+      
+      console.log('Guest account converted successfully')
+      
+      // Check user state after conversion - they'll need to complete profile
+      await checkUser()
+      console.log('Guest conversion completed')
+    } catch (error) {
+      console.error('Guest conversion failed:', error)
       throw error
     }
   }
@@ -501,10 +544,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     isLoading,
     isAuthenticated,
+    isGuest,
     needsProfileCompletion,
     signUp,
     signIn,
     signOut,
+    createGuestSession,
+    convertGuestToUser,
     sendMagicURL,
     loginWithMagicURL,
     sendEmailOTP,
