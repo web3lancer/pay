@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   FiCopy, FiCheck, FiShare2, FiDollarSign, FiUser, 
-  FiQrCode, FiLink, FiRefreshCw, FiDownload, FiEye,
+  FiCode, FiLink, FiRefreshCw, FiDownload, FiEye,
   FiEyeOff, FiPlus, FiCreditCard
 } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
@@ -175,7 +175,7 @@ export function RequestsClient() {
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
-            <FiQrCode className="inline w-4 h-4 mr-2" />
+            <FiCode className="inline w-4 h-4 mr-2" />
             Receive Payments
           </button>
           <button
@@ -215,7 +215,7 @@ export function RequestsClient() {
                     onClick={generateDefaultQR}
                     className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                   >
-                    <FiQrCode className="w-4 h-4" />
+                    <FiCode className="w-4 h-4" />
                     Show QR
                   </motion.button>
                 </div>
@@ -339,7 +339,7 @@ export function RequestsClient() {
                     disabled={!requestAmount || !selectedWallet}
                     className="flex-1 bg-cyan-500 hover:bg-cyan-600 disabled:bg-neutral-300 text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
                   >
-                    <FiQrCode className="w-4 h-4" />
+                    <FiCode className="w-4 h-4" />
                     Generate Payment QR
                   </motion.button>
                   
@@ -559,5 +559,4 @@ export function RequestsClient() {
       </div>
     </AppShell>
   )
-}
 }
