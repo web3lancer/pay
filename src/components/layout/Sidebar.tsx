@@ -16,7 +16,7 @@ const navigation = [
   { name: 'Send', href: '/send', icon: '📤' },
   { name: 'Request', href: '/requests', icon: '📥' },
   { name: 'Exchange', href: '/exchange', icon: '🔄' },
-  // { name: 'History', href: '/history', icon: '📋' },
+  { name: 'History', href: '/history', icon: '📋' },
   { name: 'Settings', href: '/settings', icon: '⚙️' },
 ]
 
