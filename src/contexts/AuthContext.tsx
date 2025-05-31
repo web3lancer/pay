@@ -1,388 +1,208 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authService, AppwriteUser } from '@/lib/auth';
-import { DatabaseService, UserProfile } from '@/lib/database';
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { account } from '@/lib/appwrite'
+import { DatabaseService, UserProfile } from '@/lib/database'
+import { Models } from 'appwrite'
 
-// Enhanced User type combining Appwrite user and database profile
-interface User extends AppwriteUser {
-  profile?: UserProfile;
-}
-
-// Enhanced AuthContext shape
 interface AuthContextType {
-  user: User | null;
-  userProfile: UserProfile | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  isEmailVerified: boolean;
-  mfaRequired: boolean;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  verifyEmail: (userId: string, secret: string) => Promise<void>;
-  sendEmailVerification: () => Promise<void>;
-  sendPasswordReset: (email: string) => Promise<void>;
-  resetPassword: (userId: string, secret: string, password: string) => Promise<void>;
-  // 2FA methods
-  enableTwoFactor: () => Promise<void>;
-  disableTwoFactor: () => Promise<void>;
-  verifyTwoFactor: (otp: string) => Promise<void>;
-  createRecoveryCodes: () => Promise<string[]>;
-  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
-  refreshUser: () => Promise<void>;
+  user: Models.User<Models.Preferences> | null
+  userProfile: UserProfile | null
+  isLoading: boolean
+  login: (email: string, password: string) => Promise<void>
+  register: (email: string, password: string, name: string) => Promise<void>
+  logout: () => Promise<void>
+  refreshProfile: () => Promise<void>
 }
 
-// Create the context with default values
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  userProfile: null,
-  isLoading: false,
-  isAuthenticated: false,
-  isEmailVerified: false,
-  mfaRequired: false,
-  signUp: async () => {},
-  signIn: async () => {},
-  signOut: async () => {},
-  verifyEmail: async () => {},
-  sendEmailVerification: async () => {},
-  sendPasswordReset: async () => {},
-  resetPassword: async () => {},
-  enableTwoFactor: async () => {},
-  disableTwoFactor: async () => {},
-  verifyTwoFactor: async () => {},
-  createRecoveryCodes: async () => [],
-  updateProfile: async () => {},
-  refreshUser: async () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Provider component that wraps your app and makes auth object available
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [mfaRequired, setMfaRequired] = useState(false);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Check authentication status on mount
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
+  // Generate username from email
+  const generateUsername = (email: string): string => {
+    return email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '')
+  }
 
-  const checkAuthStatus = async () => {
-    setIsLoading(true);
+  // Create or get user profile
+  const createOrGetProfile = async (authUser: Models.User<Models.Preferences>) => {
     try {
-      const currentUser = await authService.getCurrentUser();
-      if (currentUser) {
-        setUser(currentUser);
-        // Fetch user profile from database
-        const profile = await DatabaseService.getUser(currentUser.$id);
-        setUserProfile(profile);
-        
-        // Log successful authentication
-        await authService.logSecurityEvent(currentUser.$id, 'session_check', {
-          success: true
-        });
+      // Try to get existing profile
+      let profile = await DatabaseService.getUser(authUser.$id)
+      if (profile) {
+        setUserProfile(profile)
+        return profile
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
-      setUser(null);
-      setUserProfile(null);
-    } finally {
-      setIsLoading(false);
+      // Profile doesn't exist, create new one
+      console.log('Creating new user profile...')
     }
-  };
 
-  // Sign up function
-  const signUp = async (email: string, password: string, name: string) => {
-    setIsLoading(true);
     try {
-      const response = await authService.signUp(email, password, name);
-      
-      // Create user profile in database
-      if (response) {
-        const profileData = {
-          userId: response.$id,
-          email: response.email,
-          username: email.split('@')[0],
-          displayName: name,
-          kycStatus: 'pending' as const,
-          kycLevel: 0,
-          twoFactorEnabled: false,
-          isActive: true,
-          preferredCurrency: 'USD',
-        };
-        
-        await DatabaseService.createUser(profileData);
-        
-        // Log successful registration
-        await authService.logSecurityEvent(response.$id, 'user_registration', {
-          email,
-          method: 'email_password'
-        });
+      // Create new profile
+      const username = generateUsername(authUser.email)
+      const profileData = {
+        userId: authUser.$id,
+        email: authUser.email,
+        username,
+        displayName: authUser.name || username,
+        kycStatus: 'pending' as const,
+        kycLevel: 0,
+        twoFactorEnabled: false,
+        isActive: true,
+        preferredCurrency: 'USD'
       }
+
+      const newProfile = await DatabaseService.createUser(profileData)
+      setUserProfile(newProfile)
+
+      // Log security event
+      await DatabaseService.createSecurityLog({
+        userId: authUser.$id,
+        action: 'profile_created',
+        ipAddress: 'unknown', // Would get from request in real app
+        success: true,
+        riskScore: 0
+      })
+
+      return newProfile
     } catch (error) {
-      console.error('Sign up failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      console.error('Failed to create user profile:', error)
+      throw error
     }
-  };
+  }
 
-  // Sign in function
-  const signIn = async (email: string, password: string) => {
-    setIsLoading(true);
+  const refreshProfile = async () => {
+    if (!user) return
+    
     try {
-      const session = await authService.signIn(email, password);
-      const currentUser = await authService.getCurrentUser();
-      
-      if (currentUser) {
-        setUser(currentUser);
-        
-        // Fetch user profile
-        const profile = await DatabaseService.getUser(currentUser.$id);
-        setUserProfile(profile);
-        
-        // Check if 2FA is required
-        if (profile.twoFactorEnabled) {
-          setMfaRequired(true);
-        }
-        
-        // Log successful login
-        await authService.logSecurityEvent(currentUser.$id, 'user_login', {
-          email,
-          method: 'email_password',
-          mfaRequired: profile.twoFactorEnabled
-        });
-      }
+      const profile = await DatabaseService.getUser(user.$id)
+      setUserProfile(profile)
     } catch (error) {
-      console.error('Sign in failed:', error);
+      console.error('Failed to refresh profile:', error)
+    }
+  }
+
+  const login = async (email: string, password: string) => {
+    setIsLoading(true)
+    try {
+      await account.createEmailPasswordSession(email, password)
+      const authUser = await account.get()
+      setUser(authUser)
       
+      // Create or get profile
+      await createOrGetProfile(authUser)
+
+      // Log successful login
+      await DatabaseService.createSecurityLog({
+        userId: authUser.$id,
+        action: 'login_success',
+        ipAddress: 'unknown',
+        success: true,
+        riskScore: 0
+      })
+    } catch (error: any) {
       // Log failed login attempt
-      await authService.logSecurityEvent('unknown', 'login_failed', {
-        email,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      
-      throw error;
+      if (email) {
+        try {
+          const existingUser = await DatabaseService.getUserByEmail(email)
+          if (existingUser) {
+            await DatabaseService.createSecurityLog({
+              userId: existingUser.userId,
+              action: 'login_failed',
+              ipAddress: 'unknown',
+              success: false,
+              riskScore: 3
+            })
+          }
+        } catch (dbError) {
+          console.error('Failed to log security event:', dbError)
+        }
+      }
+      throw error
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  // Sign out function
-  const signOut = async () => {
-    setIsLoading(true);
+  const register = async (email: string, password: string, name: string) => {
+    setIsLoading(true)
+    try {
+      const authUser = await account.create('unique()', email, password, name)
+      await account.createEmailPasswordSession(email, password)
+      const user = await account.get()
+      setUser(user)
+      
+      // Create profile
+      await createOrGetProfile(user)
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const logout = async () => {
     try {
       if (user) {
-        await authService.logSecurityEvent(user.$id, 'user_logout', {});
+        // Log logout
+        await DatabaseService.createSecurityLog({
+          userId: user.$id,
+          action: 'logout',
+          ipAddress: 'unknown',
+          success: true,
+          riskScore: 0
+        })
       }
       
-      await authService.signOut();
-      setUser(null);
-      setUserProfile(null);
-      setMfaRequired(false);
+      await account.deleteSession('current')
+      setUser(null)
+      setUserProfile(null)
     } catch (error) {
-      console.error('Sign out failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      console.error('Logout failed:', error)
     }
-  };
+  }
 
-  // Email verification
-  const verifyEmail = async (userId: string, secret: string) => {
-    try {
-      await authService.verifyEmail(userId, secret);
-      
-      // Log email verification
-      await authService.logSecurityEvent(userId, 'email_verified', {});
-      
-      // Refresh user data
-      await refreshUser();
-    } catch (error) {
-      console.error('Email verification failed:', error);
-      throw error;
+  useEffect(() => {
+    const checkAuth = async () => {
+      setIsLoading(true)
+      try {
+        const authUser = await account.get()
+        setUser(authUser)
+        
+        // Get or create profile
+        await createOrGetProfile(authUser)
+      } catch (error) {
+        setUser(null)
+        setUserProfile(null)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  };
 
-  const sendEmailVerification = async () => {
-    try {
-      await authService.sendEmailVerification();
-    } catch (error) {
-      console.error('Send email verification failed:', error);
-      throw error;
-    }
-  };
+    checkAuth()
+  }, [])
 
-  // Password reset
-  const sendPasswordReset = async (email: string) => {
-    try {
-      await authService.sendPasswordRecovery(email);
-    } catch (error) {
-      console.error('Send password reset failed:', error);
-      throw error;
-    }
-  };
-
-  const resetPassword = async (userId: string, secret: string, password: string) => {
-    try {
-      await authService.resetPassword(userId, secret, password);
-      
-      // Log password reset
-      await authService.logSecurityEvent(userId, 'password_reset', {});
-    } catch (error) {
-      console.error('Password reset failed:', error);
-      throw error;
-    }
-  };
-
-  // 2FA methods
-  const enableTwoFactor = async () => {
-    if (!user || !userProfile) throw new Error('User not authenticated');
-    
-    try {
-      // Enable MFA in Appwrite
-      await authService.enableMFA();
-      
-      // Update user profile in database
-      await DatabaseService.updateUser(user.$id, { twoFactorEnabled: true });
-      
-      // Update local state
-      setUserProfile({ ...userProfile, twoFactorEnabled: true });
-      
-      // Log 2FA enablement
-      await authService.logSecurityEvent(user.$id, '2fa_enabled', {});
-    } catch (error) {
-      console.error('Enable 2FA failed:', error);
-      throw error;
-    }
-  };
-
-  const disableTwoFactor = async () => {
-    if (!user || !userProfile) throw new Error('User not authenticated');
-    
-    try {
-      // Disable MFA in Appwrite
-      await authService.disableMFA();
-      
-      // Update user profile in database
-      await DatabaseService.updateUser(user.$id, { twoFactorEnabled: false });
-      
-      // Update local state
-      setUserProfile({ ...userProfile, twoFactorEnabled: false });
-      setMfaRequired(false);
-      
-      // Log 2FA disablement
-      await authService.logSecurityEvent(user.$id, '2fa_disabled', {});
-    } catch (error) {
-      console.error('Disable 2FA failed:', error);
-      throw error;
-    }
-  };
-
-  const verifyTwoFactor = async (otp: string) => {
-    if (!user) throw new Error('User not authenticated');
-    
-    try {
-      // Create MFA challenge
-      const challenge = await authService.createMFAChallenge('totp');
-      
-      // Complete challenge with OTP
-      await authService.completeMFAChallenge(challenge.$id, otp);
-      
-      setMfaRequired(false);
-      
-      // Log successful 2FA verification
-      await authService.logSecurityEvent(user.$id, '2fa_verified', {});
-    } catch (error) {
-      console.error('2FA verification failed:', error);
-      
-      // Log failed 2FA attempt
-      await authService.logSecurityEvent(user.$id, '2fa_failed', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      
-      throw error;
-    }
-  };
-
-  const createRecoveryCodes = async (): Promise<string[]> => {
-    if (!user) throw new Error('User not authenticated');
-    
-    try {
-      const response = await authService.createMFARecoveryCodes();
-      
-      // Log recovery codes generation
-      await authService.logSecurityEvent(user.$id, 'recovery_codes_generated', {});
-      
-      return response.recoveryCodes || [];
-    } catch (error) {
-      console.error('Create recovery codes failed:', error);
-      throw error;
-    }
-  };
-
-  // Update profile
-  const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user || !userProfile) throw new Error('User not authenticated');
-    
-    try {
-      // Update in database
-      await DatabaseService.updateUser(user.$id, updates);
-      
-      // Update local state
-      setUserProfile({ ...userProfile, ...updates });
-      
-      // Log profile update
-      await authService.logSecurityEvent(user.$id, 'profile_updated', {
-        fields: Object.keys(updates)
-      });
-    } catch (error) {
-      console.error('Update profile failed:', error);
-      throw error;
-    }
-  };
-
-  // Refresh user data
-  const refreshUser = async () => {
-    if (!user) return;
-    
-    try {
-      const [currentUser, profile] = await Promise.all([
-        authService.getCurrentUser(),
-        DatabaseService.getUser(user.$id)
-      ]);
-      
-      if (currentUser) setUser(currentUser);
-      setUserProfile(profile);
-    } catch (error) {
-      console.error('Refresh user failed:', error);
-    }
-  };
-
-  // Value provided to consumers of this context
-  const value = {
-    user,
-    userProfile,
-    isLoading,
-    isAuthenticated: !!user,
-    isEmailVerified: user?.emailVerification || false,
-    mfaRequired,
-    signUp,
-    signIn,
-    signOut,
-    verifyEmail,
-    sendEmailVerification,
-    sendPasswordReset,
-    resetPassword,
-    enableTwoFactor,
-    disableTwoFactor,
-    verifyTwoFactor,
-    createRecoveryCodes,
-    updateProfile,
-    refreshUser,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{
+      user,
+      userProfile,
+      isLoading,
+      login,
+      register,
+      logout,
+      refreshProfile
+    }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
-// Custom hook to use the auth context
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
 import { useAuth } from '@/contexts/AuthContext'
+import { useWallet } from '@/contexts/WalletContext'
 import { DatabaseService, Transaction } from '@/lib/database'
 import Link from 'next/link'
 
@@ -15,54 +16,56 @@ interface WalletSummary {
 }
 
 export default function DashboardPage() {
-  const { user, userProfile, isLoading: authLoading } = useAuth()
+  const { user, userProfile, isLoading: authLoading, refreshProfile } = useAuth()
+  const { wallets, defaultWallet, isLoading: walletsLoading, refreshWallets } = useWallet()
   const [totalBalance, setTotalBalance] = useState(0)
   const [walletSummaries, setWalletSummaries] = useState<WalletSummary[]>([])
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [balanceVisible, setBalanceVisible] = useState(true)
 
   useEffect(() => {
-    if (user && userProfile) {
+    if (user && userProfile && !walletsLoading) {
       loadDashboardData()
     }
-  }, [user, userProfile])
+  }, [user, userProfile, wallets, walletsLoading])
 
   const loadDashboardData = async () => {
     if (!user) return
     
     setIsLoading(true)
     try {
-      // Fetch user's wallets
-      const wallets = await DatabaseService.getUserWallets(user.$id)
-      
       // Fetch recent transactions
       const transactions = await DatabaseService.getUserTransactions(user.$id, 5)
       setRecentTransactions(transactions)
 
-      // Calculate wallet summaries and total balance
-      let total = 0
-      const summaries: WalletSummary[] = []
-      
-      for (const wallet of wallets) {
-        const icon = getBlockchainIcon(wallet.blockchain)
-        const symbol = getBlockchainSymbol(wallet.blockchain)
+      // Use wallets from context instead of fetching again
+      if (wallets.length > 0) {
+        // Calculate wallet summaries and total balance
+        let total = 0
+        const summaries: WalletSummary[] = []
         
-        // For demo, using wallet.balance * mock price
-        const mockPrice = getMockPrice(wallet.blockchain)
-        const usdValue = wallet.balance * mockPrice
-        total += usdValue
+        for (const wallet of wallets) {
+          const icon = getBlockchainIcon(wallet.blockchain)
+          const symbol = getBlockchainSymbol(wallet.blockchain)
+          
+          // For demo, using wallet.balance * mock price
+          const mockPrice = getMockPrice(wallet.blockchain)
+          const usdValue = wallet.balance * mockPrice
+          total += usdValue
+          
+          summaries.push({
+            blockchain: wallet.blockchain,
+            symbol,
+            balance: wallet.balance,
+            usdValue,
+            icon
+          })
+        }
         
-        summaries.push({
-          blockchain: wallet.blockchain,
-          symbol,
-          balance: wallet.balance,
-          usdValue,
-          icon
-        })
+        setTotalBalance(total)
+        setWalletSummaries(summaries)
       }
-      
-      setTotalBalance(total)
-      setWalletSummaries(summaries)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
     } finally {
@@ -126,7 +129,30 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-neutral-900">
             Welcome back{userProfile?.displayName ? `, ${userProfile.displayName}` : ''}!
           </h1>
-          <p className="text-neutral-700 mt-1">Your crypto dashboard is ready.</p>
+          <p className="text-neutral-700 mt-1">
+            Your crypto dashboard is ready.
+            {userProfile?.kycStatus === 'pending' && (
+              <span className="ml-2 text-amber-600 font-medium">
+                ⚠️ KYC verification pending
+              </span>
+            )}
+            {userProfile?.kycStatus === 'verified' && (
+              <span className="ml-2 text-green-600 font-medium">
+                ✅ KYC verified
+              </span>
+            )}
+          </p>
+          {userProfile && (
+            <div className="mt-2 text-sm text-neutral-600">
+              Account: {userProfile.email} • 
+              Username: @{userProfile.username} • 
+              {userProfile.twoFactorEnabled ? (
+                <span className="text-green-600">🔒 2FA Enabled</span>
+              ) : (
+                <span className="text-amber-600">🔓 2FA Disabled</span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Quick Action Widgets */}

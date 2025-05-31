@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from '@/components/providers'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { WalletProvider } from '@/contexts/WalletContext'
 
 export const metadata: Metadata = {
-  title: 'Pay by Web3Lancer - Web5 Crypto Payment Platform',
-  description: 'Secure, fast, and easy cryptocurrency payments for freelancers and businesses',
+  title: 'Pay by Web3Lancer',
+  description: 'Decentralized payment platform for the Web5 economy',
 }
 
 export default function RootLayout({
@@ -15,9 +17,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <Providers>
-            {children}
-        </Providers>
+        <AuthProvider>
+          <WalletProvider>
+            <Providers>
+              {children}
+            </Providers>
+          </WalletProvider>
+        </AuthProvider>
       </body>
     </html>
   )

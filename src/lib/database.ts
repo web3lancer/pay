@@ -134,9 +134,9 @@ export interface APIKey {
 // Database service functions
 export class DatabaseService {
   // User operations
-  static async createUser(userData: Omit<UserProfile, 'createdAt' | 'updatedAt'>) {
+  static async createUser(userData: Omit<UserProfile, 'createdAt' | 'updatedAt'>): Promise<UserProfile> {
     const now = new Date().toISOString()
-    return await databases.createDocument(
+    const document = await databases.createDocument(
       DATABASE_ID,
       COLLECTION_IDS.USERS,
       userData.userId,
@@ -146,6 +146,7 @@ export class DatabaseService {
         updatedAt: now,
       }
     )
+    return document as unknown as UserProfile
   }
 
   static async getUser(userId: string): Promise<UserProfile> {
@@ -195,9 +196,9 @@ export class DatabaseService {
   }
 
   // Wallet operations
-  static async createWallet(walletData: Omit<Wallet, 'walletId' | 'createdAt'>) {
+  static async createWallet(walletData: Omit<Wallet, 'walletId' | 'createdAt'>): Promise<Wallet> {
     const walletId = ID.unique()
-    return await databases.createDocument(
+    const document = await databases.createDocument(
       DATABASE_ID,
       COLLECTION_IDS.WALLETS,
       walletId,
@@ -207,6 +208,7 @@ export class DatabaseService {
         createdAt: new Date().toISOString(),
       }
     )
+    return document as unknown as Wallet
   }
 
   static async getUserWallets(userId: string): Promise<Wallet[]> {
@@ -288,9 +290,9 @@ export class DatabaseService {
   }
 
   // Transaction operations
-  static async createTransaction(txData: Omit<Transaction, 'transactionId' | 'createdAt'>) {
+  static async createTransaction(txData: Omit<Transaction, 'transactionId' | 'createdAt'>): Promise<Transaction> {
     const transactionId = ID.unique()
-    return await databases.createDocument(
+    const document = await databases.createDocument(
       DATABASE_ID,
       COLLECTION_IDS.TRANSACTIONS,
       transactionId,
@@ -300,6 +302,7 @@ export class DatabaseService {
         createdAt: new Date().toISOString(),
       }
     )
+    return document as unknown as Transaction
   }
 
   static async getUserTransactions(userId: string, limit = 50): Promise<Transaction[]> {
