@@ -84,19 +84,6 @@ export function Sidebar({ mobile = false, onClose }: SidebarProps) {
           )
         })}
       </nav>
-
-      {/* Profile Section */}
-      <div className="border-t border-neutral-200 p-4">
-        <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-neutral-100 transition-colors cursor-pointer">
-          <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
-            <FiUser className="h-4 w-4 text-primary-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-neutral-900 truncate">John Doe</p>
-            <p className="text-xs text-neutral-500 truncate">john@example.com</p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

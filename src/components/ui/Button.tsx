@@ -1,69 +1,55 @@
 'use client'
 
 import React from 'react'
-import { motion } from 'framer-motion'
+import { cva, VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success'
-type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-
-const getButtonClasses = (variant: ButtonVariant, size: ButtonSize) => {
-  // Added transition duration from animations.md
-  const baseClasses = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transform-gpu'
-  
-  const variantClasses = {
-    primary: 'bg-indigo-600 text-white hover:bg-indigo-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/25 active:translate-y-0 active:duration-100 focus:ring-indigo-500',
-    secondary: 'bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 hover:-translate-y-1 hover:shadow-md focus:ring-gray-500',
-    ghost: 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 hover:backdrop-blur-sm focus:ring-indigo-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-red-500/25 active:translate-y-0 active:duration-100 focus:ring-red-500',
-    success: 'bg-green-600 text-white hover:bg-green-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-green-500/25 active:translate-y-0 active:duration-100 focus:ring-green-500',
-  }
-  
-  const sizeClasses = {
-    xs: 'h-7 px-2 text-xs',
-    sm: 'h-8 px-3 text-sm',
-    md: 'h-10 px-4 text-sm',
-    lg: 'h-11 px-6 text-base',
-    xl: 'h-12 px-8 text-lg',
-  }
-  
-  return cn(baseClasses, variantClasses[variant], sizeClasses[size])
-}
-
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant
-  size?: ButtonSize
-  loading?: boolean
-  leftIcon?: React.ReactNode
-  rightIcon?: React.ReactNode
-}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', loading, leftIcon, rightIcon, children, disabled, ...props }, ref) => {
-    return (
-      <motion.button
-        ref={ref}
-        className={cn(getButtonClasses(variant, size), className)}
-        disabled={disabled || loading}
-        whileTap={{ scale: 0.98 }}
-        {...props}
-      >
-        {loading ? (
-          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-        ) : leftIcon ? (
-          <span className="mr-2">{leftIcon}</span>
-        ) : null}
-        
-        {children}
-        
-        {rightIcon && !loading && (
-          <span className="ml-2">{rightIcon}</span>
-        )}
-      </motion.button>
-    )
+const buttonVariants = cva(
+  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary-600 text-white hover:bg-primary-700',
+        secondary: 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200',
+        outline: 'border border-neutral-300 text-neutral-700 hover:bg-neutral-50',
+        ghost: 'bg-transparent text-neutral-700 hover:bg-neutral-100',
+        danger: 'bg-red-600 text-white hover:bg-red-700',
+      },
+      size: {
+        default: 'h-10 py-2 px-4',
+        sm: 'h-9 px-3 rounded-md',
+        lg: 'h-11 px-8 rounded-md',
+        icon: 'h-10 w-10',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
   }
 )
 
-Button.displayName = 'Button'
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  icon?: React.ReactNode
+}
 
-export { Button }
+export function Button({
+  className,
+  variant,
+  size,
+  icon,
+  children,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    >
+      {icon && <span className="mr-2">{icon}</span>}
+      {children}
+    </button>
+  )
+}

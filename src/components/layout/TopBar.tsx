@@ -1,15 +1,21 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import {
   FiMenu,
   FiSearch,
   FiBell,
   FiUser,
   FiPlus,
-  FiSend
+  FiSend,
+  FiLogOut,
+  FiSettings,
+  FiShield
 } from 'react-icons/fi'
 
 interface TopBarProps {
@@ -18,6 +24,28 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
+  const { user, signOut, isLoading } = useAuth()
+  const router = useRouter()
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/auth/login')
+    } catch (error) {
+      console.error('Sign out failed:', error)
+    }
+  }
+
+  // Get display name from user data
+  const displayName = user?.profile?.displayName || user?.name || 'Account'
+  
+  // Get first letter of name for avatar
+  const firstLetter = displayName.charAt(0).toUpperCase()
+
+  // Get email
+  const email = user?.email || ''
+
   return (
     <header className={cn(
       'flex h-16 items-center justify-between bg-white border-b border-neutral-200 px-6',
@@ -60,6 +88,16 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
         )}
       </div>
 
+      {/* Center Section - Logo for desktop */}
+      {!mobile && (
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-primary-500 flex items-center justify-center">
+            <span className="text-white font-bold text-sm">LP</span>
+          </div>
+          <span className="font-semibold text-neutral-900">LancerPay</span>
+        </div>
+      )}
+
       {/* Right Section */}
       <div className="flex items-center gap-3">
         {/* Quick Actions - Desktop */}
@@ -68,9 +106,11 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             <Button size="sm" variant="ghost" icon={<FiPlus className="h-4 w-4" />}>
               Add Wallet
             </Button>
-            <Button size="sm" icon={<FiSend className="h-4 w-4" />}>
-              Send
-            </Button>
+            <Link href="/send">
+              <Button size="sm" icon={<FiSend className="h-4 w-4" />}>
+                Send
+              </Button>
+            </Link>
           </div>
         )}
 
@@ -82,15 +122,80 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
           </span>
         </button>
 
-        {/* Profile */}
-        <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-neutral-100 transition-colors">
-          <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
-            <FiUser className="h-4 w-4 text-primary-600" />
-          </div>
-          {!mobile && (
-            <span className="text-sm font-medium text-neutral-900">John</span>
+        {/* Profile Dropdown */}
+        <div className="relative">
+          <button 
+            onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+            className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
+          >
+            <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
+              {user?.profile?.profileImage ? (
+                <img 
+                  src={user.profile.profileImage} 
+                  alt={displayName}
+                  className="h-8 w-8 rounded-full object-cover" 
+                />
+              ) : (
+                <span className="font-semibold text-primary-600">{firstLetter}</span>
+              )}
+            </div>
+            {!mobile && (
+              <span className="text-sm font-medium text-neutral-900">
+                {isLoading ? '...' : (displayName.split(' ')[0] || 'Account')}
+              </span>
+            )}
+          </button>
+
+          {/* Dropdown Menu */}
+          {profileDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-1 z-50 border border-neutral-200">
+              <div className="px-4 py-3 border-b border-neutral-200">
+                <p className="text-sm font-medium text-neutral-900">{displayName}</p>
+                <p className="text-xs text-neutral-500 truncate">{email}</p>
+              </div>
+              
+              <div className="py-1">
+                <Link 
+                  href="/profile" 
+                  className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
+                  onClick={() => setProfileDropdownOpen(false)}
+                >
+                  <FiUser className="mr-3 h-4 w-4 text-neutral-500" />
+                  Your Profile
+                </Link>
+                <Link 
+                  href="/settings" 
+                  className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
+                  onClick={() => setProfileDropdownOpen(false)}
+                >
+                  <FiSettings className="mr-3 h-4 w-4 text-neutral-500" />
+                  Settings
+                </Link>
+                <Link 
+                  href="/settings/security" 
+                  className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
+                  onClick={() => setProfileDropdownOpen(false)}
+                >
+                  <FiShield className="mr-3 h-4 w-4 text-neutral-500" />
+                  Security
+                </Link>
+              </div>
+              
+              <div className="py-1 border-t border-neutral-200">
+                <button
+                  onClick={() => {
+                    setProfileDropdownOpen(false)
+                    handleSignOut()
+                  }}
+                  className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-neutral-100"
+                >
+                  <FiLogOut className="mr-3 h-4 w-4" />
+                  Sign out
+                </button>
+              </div>
+            </div>
           )}
-        </button>
+        </div>
       </div>
     </header>
   )

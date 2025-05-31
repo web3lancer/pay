@@ -1,20 +1,34 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
 import { FiUser, FiLock, FiBell, FiGlobe, FiShield, FiDollarSign, FiToggleLeft, FiToggleRight, FiInfo } from 'react-icons/fi'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function SettingsClient() {
+  const { user, updateProfile, isLoading } = useAuth()
+  
   // Settings state
   const [profileForm, setProfileForm] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+1 (555) 123-4567'
+    name: '',
+    email: '',
+    phone: ''
   })
+
+  // Initialize form with user data when available
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        name: user.profile?.displayName || user.name || '',
+        email: user.email || '',
+        phone: user.profile?.phoneNumber || ''
+      })
+    }
+  }, [user])
   
   const [notifications, setNotifications] = useState({
     transactions: true,
@@ -54,14 +68,36 @@ export function SettingsClient() {
     })
   }
   
-  // Save changes (would connect to API in real app)
-  const handleSave = () => {
-    console.log('Saving settings:', {
-      profile: profileForm,
-      notifications,
-      preferences
-    })
-    // Would show success toast here
+  // Save changes
+  const handleSave = async () => {
+    try {
+      // Update profile if user exists
+      if (user) {
+        await updateProfile({
+          displayName: profileForm.name,
+          phoneNumber: profileForm.phone,
+        })
+      }
+      
+      // Log other settings that would be saved in a real app
+      console.log('Saving settings:', {
+        notifications: {
+          transactions: notifications.transactions,
+          security: notifications.security,
+          marketing: notifications.marketing,
+          priceAlerts: notifications.priceAlerts
+        },
+        preferences: {
+          currency: preferences.currency,
+          theme: preferences.theme,
+          language: preferences.language,
+          reducedMotion: preferences.reducedMotion
+        }
+      })
+      // Would show success toast here
+    } catch (error) {
+      console.error('Failed to save settings:', error)
+    }
   }
 
   return (
@@ -74,7 +110,7 @@ export function SettingsClient() {
         </div>
 
         {/* Settings Tabs */}
-        <Tabs value="profile" className="w-full">
+        <Tabs defaultValue="profile" className="w-full" onValueChange={() => {}}>
           <TabsList>
             <TabsTrigger value="profile">
               <FiUser className="h-4 w-4 mr-2" />
