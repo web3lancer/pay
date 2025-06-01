@@ -9,7 +9,7 @@ import {
   FiSend, FiDownload, FiCode, FiShield, FiGlobe, FiZap, 
   FiArrowRight, FiCheck, FiStar, FiUsers, FiTrendingUp,
   FiCreditCard, FiLock, FiRefreshCw, FiEye, FiHeart,
-  FiBarChart3, FiTarget, FiPlay, FiChevronDown
+  FiBarChart, FiTarget, FiPlay, FiChevronDown
 } from 'react-icons/fi'
 
 export default function LandingPage() {
@@ -227,7 +227,7 @@ export default function LandingPage() {
                     transition={{ delay: 0.5 }}
                   >
                     <Link
-                      href="/auth"
+                      href="/auth/login"
                       className="text-slate-600 hover:text-cyan-600 font-medium transition-colors"
                     >
                       Sign In
@@ -239,7 +239,7 @@ export default function LandingPage() {
                     transition={{ type: "spring", stiffness: 300, delay: 0.6 }}
                   >
                     <Link
-                      href="/auth"
+                      href="/auth/signup"
                       className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2.5 rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 font-semibold"
                     >
                       Get Started
@@ -305,7 +305,7 @@ export default function LandingPage() {
                   transition={{ type: "spring", stiffness: 400 }}
                 >
                   <Link
-                    href={isAuthenticated ? "/home" : "/auth"}
+                    href={isAuthenticated ? "/home" : "/auth/login"}
                     className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden"
                   >
                     <motion.div
@@ -825,7 +825,7 @@ export default function LandingPage() {
                 transition={{ type: "spring", stiffness: 400 }}
               >
                 <Link
-                  href={isAuthenticated ? "/home" : "/auth"}
+                  href={isAuthenticated ? "/home" : "/auth/login"}
                   className="group relative inline-flex items-center justify-center px-10 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden"
                 >
                   <motion.div

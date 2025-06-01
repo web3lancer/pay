@@ -54,7 +54,7 @@ export default function HomePage() {
   }
 
   if (!isAuthenticated) {
-    return null // Will redirect via useEffect
+    // return null // Will redirect via useEffect
   }
 
   return (
