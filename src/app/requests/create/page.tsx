@@ -215,7 +215,7 @@ export default function CreateRequestPage() {
           {isValidForm() && (
             <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-6">
               <h3 className="font-medium text-cyan-900 mb-3">
-                <FiQrCode className="w-4 h-4 inline mr-2" />
+                <FiCode className="w-4 h-4 inline mr-2" />
                 Payment Request Preview
               </h3>
               <div className="space-y-2 text-sm">
@@ -264,7 +264,7 @@ export default function CreateRequestPage() {
                 'Creating...'
               ) : (
                 <>
-                  <FiQrCode className="w-4 h-4 mr-2" />
+                  <FiCode className="w-4 h-4 mr-2" />
                   Create Request
                 </>
               )}
