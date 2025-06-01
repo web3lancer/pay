@@ -47,7 +47,7 @@ export function AuthGuard({
 
     // Condition 3: Authenticated (not guest), profile complete, but on /auth/complete-profile page
     if (isAuthenticated && !isGuest && !needsProfileCompletion && pathname === '/auth/complete-profile') {
-      router.push('/'); // Redirect to homepage (or a specific dashboard route if preferred)
+      router.push('/home'); // Redirect to homepage (or a specific dashboard route if preferred)
       return;
     }
   }, [isLoading, isAuthenticated, isGuest, needsProfileCompletion, pathname, router, requireAuth, redirectTo]);

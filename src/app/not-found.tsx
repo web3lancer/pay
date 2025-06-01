@@ -122,7 +122,7 @@ export default function NotFound() {
       if (query.includes('wallet')) router.push('/wallets')
       else if (query.includes('send')) router.push('/send')
       else if (query.includes('exchange') || query.includes('swap')) router.push('/exchange')
-      else if (query.includes('dashboard') || query.includes('home')) router.push('/')
+      else if (query.includes('dashboard') || query.includes('home')) router.push('/home')
       else router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
     }
   }
@@ -240,7 +240,7 @@ export default function NotFound() {
           <div className="text-center space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
-                href="/"
+                href="/home"
                 className="px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 🏠 Take me home

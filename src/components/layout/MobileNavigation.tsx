@@ -17,7 +17,7 @@ export function MobileNavigation() {
   const [showQuickActions, setShowQuickActions] = useState(false)
 
   const mainNavItems = [
-    { icon: FiHome, label: 'Home', path: '/' },
+    { icon: FiHome, label: 'Home', path: '/home' },
     { icon: FiCreditCard, label: 'Wallets', path: '/wallets' },
     { icon: FiPieChart, label: 'Portfolio', path: '/portfolio' },
     { icon: FiUser, label: 'Profile', path: '/profile' }

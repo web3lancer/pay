@@ -11,7 +11,7 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: '🏠' },
+  { name: 'Dashboard', href: '/home', icon: '🏠' },
   { name: 'Wallets', href: '/wallets', icon: '👛' },
   { name: 'Send', href: '/send', icon: '📤' },
   { name: 'Request', href: '/requests', icon: '📥' },
