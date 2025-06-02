@@ -30,7 +30,7 @@ $ cd lancerpay
 $ pnpm install
 
 # 3. Copy and edit your .env
-$ cp .env.example .env
+$ cp env.sample .env
 # (Fill in your Appwrite and API keys)
 
 # 4. Start the dev server
@@ -59,10 +59,9 @@ LancerPay is designed to bridge Web2 and Web3 payments seamlessly. You can send 
 - **Native support for Bless Network (BLS, USDC, ETH, USDT, BTC)**
 - **Escrow payments** for freelancers and milestone-based projects
 - **Web2 ↔ Web3 bridge**: Sync payment requests and statuses between the frontend and the Bless Network backend
-- **API endpoints** for payment processing, escrow creation, and wallet management
+- **API endpoints** for payment processing, escrow creation, and wallet management [Blessnet deployment](https://coral-earwig-verene-2jkylule.bls.dev/)
 - **Frontend URI**: [https://pay.web3lancer.website](https://pay.web3lancer.website)
-
----
+- **Blessnet repo**: [Blessnet repository](https://github.com/web3lancer/lancerpaybless.git)
 
 ## Roadmap
 
