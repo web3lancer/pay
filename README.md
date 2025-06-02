@@ -1,28 +1,10 @@
-<!-- LancerPay README -->
+# 🚀 LancerPay
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/your-org/lancerpay-assets/main/logo-animated.gif" alt="LancerPay Logo" width="120"/>
-</p>
+**The next-gen payment platform for freelancers, businesses, and the web3 world.**
 
-<h1 align="center">🚀 LancerPay</h1>
-
-<p align="center">
-  <b>The next-gen payment platform for freelancers, businesses, and the web3 world.</b><br/>
-  <i>Fast. Secure. Multi-currency. Modern. Ambitious.</i>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/github/license/your-org/lancerpay?style=flat-square"/>
-  <img src="https://img.shields.io/github/stars/your-org/lancerpay?style=flat-square"/>
-  <img src="https://img.shields.io/github/issues/your-org/lancerpay?style=flat-square"/>
-  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square"/>
-</p>
+![LancerPay Logo](https://raw.githubusercontent.com/your-org/lancerpay-assets/main/logo-animated.gif)
 
 ---
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/your-org/lancerpay-assets/main/hero-animated.gif" alt="LancerPay Animated Hero" width="600"/>
-</p>
 
 ## Features
 
@@ -57,12 +39,6 @@ $ pnpm dev
 
 ---
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/your-org/lancerpay-assets/main/dashboard-animated.gif" alt="LancerPay Dashboard" width="700"/>
-</p>
-
----
-
 ## Tech Stack
 
 - **Next.js 15** + **React 19**
@@ -75,13 +51,27 @@ $ pnpm dev
 
 ---
 
+## Web3 Integrations
+
+LancerPay is designed to bridge Web2 and Web3 payments seamlessly. You can send and receive crypto payments, manage blockchain wallets, and interact with smart contracts directly from the app.
+
+### Bless Network Integration
+- **Native support for Bless Network (BLS, USDC, ETH, USDT, BTC)**
+- **Escrow payments** for freelancers and milestone-based projects
+- **Web2 ↔ Web3 bridge**: Sync payment requests and statuses between the frontend and the Bless Network backend
+- **API endpoints** for payment processing, escrow creation, and wallet management
+- **Frontend URI**: [https://pay.web3lancer.website](https://pay.web3lancer.website)
+
+---
+
 ## Roadmap
 
 - [x] Email/password & OAuth login (Google, GitHub)
 - [x] Animated dashboard & onboarding
 - [x] Multi-currency wallet support
 - [x] KYC & 2FA security
-- [ ] Invoicing & payment requests
+- [x] Invoicing & payment requests
+- [x] Bless Network integration
 - [ ] Token swaps & on/off ramp
 - [ ] Mobile app (PWA)
 - [ ] Marketplace for freelancers
@@ -102,16 +92,7 @@ We welcome PRs, issues, and ideas! See [CONTRIBUTING.md](CONTRIBUTING.md) for de
 
 ## Screenshots
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/your-org/lancerpay-assets/main/screenshot1.png" width="350"/>
-  <img src="https://raw.githubusercontent.com/your-org/lancerpay-assets/main/screenshot2.png" width="350"/>
-</p>
-
----
-
-## Inspiration
-
-> "The future of payments is borderless, instant, and open. LancerPay is our vision for that future."
+![Dashboard](https://raw.githubusercontent.com/your-org/lancerpay-assets/main/dashboard-animated.gif)
 
 ---
 
