@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { DatabaseService } from '@/lib/database'
 
 // Defensive: Ensure required environment variables are set at runtime
-const requiredEnvVars = ['BRIDGE_API_KEY', 'DATABASE_URL']; // Add any others used by DatabaseService
+const requiredEnvVars = [
+  'BRIDGE_API_KEY',
+  'DATABASE_URL',
+  'APPWRITE_ENDPOINT', // Add this
+  // Add any other Appwrite env vars you use, e.g.:
+  // 'APPWRITE_PROJECT_ID',
+  // 'APPWRITE_API_KEY',
+];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar] || typeof process.env[envVar] !== 'string') {
     // eslint-disable-next-line no-console
