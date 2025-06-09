@@ -4,8 +4,7 @@ import { DatabaseService } from '@/lib/database'
 // Defensive: Ensure required environment variables are set at runtime
 const requiredEnvVars = [
   'BRIDGE_API_KEY',
-  'DATABASE_URL',
-  'APPWRITE_ENDPOINT', // Add this
+  'NEXT_PUBLIC_APPWRITE_ENDPOINT', // Add this
   // Add any other Appwrite env vars you use, e.g.:
   // 'APPWRITE_PROJECT_ID',
   // 'APPWRITE_API_KEY',

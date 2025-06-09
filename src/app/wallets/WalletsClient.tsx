@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
+import { useExchangeRate } from '@/contexts/ExchangeRateContext'
 // import { motion } from 'framer-motion'
 // import { FiSend, FiDownload, FiRepeat, FiMoreVertical, FiPlus } from 'react-icons/fi'
 
@@ -70,6 +71,7 @@ const wallets = [
 ]
 
 export function WalletsClient() {
+  useExchangeRate()
   const [activeWallet, setActiveWallet] = useState(wallets[0].id)
 
   const handleWalletSelect = (walletId: string) => {
