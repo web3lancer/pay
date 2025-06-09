@@ -1,7 +1,7 @@
 // filepath: /home/nathfavour/Documents/code/web3lancer/pay/src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { routeConfigs, middlewareMatcher } from '@/lib/middleware/config';
+import { routeConfigs } from '@/lib/middleware/config';
 import { matchPath } from '@/lib/middleware/utils';
 import { handleRoute } from '@/lib/middleware/handlers';
 
@@ -35,7 +35,15 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Export the matcher from the config file
+// Export the matcher directly as a literal array (do not import variables)
 export const config = {
-  matcher: middlewareMatcher,
+  matcher: [
+    // Add your route patterns here, e.g.:
+    // '/api/:path*',
+    // '/dashboard/:path*',
+    // '/profile/:path*'
+    // If you want to match all routes, use '/:path*'
+    // Replace below with your actual matcher patterns:
+    '/api/:path*',
+  ],
 };

@@ -55,9 +55,12 @@ export async function POST(request: NextRequest) {
 }
 
 function isValidBridgeAuth(authHeader: string): boolean {
-  const token = authHeader.replace('Bearer ', '')
-  const validBridgeToken = process.env.BRIDGE_API_KEY
-  return token === validBridgeToken
+  if (!authHeader || typeof authHeader !== 'string') return false;
+  const token = authHeader.replace('Bearer ', '');
+  const validBridgeToken = process.env.BRIDGE_API_KEY;
+  // Defensive: ensure validBridgeToken is defined and a string
+  if (!validBridgeToken || typeof validBridgeToken !== 'string') return false;
+  return token === validBridgeToken;
 }
 
 function getClientIP(request: NextRequest): string {
