@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DatabaseService } from '@/lib/database'
 
+// Defensive: Ensure required environment variables are set at runtime
+const requiredEnvVars = ['BRIDGE_API_KEY', 'DATABASE_URL']; // Add any others used by DatabaseService
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar] || typeof process.env[envVar] !== 'string') {
+    // eslint-disable-next-line no-console
+    console.error(`[Startup] Missing required environment variable: ${envVar}`);
+    throw new Error(`Missing required environment variable: ${envVar}`);
+  }
+}
+
 // GET /api/payment-requests/[id] - Get payment request for bridge
 export async function GET(
   request: NextRequest,
@@ -72,12 +82,13 @@ export async function PATCH(
 }
 
 function isValidBridgeAuth(authHeader: string): boolean {
+  if (!authHeader || typeof authHeader !== 'string') return false;
   // Extract bearer token
-  const token = authHeader.replace('Bearer ', '')
-  
+  const token = authHeader.replace('Bearer ', '');
   // Validate against your bridge API key
-  const validBridgeToken = process.env.BRIDGE_API_KEY
-  return token === validBridgeToken
+  const validBridgeToken = process.env.BRIDGE_API_KEY;
+  if (!validBridgeToken || typeof validBridgeToken !== 'string') return false;
+  return token === validBridgeToken;
 }
 
 function getClientIP(request: NextRequest): string {
