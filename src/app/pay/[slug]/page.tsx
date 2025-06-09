@@ -116,11 +116,17 @@ export default function PaySlugPage() {
 
     try {
       const transaction = await sendTransaction({
-        toAddress: 'mock-payment-address', 
+        toAddress: 'mock-payment-address',
         tokenId: paymentRequestData.tokenId,
         amount: paymentRequestData.amount,
         description: `Payment for ${paymentRequestData.invoiceNumber}`,
-        fromWalletId: selectedWalletId
+        fromWalletId: selectedWalletId,
+        fromUserId: '',
+        fromAddress: '',
+        feeAmount: '',
+        status: 'pending',
+        type: 'send',
+        confirmations: 0
       });
       await payPaymentRequest(paymentRequestData.requestId, transaction.transactionId);
       setPaymentRequestSuccess('Payment sent successfully!');
