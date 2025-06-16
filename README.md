@@ -16,6 +16,7 @@
 - 🛡️ **Appwrite-powered**: Robust backend, real-time updates, and OAuth
 - 📱 **Responsive**: Works on all devices
 - 🧑‍💻 **Open Source**: Built for the community, by the community
+- 🎯 **Pitch Deck**: Interactive presentation mode at `/pitch`
 
 ---
 
@@ -35,6 +36,9 @@ $ cp env.sample .env
 
 # 4. Start the dev server
 $ pnpm dev
+
+# 5. View the pitch deck
+Visit http://localhost:3000/pitch for the interactive presentation
 ```
 
 ---
@@ -63,6 +67,17 @@ LancerPay is designed to bridge Web2 and Web3 payments seamlessly. You can send 
 - **Frontend URI**: [https://pay.web3lancer.website](https://pay.web3lancer.website)
 - **Blessnet repo**: [Blessnet repository](https://github.com/web3lancer/lancerpaybless.git)
 
+## Pitch Deck
+
+Visit `/pitch` for an interactive, animated presentation showcasing:
+- Problem & solution overview
+- Market opportunity ($2.8T+ addressable market)
+- Technology stack & architecture
+- Traction metrics (250K+ users, $50M+ volume)
+- Funding requirements & use of funds
+
+The pitch deck features smooth animations, auto-play functionality, and keyboard navigation.
+
 ## Roadmap
 
 - [x] Email/password & OAuth login (Google, GitHub)
@@ -71,6 +86,7 @@ LancerPay is designed to bridge Web2 and Web3 payments seamlessly. You can send 
 - [x] KYC & 2FA security
 - [x] Invoicing & payment requests
 - [x] Bless Network integration
+- [x] Interactive pitch deck presentation
 - [ ] Token swaps & on/off ramp
 - [ ] Mobile app (PWA)
 - [ ] Marketplace for freelancers
