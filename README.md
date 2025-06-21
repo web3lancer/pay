@@ -22,6 +22,7 @@
 
 Paylancer integrates tightly and modularly with MXNB/Bitso and provides robust interfaces for easy payment metadata generation, modification, and sharing for seamless transactions.
 
+LancerPay uniquely combines multi-currency (crypto & fiat) payments, modular wallet management, and seamless Web2/Web3 integration with a modern, open-source platform built for freelancers and businesses.
 ## Quickstart
 
 ```bash
