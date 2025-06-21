@@ -20,6 +20,8 @@
 
 ---
 
+Paylancer integrates tightly and modularly with MXNB/Bitso and provides robust interfaces for easy payment metadata generation, modification, and sharing for seamless transactions.
+
 ## Quickstart
 
 ```bash
