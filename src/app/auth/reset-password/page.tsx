@@ -7,6 +7,10 @@ import { FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
 import { account } from '@/lib/appwrite'
 import Link from 'next/link'
 import { SearchParamsWrapper } from '@/components/SearchParamsWrapper'
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
+import Image from 'next/image'
+import { completePasswordRecovery } from '@/lib/appwrite'
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams()
@@ -73,14 +77,12 @@ function ResetPasswordContent() {
       setIsSubmitting(true)
       setError('')
 
-      await account.updateRecovery(
+      await completePasswordRecovery(
         userId,
         secret,
-        formData.password,
-        formData.confirmPassword
+        formData.password
       )
 
-      // Redirect to login with success message
       router.push('/auth/login?message=password-reset-success')
     } catch (error: any) {
       setError(error.message || 'Failed to reset password')
@@ -92,25 +94,38 @@ function ResetPasswordContent() {
   if (!userId || !secret) {
     return (
       <Suspense>
-        <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-md w-full space-y-8">
-            <div className="text-center">
-              <h2 className="mt-6 text-3xl font-bold text-neutral-900">
-                Invalid Reset Link
-              </h2>
-              <p className="mt-2 text-sm text-neutral-600">
-                This password reset link is invalid or has expired.
-              </p>
-              <div className="mt-6">
-                <Link
-                  href="/auth/forgot-password"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                >
-                  Request New Reset Link
-                </Link>
-              </div>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
+          <Card className="w-full max-w-md shadow-2xl">
+            <div className="flex justify-center pt-8 pb-2">
+              <Image
+                src="/images/logo.png"
+                alt="LancerPay Logo"
+                width={56}
+                height={56}
+                className="rounded-xl shadow-lg"
+                priority
+              />
             </div>
-          </div>
+            <CardHeader className="text-center">
+              <CardTitle>Invalid Reset Link</CardTitle>
+              <CardDescription>
+                This password reset link is invalid or has expired.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mt-6 flex flex-col items-center">
+                <Button
+                  asChild
+                  variant="primary"
+                  className="w-full"
+                >
+                  <Link href="/auth/forgot-password">
+                    Request New Reset Link
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </Suspense>
     )
@@ -118,112 +133,96 @@ function ResetPasswordContent() {
 
   return (
     <Suspense>
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="text-center">
-              <h2 className="mt-6 text-3xl font-bold text-neutral-900">
-                Reset your password
-              </h2>
-              <p className="mt-2 text-sm text-neutral-600">
-                Enter your new password below.
-              </p>
-            </div>
-
-            <div className="mt-8 bg-white py-8 px-6 shadow-sm rounded-lg border border-neutral-200">
-              {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600">{error}</p>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
-                    New Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FiLock className="h-5 w-5 text-neutral-400" />
-                    </div>
-                    <input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={formData.password}
-                      onChange={(e) => handleInputChange('password', e.target.value)}
-                      className="block w-full pl-10 pr-10 py-2 border border-neutral-300 rounded-md placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      placeholder="Enter your new password"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    >
-                      {showPassword ? (
-                        <FiEyeOff className="h-5 w-5 text-neutral-400" />
-                      ) : (
-                        <FiEye className="h-5 w-5 text-neutral-400" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
-                    Confirm New Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FiLock className="h-5 w-5 text-neutral-400" />
-                    </div>
-                    <input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      value={formData.confirmPassword}
-                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                      className="block w-full pl-10 pr-10 py-2 border border-neutral-300 rounded-md placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      placeholder="Confirm your new password"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    >
-                      {showConfirmPassword ? (
-                        <FiEyeOff className="h-5 w-5 text-neutral-400" />
-                      ) : (
-                        <FiEye className="h-5 w-5 text-neutral-400" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? 'Resetting...' : 'Reset Password'}
-                </button>
-              </form>
-
-              <div className="mt-6 text-center">
-                <Link
-                  href="/auth/login"
-                  className="text-sm text-primary-600 hover:text-primary-500"
-                >
-                  Back to Login
-                </Link>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Card className="w-full max-w-md shadow-2xl">
+          <div className="flex justify-center pt-8 pb-2">
+            <Image
+              src="/images/logo.png"
+              alt="LancerPay Logo"
+              width={56}
+              height={56}
+              className="rounded-xl shadow-lg"
+              priority
+            />
+          </div>
+          <CardHeader className="text-center">
+            <CardTitle>Reset your password</CardTitle>
+            <CardDescription>
+              Enter your new password below.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-center">
+                <p className="text-sm text-red-600">{error}</p>
               </div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-4 text-center">
+              <div>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-neutral-200 focus:border-cyan-500 outline-none text-center"
+                  placeholder="New Password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <FiEyeOff className="h-5 w-5 text-neutral-400" />
+                  ) : (
+                    <FiEye className="h-5 w-5 text-neutral-400" />
+                  )}
+                </button>
+              </div>
+              <div>
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-neutral-200 focus:border-cyan-500 outline-none text-center"
+                  placeholder="Confirm New Password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <FiEyeOff className="h-5 w-5 text-neutral-400" />
+                  ) : (
+                    <FiEye className="h-5 w-5 text-neutral-400" />
+                  )}
+                </button>
+              </div>
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Resetting...' : 'Reset Password'}
+              </Button>
+            </form>
+            <div className="mt-6 text-center">
+              <Link
+                href="/auth/login"
+                className="text-sm text-cyan-600 hover:underline"
+              >
+                Back to Login
+              </Link>
             </div>
-          </motion.div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </Suspense>
   )
@@ -232,8 +231,8 @@ function ResetPasswordContent() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-500"></div>
       </div>
     }>
       <ResetPasswordContent />

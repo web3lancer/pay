@@ -12,6 +12,7 @@ import {
 } from '@/lib/appwrite'
 import { ID } from 'appwrite'
 import Link from 'next/link'
+import Image from 'next/image'
 
 type Mode = 'email' | 'otp' | 'magic'
 
@@ -108,6 +109,16 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <Card className="w-full max-w-md shadow-2xl">
+        <div className="flex justify-center pt-8 pb-2">
+          <Image
+            src="/images/logo.png"
+            alt="LancerPay Logo"
+            width={56}
+            height={56}
+            className="rounded-xl shadow-lg"
+            priority
+          />
+        </div>
         <CardHeader className="text-center">
           <CardTitle>Sign In</CardTitle>
           <CardDescription>
@@ -162,6 +173,11 @@ export default function LoginPage() {
               <Button type="submit" variant="primary" className="w-full" disabled={loading}>
                 {loading ? 'Signing in...' : 'Sign In'}
               </Button>
+              <div className="mt-2 text-right">
+                <Link href="/auth/reset-password" className="text-sm text-cyan-600 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
             </form>
           )}
           {mode === 'otp' && (

@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Storage, ID, Query, Avatars } from 'appwrite'
+import { Client, Account, Databases, Storage, ID, Query, Avatars, AuthenticationFactor } from 'appwrite'
 
 // Initialize Appwrite client
 const client = new Client()
@@ -41,9 +41,9 @@ export const BUCKET_IDS = {
 
 // --- Account/Auth Flows ---
 
-// Email/password signup
-export async function signupEmailPassword(email: string, password: string, userId: string = ID.unique()) {
-  return account.create(userId, email, password)
+// Email/password signup (with name)
+export async function signupEmailPassword(email: string, password: string, name: string, userId: string = ID.unique()) {
+  return account.create(userId, email, password, name)
 }
 
 // Email/password login
@@ -59,6 +59,13 @@ export async function sendEmailVerification(redirectUrl: string) {
 // Complete email verification
 export async function completeEmailVerification(userId: string, secret: string) {
   return account.updateVerification(userId, secret)
+}
+
+// Fetch current user's verification status
+export async function getEmailVerificationStatus() {
+  const user = await account.get()
+  // Appwrite returns user.emailVerification as a boolean
+  return user.emailVerification
 }
 
 // Password recovery (send email)

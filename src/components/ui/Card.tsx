@@ -3,13 +3,22 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'indigo'
+}
 
-export function Card({ className, ...props }: CardProps) {
+export function Card({ className, variant = 'default', ...props }: CardProps) {
+  const base =
+    "rounded-2xl backdrop-blur-lg glassmorphism-card";
+  const variants = {
+    default: "bg-white/60 border border-white/30 shadow-xl shadow-indigo-500/20",
+    indigo: "bg-gradient-to-br from-indigo-500/70 via-indigo-600/60 to-indigo-700/70 border border-indigo-300/30 shadow-xl shadow-indigo-600/30",
+  }
   return (
-    <div 
+    <div
       className={cn(
-        "bg-white border border-neutral-200 rounded-lg shadow-sm overflow-hidden", 
+        base,
+        variants[variant],
         className
       )}
       {...props}

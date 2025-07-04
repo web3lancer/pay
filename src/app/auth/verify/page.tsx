@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
 import { motion } from 'framer-motion'
 import { FiCheck, FiX, FiLoader } from 'react-icons/fi'
 import Link from 'next/link'
 import { SearchParamsWrapper } from '@/components/SearchParamsWrapper'
+import { completeEmailVerification } from '@/lib/appwrite'
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { verifyEmail } = useAuth()
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
   const [error, setError] = useState('')
 
@@ -29,10 +28,8 @@ function VerifyEmailContent() {
 
   const handleVerification = async (userId: string, secret: string) => {
     try {
-      await verifyEmail(userId, secret)
+      await completeEmailVerification(userId, secret)
       setStatus('success')
-      
-      // Redirect to dashboard after 3 seconds
       setTimeout(() => {
         router.push('/')
       }, 3000)
