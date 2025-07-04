@@ -1,5 +1,243 @@
-import { AuthClient } from '../AuthClient'
+'use client'
+
+import { useState } from 'react'
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
+import { 
+  signupEmailPassword, 
+  sendEmailOtp, 
+  completeEmailOtpLogin, 
+  sendMagicUrl, 
+  completeMagicUrlLogin 
+} from '@/lib/appwrite'
+import { ID } from 'appwrite'
+import Link from 'next/link'
+
+type Mode = 'email' | 'otp' | 'magic'
 
 export default function SignupPage() {
-  return <AuthClient mode="signup" />
+  const [mode, setMode] = useState<Mode>('email')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
+  const [password, setPassword] = useState('')
+  const [password2, setPassword2] = useState('')
+  const [otpSent, setOtpSent] = useState(false)
+  const [otpUserId, setOtpUserId] = useState('')
+  const [otpSecret, setOtpSecret] = useState('')
+  const [otp, setOtp] = useState('')
+  const [magicSent, setMagicSent] = useState(false)
+  const [magicUserId, setMagicUserId] = useState('')
+  const [magicSecret, setMagicSecret] = useState('')
+
+  // Email/password signup
+  async function handleEmailSignup(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    if (password !== password2) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+    try {
+      await signupEmailPassword(email, password)
+      // Optionally update name after signup
+      // await account.updateName(name)
+      window.location.href = '/home'
+    } catch (err: any) {
+      setError(err?.message || 'Signup failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Email OTP flow
+  async function handleSendOtp(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await sendEmailOtp(email)
+      setOtpUserId(res.userId)
+      setOtpSecret(res.secret || '')
+      setOtpSent(true)
+    } catch (err: any) {
+      setError(err?.message || 'Failed to send OTP')
+    } finally {
+      setLoading(false)
+    }
+  }
+  async function handleOtpSignup(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    try {
+      await completeEmailOtpLogin(otpUserId, otp)
+      window.location.href = '/home'
+    } catch (err: any) {
+    setLoading(true)
+    setError(null)
+    try {
+      const redirectUrl = window.location.origin + '/auth/signup'
+      const res = await sendMagicUrl(email, redirectUrl)
+      setMagicUserId(res.userId)
+      setMagicSecret(res.secret || '')
+      setMagicSent(true)
+    } catch (err: any) {
+      setError(err?.message || 'Failed to send magic link')
+    } finally {
+      setLoading(false)
+    }
+  }
+  async function handleMagicSignup(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    try {
+      await completeMagicUrlLogin(magicUserId, magicSecret)
+      window.location.href = '/home'
+    } catch (err: any) {
+      setError(err?.message || 'Magic link signup failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <Card className="w-full max-w-md shadow-2xl">
+        <CardHeader>
+          <CardTitle>Sign Up</CardTitle>
+          <CardDescription>
+            Create your account with your preferred method.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex space-x-2 mb-6">
+            <Button 
+              variant={mode === 'email' ? 'primary' : 'outline'} 
+              onClick={() => setMode('email')}
+              size="sm"
+            >
+              Email/Password
+            </Button>
+            <Button 
+              variant={mode === 'otp' ? 'primary' : 'outline'} 
+              onClick={() => setMode('otp')}
+              size="sm"
+            >
+              Email OTP
+            </Button>
+            <Button 
+              variant={mode === 'magic' ? 'primary' : 'outline'} 
+              onClick={() => setMode('magic')}
+              size="sm"
+            >
+              Magic Link
+            </Button>
+          </div>
+          {error && <div className="mb-4 text-red-600 text-sm">{error}</div>}
+          {mode === 'email' && (
+            <form onSubmit={handleEmailSignup} className="space-y-4">
+              <input
+                type="email"
+                required
+                placeholder="Email"
+                className="w-full px-4 py-3 rounded-lg border border-neutral-200 focus:border-cyan-500 outline-none"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                autoComplete="email"
+              />
+              <input
+                type="password"
+                required
+                placeholder="Password"
+                className="w-full px-4 py-3 rounded-lg border border-neutral-200 focus:border-cyan-500 outline-none"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+              <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+                {loading ? 'Signing up...' : 'Sign Up'}
+              </Button>
+            </form>
+          )}
+          {mode === 'otp' && (
+            !otpSent ? (
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <input
+                  type="email"
+                  required
+                  placeholder="Email"
+                  className="w-full px-4 py-3 rounded-lg border border-neutral-200 focus:border-cyan-500 outline-none"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  autoComplete="email"
+                />
+                <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+                  {loading ? 'Sending OTP...' : 'Send OTP'}
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handleOtpSignup} className="space-y-4">
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter OTP"
+                  className="w-full px-4 py-3 rounded-lg border border-neutral-200 focus:border-cyan-500 outline-none"
+                  value={otp}
+                  onChange={e => setOtp(e.target.value)}
+                  autoComplete="one-time-code"
+                />
+                <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+                  {loading ? 'Verifying...' : 'Verify & Signup'}
+                </Button>
+              </form>
+            )
+          )}
+          {mode === 'magic' && (
+            !magicSent ? (
+              <form onSubmit={handleSendMagic} className="space-y-4">
+                <input
+                  type="email"
+                  required
+                  placeholder="Email"
+                  className="w-full px-4 py-3 rounded-lg border border-neutral-200 focus:border-cyan-500 outline-none"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  autoComplete="email"
+                />
+                <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+                  {loading ? 'Sending Link...' : 'Send Magic Link'}
+                </Button>
+              </form>
+            ) : (
+              <div className="text-center space-y-4">
+                <div className="text-cyan-700 font-medium">
+                  Check your email for a magic link!
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => { setMagicSent(false); setEmail(''); }}
+                >
+                  Use another email
+                </Button>
+              </div>
+            )
+          )}
+        </CardContent>
+        <CardFooter className="flex flex-col items-center space-y-2">
+          <span className="text-sm text-neutral-500">
+            Already have an account?{' '}
+            <Link href="/auth/login" className="text-cyan-600 hover:underline">
+              Sign in
+            </Link>
+          </span>
+        </CardFooter>
+      </Card>
+    </div>
+  )
 }
