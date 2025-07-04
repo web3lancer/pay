@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Storage, ID, Query } from 'appwrite'
+import { Client, Account, Databases, Storage, ID, Query, Avatars } from 'appwrite'
 
 // Initialize Appwrite client
 const client = new Client()
@@ -11,6 +11,7 @@ client
 export const account = new Account(client)
 export const databases = new Databases(client)
 export const storage = new Storage(client)
+export const avatars = new Avatars(client)
 export { ID, Query }
 
 // Database and collection IDs from environment variables
@@ -36,6 +37,106 @@ export const BUCKET_IDS = {
   BACKUPS: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_BACKUPS!,
   SYSTEM_LOGS: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_SYSTEM_LOGS!,
   TEMP_FILES: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_TEMP_FILES!,
+}
+
+// --- Account/Auth Flows ---
+
+// Email/password signup
+export async function signupEmailPassword(email: string, password: string, userId: string = ID.unique()) {
+  return account.create(userId, email, password)
+}
+
+// Email/password login
+export async function loginEmailPassword(email: string, password: string) {
+  return account.createEmailPasswordSession(email, password)
+}
+
+// Send email verification
+export async function sendEmailVerification(redirectUrl: string) {
+  return account.createVerification(redirectUrl)
+}
+
+// Complete email verification
+export async function completeEmailVerification(userId: string, secret: string) {
+  return account.updateVerification(userId, secret)
+}
+
+// Password recovery (send email)
+export async function sendPasswordRecovery(email: string, redirectUrl: string) {
+  return account.createRecovery(email, redirectUrl)
+}
+
+// Complete password recovery
+export async function completePasswordRecovery(userId: string, secret: string, newPassword: string) {
+  return account.updateRecovery(userId, secret, newPassword)
+}
+
+// Magic URL login (send email)
+export async function sendMagicUrl(email: string, redirectUrl: string, userId: string = ID.unique()) {
+  return account.createMagicURLToken(userId, email, redirectUrl)
+}
+
+// Complete Magic URL login (create session)
+export async function completeMagicUrlLogin(userId: string, secret: string) {
+  return account.createSession(userId, secret)
+}
+
+// Email OTP (send code)
+export async function sendEmailOtp(email: string, userId: string = ID.unique(), enableSecurityPhrase = false) {
+  return account.createEmailToken(userId, email, enableSecurityPhrase)
+}
+
+// Complete Email OTP login
+export async function completeEmailOtpLogin(userId: string, secret: string) {
+  return account.createSession(userId, secret)
+}
+
+// MFA: Generate recovery codes
+export async function generateMfaRecoveryCodes() {
+  return account.createMfaRecoveryCodes()
+}
+
+// MFA: List enabled factors
+export async function listMfaFactors() {
+  return account.listMfaFactors()
+}
+
+// MFA: Enable/disable MFA
+export async function setMfaEnabled(enabled: boolean) {
+  return account.updateMFA(enabled)
+}
+
+// MFA: Create challenge (email, phone, totp, recoverycode)
+export async function createMfaChallenge(factor: 'email' | 'phone' | 'totp' | 'recoverycode') {
+  return account.createMfaChallenge(factor)
+}
+
+// MFA: Complete challenge
+export async function completeMfaChallenge(challengeId: string, otp: string) {
+  return account.updateMfaChallenge(challengeId, otp)
+}
+
+// Preferences: Update
+export async function updatePreferences(prefs: Record<string, any>) {
+  return account.updatePrefs(prefs)
+}
+
+// Preferences: Get
+export async function getPreferences() {
+  return account.getPrefs()
+}
+
+// Account: Get current session/account
+export async function getAccount() {
+  return account.get()
+}
+
+// Account: Logout (delete session)
+export async function logout(sessionId?: string) {
+  if (sessionId) {
+    return account.deleteSession(sessionId)
+  }
+  return account.deleteSessions()
 }
 
 export default client
