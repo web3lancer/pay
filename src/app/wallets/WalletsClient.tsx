@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
 import { useExchangeRate } from '@/contexts/ExchangeRateContext'
+import Link from 'next/link'
 // import { motion } from 'framer-motion'
 // import { FiSend, FiDownload, FiRepeat, FiMoreVertical, FiPlus } from 'react-icons/fi'
 
@@ -90,10 +91,12 @@ export function WalletsClient() {
               <h1 className="text-2xl font-bold text-neutral-900">Wallets</h1>
               <p className="text-sm text-neutral-500">Manage your crypto wallets</p>
             </div>
-            <button className="flex items-center px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors">
-              <span className="mr-2">+</span>
-              Add Wallet
-            </button>
+            <Link href="/wallets/create">
+              <button className="flex items-center px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors">
+                <span className="mr-2">+</span>
+                Add Wallet
+              </button>
+            </Link>
           </div>
 
           {/* Wallet Content */}

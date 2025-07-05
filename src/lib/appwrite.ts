@@ -288,7 +288,7 @@ export async function listTransactionsByUser(userId: string) {
     COLLECTION_IDS.TRANSACTIONS,
     [
       Query.equal('fromUserId', userId),
-      // If you want to also get transactions where user is a recipient:
+      // Use Query.contains for array fields:
       Query.contains('toUserId', userId)
     ]
   )
@@ -873,18 +873,51 @@ export async function logSecurityEvent(userId: string, action: string, metadata:
 
 /**
  * Get the current user's database profile (Users collection).
- * Returns null if not authenticated or not found.
+ * If not found, create a basic profile from the Appwrite account.
  */
 export async function getCurrentUserProfile(): Promise<any | null> {
   try {
     const acc = await account.get()
-    // Try to find user profile by userId (Appwrite $id or userId field)
-    // Prefer userId field if present, fallback to $id
-    const userId = acc.userId || acc.$id
+    const userId = acc.$id
     if (!userId) return null
-    const profile = await databases.getDocument(DATABASE_ID, COLLECTION_IDS.USERS, userId)
-    return profile
-  } catch {
+    
+    // First try to get existing profile
+    try {
+      const profile = await databases.getDocument(DATABASE_ID, COLLECTION_IDS.USERS, userId)
+      return profile
+    } catch (error) {
+      // Profile doesn't exist, create it
+      console.log('Creating user profile for:', userId)
+      
+      const newProfile = {
+        userId: userId,
+        email: acc.email,
+        username: acc.email.split('@')[0] || `user_${userId.slice(0, 8)}`,
+        displayName: acc.name || acc.email.split('@')[0],
+        profileImage: null,
+        phoneNumber: null,
+        kycStatus: 'pending',
+        kycLevel: 0,
+        twoFactorEnabled: false,
+        isActive: true,
+        country: null,
+        timezone: null,
+        preferredCurrency: 'USD',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      
+      const createdProfile = await databases.createDocument(
+        DATABASE_ID, 
+        COLLECTION_IDS.USERS, 
+        userId, // Use the Appwrite account ID as the document ID
+        newProfile
+      )
+      
+      return createdProfile
+    }
+  } catch (error) {
+    console.error('Failed to get/create user profile:', error)
     return null
   }
 }
