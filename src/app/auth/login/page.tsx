@@ -51,9 +51,10 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
     try {
+      // Appwrite returns { userId, secret, phrase? }
       const res = await sendEmailOtp(email)
       setOtpUserId(res.userId)
-      setOtpSecret(res.secret || '')
+      // secret is not needed for login, only for phrase display (optional)
       setOtpSent(true)
     } catch (err: any) {
       setError(err?.message || 'Failed to send OTP')
@@ -66,6 +67,7 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
     try {
+      // Only need userId and OTP code
       await completeEmailOtpLogin(otpUserId, otp)
       window.location.href = '/home'
     } catch (err: any) {
@@ -82,9 +84,8 @@ export default function LoginPage() {
     setError(null)
     try {
       const redirectUrl = window.location.origin + '/auth/login'
-      const res = await sendMagicUrl(email, redirectUrl)
-      setMagicUserId(res.userId)
-      setMagicSecret(res.secret || '')
+      // Appwrite returns { userId, secret }
+      await sendMagicUrl(email, redirectUrl)
       setMagicSent(true)
     } catch (err: any) {
       setError(err?.message || 'Failed to send magic link')

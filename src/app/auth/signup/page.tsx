@@ -47,8 +47,8 @@ export default function SignupPage() {
       return
     }
     try {
-      await signupEmailPassword(email, password, name) // Pass name here
-      await loginEmailPassword(email, password) // Ensure session is created
+      await signupEmailPassword(email, password, name)
+      await loginEmailPassword(email, password)
       await sendEmailVerification(window.location.origin + '/auth/verify')
       setShowVerifyNotice(true)
     } catch (err: any) {
@@ -64,9 +64,9 @@ export default function SignupPage() {
     setLoading(true)
     setError(null)
     try {
+      // Appwrite returns { userId, secret, phrase? }
       const res = await sendEmailOtp(email)
       setOtpUserId(res.userId)
-      setOtpSecret(res.secret || '')
       setOtpSent(true)
     } catch (err: any) {
       setError(err?.message || 'Failed to send OTP')
@@ -95,9 +95,7 @@ export default function SignupPage() {
     setError(null)
     try {
       const redirectUrl = window.location.origin + '/auth/signup'
-      const res = await sendMagicUrl(email, redirectUrl)
-      setMagicUserId(res.userId)
-      setMagicSecret(res.secret || '')
+      await sendMagicUrl(email, redirectUrl)
       setMagicSent(true)
     } catch (err: any) {
       setError(err?.message || 'Failed to send magic link')
