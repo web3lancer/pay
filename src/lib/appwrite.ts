@@ -515,4 +515,352 @@ export async function logoutAllExceptCurrent() {
   return current;
 }
 
+// --- ADVANCED USER OPERATIONS ---
+
+/**
+ * Find user by email.
+ */
+export async function findUserByEmail(email: string) {
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.USERS,
+    [Query.equal('email', email)]
+  );
+  return res.documents[0] || null;
+}
+
+/**
+ * Find user by username.
+ */
+export async function findUserByUsername(username: string) {
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.USERS,
+    [Query.equal('username', username)]
+  );
+  return res.documents[0] || null;
+}
+
+/**
+ * List all users (paginated).
+ */
+export async function listUsers(limit = 25, offset = 0) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.USERS,
+    [Query.limit(limit), Query.offset(offset)]
+  );
+}
+
+// --- WALLET OPERATIONS ---
+
+/**
+ * Find wallet by address.
+ */
+export async function findWalletByAddress(walletAddress: string) {
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.WALLETS,
+    [Query.equal('walletAddress', walletAddress)]
+  );
+  return res.documents[0] || null;
+}
+
+/**
+ * List wallets by blockchain.
+ */
+export async function listWalletsByBlockchain(blockchain: string) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.WALLETS,
+    [Query.equal('blockchain', blockchain)]
+  );
+}
+
+// --- TOKEN OPERATIONS ---
+
+/**
+ * Find token by symbol.
+ */
+export async function findTokenBySymbol(symbol: string) {
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.TOKENS,
+    [Query.equal('symbol', symbol)]
+  );
+  return res.documents[0] || null;
+}
+
+/**
+ * List tokens by blockchain.
+ */
+export async function listTokensByBlockchain(blockchain: string) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.TOKENS,
+    [Query.equal('blockchain', blockchain)]
+  );
+}
+
+// --- TRANSACTION OPERATIONS ---
+
+/**
+ * List transactions by wallet.
+ */
+export async function listTransactionsByWallet(walletId: string) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.TRANSACTIONS,
+    [Query.equal('fromWalletId', walletId)]
+  );
+}
+
+/**
+ * List transactions by token.
+ */
+export async function listTransactionsByToken(tokenId: string) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.TRANSACTIONS,
+    [Query.equal('tokenId', tokenId)]
+  );
+}
+
+/**
+ * Search transactions by status/type.
+ */
+export async function searchTransactions({ status, type }: { status?: string; type?: string }) {
+  const queries = [];
+  if (status) queries.push(Query.equal('status', status));
+  if (type) queries.push(Query.equal('type', type));
+  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, queries);
+}
+
+// --- PAYMENT REQUEST OPERATIONS ---
+
+/**
+ * List payment requests by status.
+ */
+export async function listPaymentRequestsByStatus(status: string) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.PAYMENT_REQUESTS,
+    [Query.equal('status', status)]
+  );
+}
+
+/**
+ * Find payment request by invoice number.
+ */
+export async function findPaymentRequestByInvoice(invoiceNumber: string) {
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.PAYMENT_REQUESTS,
+    [Query.equal('invoiceNumber', invoiceNumber)]
+  );
+  return res.documents[0] || null;
+}
+
+// --- VIRTUAL CARD OPERATIONS ---
+
+/**
+ * Find card by card number.
+ */
+export async function findCardByNumber(cardNumber: string) {
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.VIRTUAL_CARDS,
+    [Query.equal('cardNumber', cardNumber)]
+  );
+  return res.documents[0] || null;
+}
+
+/**
+ * List cards by status.
+ */
+export async function listCardsByStatus(status: string) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.VIRTUAL_CARDS,
+    [Query.equal('status', status)]
+  );
+}
+
+// --- VIRTUAL ACCOUNT OPERATIONS ---
+
+/**
+ * Find account by account number.
+ */
+export async function findAccountByNumber(accountNumber: string) {
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.VIRTUAL_ACCOUNTS,
+    [Query.equal('accountNumber', accountNumber)]
+  );
+  return res.documents[0] || null;
+}
+
+/**
+ * List accounts by status.
+ */
+export async function listAccountsByStatus(status: string) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.VIRTUAL_ACCOUNTS,
+    [Query.equal('status', status)]
+  );
+}
+
+// --- SECURITY LOGS OPERATIONS ---
+
+/**
+ * List security logs by action.
+ */
+export async function listSecurityLogsByAction(action: string) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.SECURITY_LOGS,
+    [Query.equal('action', action)]
+  );
+}
+
+// --- API KEYS OPERATIONS ---
+
+/**
+ * Find API key by public key.
+ */
+export async function findApiKeyByPublicKey(publicKey: string) {
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.API_KEYS,
+    [Query.equal('publicKey', publicKey)]
+  );
+  return res.documents[0] || null;
+}
+
+// --- GENERAL UTILITY OPERATIONS ---
+
+/**
+ * Search any collection by field and value.
+ */
+export async function searchCollection(collectionId: string, field: string, value: string) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    collectionId,
+    [Query.equal(field, value)]
+  );
+}
+
+/**
+ * Paginate any collection.
+ */
+export async function paginateCollection(collectionId: string, limit = 25, offset = 0) {
+  return databases.listDocuments(
+    DATABASE_ID,
+    collectionId,
+    [Query.limit(limit), Query.offset(offset)]
+  );
+}
+
+/**
+ * Count documents in a collection (with optional query).
+ */
+export async function countDocuments(collectionId: string, queries: any[] = []) {
+  const res = await databases.listDocuments(DATABASE_ID, collectionId, queries);
+  return res.total;
+}
+
+// --- LINKING/RELATIONSHIP OPERATIONS ---
+
+/**
+ * Link a wallet to a user (update wallet's userId).
+ */
+export async function linkWalletToUser(walletId: string, userId: string) {
+  return updateWallet(walletId, { userId });
+}
+
+/**
+ * Link a card to a wallet (update card's linkedWalletId).
+ */
+export async function linkCardToWallet(cardId: string, walletId: string) {
+  return updateVirtualCard(cardId, { linkedWalletId: walletId });
+}
+
+/**
+ * Link an account to a wallet (update account's linkedWalletId).
+ */
+export async function linkAccountToWallet(accountId: string, walletId: string) {
+  return updateVirtualAccount(accountId, { linkedWalletId: walletId });
+}
+
+// --- ADVANCED PAYMENT LOGIC ---
+
+/**
+ * Cancel a payment request.
+ */
+export async function cancelPaymentRequest(requestId: string) {
+  return updatePaymentRequest(requestId, { status: 'cancelled' });
+}
+
+/**
+ * Expire a payment request.
+ */
+export async function expirePaymentRequest(requestId: string) {
+  return updatePaymentRequest(requestId, { status: 'expired' });
+}
+
+/**
+ * Mark a transaction as failed.
+ */
+export async function markTransactionFailed(transactionId: string, reason?: string) {
+  return updateTransaction(transactionId, { status: 'failed', description: reason });
+}
+
+/**
+ * Mark a transaction as confirmed.
+ */
+export async function markTransactionConfirmed(transactionId: string) {
+  return updateTransaction(transactionId, { status: 'confirmed', confirmedAt: new Date().toISOString() });
+}
+
+// --- ADVANCED CARD LOGIC ---
+
+/**
+ * Delete (revoke) a virtual card.
+ */
+export async function revokeVirtualCard(cardId: string) {
+  return updateVirtualCard(cardId, { status: 'revoked' });
+}
+
+// --- ADVANCED ACCOUNT LOGIC ---
+
+/**
+ * Freeze a virtual account.
+ */
+export async function freezeVirtualAccount(accountId: string) {
+  return updateVirtualAccount(accountId, { status: 'frozen' });
+}
+
+/**
+ * Reactivate a virtual account.
+ */
+export async function reactivateVirtualAccount(accountId: string) {
+  return updateVirtualAccount(accountId, { status: 'active' });
+}
+
+// --- ADVANCED SECURITY LOGIC ---
+
+/**
+ * Log a security event for a user.
+ */
+export async function logSecurityEvent(userId: string, action: string, metadata: any = {}) {
+  return createSecurityLog({
+    userId,
+    action,
+    metadata: JSON.stringify(metadata),
+    createdAt: new Date().toISOString(),
+    success: true
+  });
+}
+
 export default client
