@@ -3,7 +3,6 @@ import { DatabaseService } from '@/lib/database'
 
 // Defensive: Ensure required environment variables are set at runtime
 const requiredEnvVars = [
-  'BRIDGE_API_KEY',
   'NEXT_PUBLIC_APPWRITE_ENDPOINT'
 ];
 for (const envVar of requiredEnvVars) {
