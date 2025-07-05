@@ -145,3 +145,28 @@ export type ApiKeys = Models.Document & {
   users: Users | null;
 }
 
+export type VirtualCards = Models.Document & {
+  cardId: string;
+  userId: string;
+  cardNumber: string;
+  expiry: string;
+  cvv: string;
+  cardType: string;
+  status: string;
+  linkedWalletId: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export type VirtualAccounts = Models.Document & {
+  accountId: string;
+  userId: string;
+  accountNumber: string;
+  currency: string | null;
+  balance: number | null;
+  status: string | null;
+  linkedWalletId: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
