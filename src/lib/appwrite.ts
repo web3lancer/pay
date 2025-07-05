@@ -283,7 +283,15 @@ export async function getTransaction(transactionId: string) {
   return databases.getDocument(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, transactionId)
 }
 export async function listTransactionsByUser(userId: string) {
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, [Query.equal('fromUserId', userId)])
+  return databases.listDocuments(
+    DATABASE_ID,
+    COLLECTION_IDS.TRANSACTIONS,
+    [
+      Query.equal('fromUserId', userId),
+      // If you want to also get transactions where user is a recipient:
+      // Query.contains('toUserId', userId)
+    ]
+  )
 }
 export async function updateTransaction(transactionId: string, data: Partial<any>) {
   return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, transactionId, data)

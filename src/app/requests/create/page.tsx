@@ -4,18 +4,18 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { usePaymentRequest } from '@/contexts/PaymentRequestContext'
-import { useExchangeRate } from '@/contexts/ExchangeRateContext'
 import { FiArrowLeft, FiCode, FiMail, FiCalendar, FiDollarSign, FiAlertCircle, FiCheck } from 'react-icons/fi'
 import Link from 'next/link'
+import type { PaymentRequests } from '@/types/appwrite.d'
 
 export default function CreateRequestPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { userProfile, isAuthenticated } = useAuth()
   const { createPaymentRequest } = usePaymentRequest()
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
-  
+
   const [formData, setFormData] = useState({
     toEmail: '',
     tokenId: 'btc',
@@ -26,16 +26,27 @@ export default function CreateRequestPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
+    if (!isAuthenticated || !userProfile) return
 
     setIsLoading(true)
     setError('')
     setSuccess('')
 
     try {
-      const request = await createPaymentRequest(formData)
+      // Ensure all fields are string or undefined (never null)
+      const requestData = {
+        fromUserId: userProfile.userId,
+        toEmail: formData.toEmail || undefined,
+        tokenId: formData.tokenId,
+        amount: formData.amount,
+        description: formData.description || undefined,
+        dueDate: formData.dueDate || undefined,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      }
+      const request = await createPaymentRequest(requestData)
       setSuccess(`Payment request created! Invoice: ${request.invoiceNumber}`)
-      
+
       // Reset form
       setFormData({
         toEmail: '',

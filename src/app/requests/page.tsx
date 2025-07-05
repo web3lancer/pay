@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { usePaymentRequest } from '@/contexts/PaymentRequestContext'
 import { FiArrowLeft, FiPlus, FiFilter, FiCode, FiMail, FiCopy, FiCheck, FiX, FiExternalLink } from 'react-icons/fi'
 import Link from 'next/link'
+import type { PaymentRequests } from '@/types/appwrite.d'
 
 export default function PaymentRequestsPage() {
   const { paymentRequests, isLoading, cancelPaymentRequest } = usePaymentRequest()
