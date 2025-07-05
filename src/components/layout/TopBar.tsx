@@ -38,7 +38,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
   }
 
   // Get display name from user data
-  const displayName = user?.name || 'Account'
+  const displayName = user?.name || ''
   
   // Get first letter of name for avatar
   const firstLetter = displayName.charAt(0).toUpperCase()
@@ -127,7 +127,11 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             </div>
             {!mobile && (
               <span className="text-sm font-medium text-neutral-900">
-                {isLoading ? '...' : (isAuthenticated ? (displayName.split(' ')[0] || 'Account') : 'Account')}
+                {isLoading
+                  ? '...'
+                  : (isAuthenticated
+                      ? (email || displayName.split(' ')[0] || '')
+                      : 'Account')}
               </span>
             )}
           </button>
@@ -139,20 +143,13 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                 <>
                   {/* Authenticated User Header */}
                   <div className="px-4 py-3 border-b border-neutral-200">
-                    <p className="text-sm font-medium text-neutral-900">{displayName}</p>
+                    <p className="text-sm font-medium text-neutral-900">{email || displayName}</p>
                     <p className="text-xs text-neutral-500 truncate">{email}</p>
                   </div>
                   
                   {/* Authenticated Menu Items */}
                   <div className="py-1">
-                    <Link 
-                      href="/profile" 
-                      className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
-                      onClick={() => setProfileDropdownOpen(false)}
-                    >
-                      <FiUser className="mr-3 h-4 w-4 text-neutral-500" />
-                      Your Profile
-                    </Link>
+                    {/* Removed 'Your Profile' and 'Security' menu items */}
                     <Link 
                       href="/settings" 
                       className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
@@ -160,14 +157,6 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                     >
                       <FiSettings className="mr-3 h-4 w-4 text-neutral-500" />
                       Settings
-                    </Link>
-                    <Link 
-                      href="/settings/security" 
-                      className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
-                      onClick={() => setProfileDropdownOpen(false)}
-                    >
-                      <FiShield className="mr-3 h-4 w-4 text-neutral-500" />
-                      Security
                     </Link>
                   </div>
                   

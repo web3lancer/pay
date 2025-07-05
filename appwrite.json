@@ -1261,8 +1261,7 @@
                 "create(\"users\")",
                 "read(\"users\")",
                 "update(\"users\")",
-                "delete(\"users\")",
-                "read(\"any\")"
+                "delete(\"users\")"
             ],
             "databaseId": "683a31960011608eaee5",
             "name": "Security Logs",
@@ -1415,8 +1414,7 @@
                 "create(\"users\")",
                 "read(\"users\")",
                 "update(\"users\")",
-                "delete(\"users\")",
-                "read(\"any\")"
+                "delete(\"users\")"
             ],
             "databaseId": "683a31960011608eaee5",
             "name": "API Keys",
@@ -1564,7 +1562,12 @@
         },
         {
             "$id": "virtual_cards",
-            "$permissions": [],
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
             "databaseId": "683a31960011608eaee5",
             "name": "virtual_cards",
             "enabled": true,
@@ -1689,7 +1692,12 @@
         },
         {
             "$id": "virtual_accounts",
-            "$permissions": [],
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
             "databaseId": "683a31960011608eaee5",
             "name": "virtual_accounts",
             "enabled": true,
