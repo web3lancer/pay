@@ -289,7 +289,7 @@ export async function listTransactionsByUser(userId: string) {
     [
       Query.equal('fromUserId', userId),
       // If you want to also get transactions where user is a recipient:
-      // Query.contains('toUserId', userId)
+      Query.contains('toUserId', userId)
     ]
   )
 }
