@@ -863,4 +863,22 @@ export async function logSecurityEvent(userId: string, action: string, metadata:
   });
 }
 
+/**
+ * Get the current user's database profile (Users collection).
+ * Returns null if not authenticated or not found.
+ */
+export async function getCurrentUserProfile(): Promise<any | null> {
+  try {
+    const acc = await account.get()
+    // Try to find user profile by userId (Appwrite $id or userId field)
+    // Prefer userId field if present, fallback to $id
+    const userId = acc.userId || acc.$id
+    if (!userId) return null
+    const profile = await databases.getDocument(DATABASE_ID, COLLECTION_IDS.USERS, userId)
+    return profile
+  } catch {
+    return null
+  }
+}
+
 export default client
