@@ -922,4 +922,28 @@ export async function getCurrentUserProfile(): Promise<any | null> {
   }
 }
 
+/**
+ * Canonize a username for URLs: lowercase, replace spaces and invalid chars with underscores.
+ */
+export function canonizeUsername(username?: string): string | undefined {
+  if (!username || typeof username !== 'string') return undefined
+  // Replace spaces and non-alphanumeric/underscore with underscores, then lowercase
+  return username.trim().replace(/[^a-zA-Z0-9_]/g, '_').replace(/_+/g, '_').toLowerCase()
+}
+
+/**
+ * Get the best profile link for a user (canonized username if exists, else userId).
+ * Returns: /{username} or /{userId}
+ */
+export function getUserProfileLink(user: { username?: string; userId?: string }) {
+  const canon = canonizeUsername(user?.username)
+  if (canon && canon !== '') {
+    return `/${canon}`
+  }
+  if (user?.userId && typeof user.userId === 'string' && user.userId.trim() !== '') {
+    return `/${user.userId}`
+  }
+  return '/'
+}
+
 export default client

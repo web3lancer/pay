@@ -18,6 +18,7 @@ import {
   FiSettings,
   FiShield
 } from 'react-icons/fi'
+import { getUserProfileLink, canonizeUsername } from '@/lib/appwrite'
 
 interface TopBarProps {
   onMenuClick: () => void
@@ -42,7 +43,9 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
   const username = userProfile?.username || account?.name || ''
   const email = userProfile?.email || account?.email || ''
   const displayName = userProfile?.displayName || account?.name || ''
-  
+  const userId = userProfile?.userId || account?.$id || ''
+  const profileLink = getUserProfileLink({ username: username, userId })
+
   // Get first letter of name for avatar
   const firstLetter = displayName.charAt(0).toUpperCase()
 
@@ -103,16 +106,16 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
 
         {/* Profile Circle - Always visible */}
         <div className="relative">
-          <button 
+          <button
             onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
           >
             <div className="h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center">
               {isAuthenticated && account?.prefs?.profileImage ? (
-                <img 
-                  src={account.prefs.profileImage} 
+                <img
+                  src={account.prefs.profileImage}
                   alt={displayName}
-                  className="h-8 w-8 rounded-full object-cover" 
+                  className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
                 <FiUser className="h-4 w-4 text-cyan-600" />
@@ -138,12 +141,20 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                   <div className="px-4 py-3 border-b border-neutral-200">
                     <p className="text-sm font-medium text-neutral-900">{email}</p>
                   </div>
-                  
+
                   {/* Authenticated Menu Items */}
                   <div className="py-1">
-                    {/* Removed 'Your Profile' and 'Security' menu items */}
-                    <Link 
-                      href="/settings" 
+                    {/* Your Profile menu item */}
+                    <Link
+                      href={profileLink}
+                      className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      <FiUser className="mr-3 h-4 w-4 text-neutral-500" />
+                      Your Profile
+                    </Link>
+                    <Link
+                      href="/settings"
                       className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
                       onClick={() => setProfileDropdownOpen(false)}
                     >
@@ -151,7 +162,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                       Settings
                     </Link>
                   </div>
-                  
+
                   {/* Sign Out */}
                   <div className="py-1 border-t border-neutral-200">
                     <button
@@ -173,19 +184,19 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                     <p className="text-sm font-medium text-neutral-900">Welcome to Web3Lancer Pay</p>
                     <p className="text-xs text-neutral-500">Sign in to access your account</p>
                   </div>
-                  
+
                   {/* Authentication Options */}
                   <div className="py-1">
-                    <Link 
-                      href="/auth/login" 
+                    <Link
+                      href="/auth/login"
                       className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
                       onClick={() => setProfileDropdownOpen(false)}
                     >
                       <FiUser className="mr-3 h-4 w-4 text-neutral-500" />
                       Sign In
                     </Link>
-                    <Link 
-                      href="/auth/signup" 
+                    <Link
+                      href="/auth/signup"
                       className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
                       onClick={() => setProfileDropdownOpen(false)}
                     >
