@@ -24,11 +24,11 @@ export default function PaymentRequestPage() {
           setLoading(false)
           return
         }
-        setUser(u)
+        setUser(u as Users) // <-- Explicit cast here
         getPaymentRequest(paymentId)
           .then((pr) => {
-            if (pr && pr.fromUserId === u.userId) {
-              setPaymentRequest(pr)
+            if (pr && pr.fromUserId === (u as Users).userId) {
+              setPaymentRequest(pr as PaymentRequests) // <-- Explicit cast here
               setNotFound(false)
             } else {
               setPaymentRequest(null)
