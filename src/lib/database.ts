@@ -327,7 +327,9 @@ export class DatabaseService {
       [
         Query.or([
           Query.equal('fromUserId', userId),
-          Query.equal('toUserId', userId)
+          Query.contains('toUserId', userId)
+
+
         ]),
         Query.orderDesc('createdAt'),
         Query.limit(limit)

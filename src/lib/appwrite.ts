@@ -282,17 +282,22 @@ export async function createTransaction(data: any) {
 export async function getTransaction(transactionId: string) {
   return databases.getDocument(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, transactionId)
 }
+
+
 export async function listTransactionsByUser(userId: string) {
   return databases.listDocuments(
     DATABASE_ID,
     COLLECTION_IDS.TRANSACTIONS,
     [
-      Query.equal('fromUserId', userId),
-      // Query.contains for array fields (toUserId is an array)
-      Query.contains('toUserId', userId)
+      Query.or([
+        Query.equal('fromUserId', userId),
+        Query.contains('toUserId', userId)
+      ])
     ]
   )
 }
+
+
 export async function updateTransaction(transactionId: string, data: Partial<any>) {
   return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, transactionId, data)
 }
@@ -568,6 +573,7 @@ export async function findUserByUsername(username: string) {
  */
 export async function findUserById(userId: string) {
   try {
+    // Use Query.equal for userId since it's not an array field
     const res = await databases.listDocuments(
       DATABASE_ID,
       COLLECTION_IDS.USERS,
