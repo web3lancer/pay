@@ -18,7 +18,7 @@ export default function UserProfilePage() {
   // Canonize username for link
   const canonUsername = canonizeUsername(username)
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-  const profileLink = `${baseUrl}/${canonUsername}`
+  const profileLink = `${baseUrl}/u/${canonUsername}`
   const messageLink = `https://www.web3lancer.website/u/${canonUsername}`
   
 
@@ -84,19 +84,27 @@ export default function UserProfilePage() {
 
         {/* Payment Profile Link Section */}
         <div className="w-full flex flex-col items-center gap-3">
-          <div className="flex flex-col md:flex-row items-center gap-2">
+          <div className="flex flex-col md:flex-row items-center gap-2 w-full justify-center">
             <span className="text-neutral-500 text-sm">Payment Profile Link:</span>
-            <span className="font-mono text-sm text-cyan-700 bg-cyan-50 px-2 py-1 rounded">{profileLink}</span>
-            <button
-              onClick={handleCopy}
-              className="p-2 rounded hover:bg-cyan-100 transition-colors"
-              title="Copy profile link"
-              type="button"
-            >
-              {copied ? <FiCheck className="text-green-600" /> : <FiCopy className="text-cyan-600" />}
-            </button>
+            <div className="flex items-center w-full md:w-auto gap-2 justify-center">
+              <span
+                className="font-mono text-sm text-cyan-700 bg-cyan-50 px-2 py-1 rounded truncate max-w-[180px] md:max-w-xs"
+                title={profileLink}
+                style={{ display: 'inline-block' }}
+              >
+                {profileLink}
+              </span>
+              <button
+                onClick={handleCopy}
+                className="p-2 rounded hover:bg-cyan-100 transition-colors"
+                title="Copy profile link"
+                type="button"
+              >
+                {copied ? <FiCheck className="text-green-600" /> : <FiCopy className="text-cyan-600" />}
+              </button>
+            </div>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 flex justify-center w-full">
             <QRCode value={profileLink} size={144} bgColor="#fff" fgColor="#0e7490" className="rounded-lg border border-cyan-100 shadow" />
           </div>
         </div>
