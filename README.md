@@ -13,6 +13,10 @@
 Integrated with Secured Finance's Fixed-Rate Lending protocol for on-chain lending, borrowing, and market data.  
 Access decentralized fixed-rate lending and collateral management directly from LancerPay.
 
+### Filecoin
+
+Seamless decentralized file storage and retrieval powered by Filecoin and Web3.Storage, integrated for secure asset management.
+
 ## Features
 
 - 🌐 **Multi-currency**: Send, receive, and swap crypto & fiat
