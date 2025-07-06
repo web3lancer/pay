@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { useAuth } from '@/contexts/AuthContext'
+import type { Users } from '@/types/appwrite.d'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -24,27 +25,26 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
-  const { user, signOut, isLoading, isAuthenticated } = useAuth()
+  const { account, userProfile, logout, isLoading, isAuthenticated } = useAuth()
   const router = useRouter()
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
 
   const handleSignOut = async () => {
     try {
-      await signOut()
+      await logout()
       router.push('/auth/login')
     } catch (error) {
       console.error('Sign out failed:', error)
     }
   }
 
-  // Get display name from user data
-  const displayName = user?.name || ''
+  // Get username and email from userProfile (database), fallback to account
+  const username = userProfile?.username || account?.name || ''
+  const email = userProfile?.email || account?.email || ''
+  const displayName = userProfile?.displayName || account?.name || ''
   
   // Get first letter of name for avatar
   const firstLetter = displayName.charAt(0).toUpperCase()
-
-  // Get email
-  const email = user?.email || ''
 
   return (
     <header className={cn(
@@ -54,7 +54,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
       }
     )}>
       {/* Left Section */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 min-w-0">
         {mobile && (
           <button
             onClick={onMenuClick}
@@ -64,37 +64,30 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
           </button>
         )}
 
-        {mobile && (
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-cyan-500 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">W3</span>
-            </div>
-            <span className="font-semibold text-neutral-900">Web3Lancer Pay</span>
-          </div>
-        )}
+        {/* Logo and App Name - Always on the left */}
+        <div className="flex items-center gap-2">
+          <img
+            src="/images/logo.png"
+            alt="LancerPay Logo"
+            className="h-8 w-8 object-contain"
+          />
+          <span className="font-semibold text-neutral-900">LancerPay</span>
+        </div>
+      </div>
 
-        {/* Search - Desktop only */}
-        {!mobile && (
-          <div className="relative">
+      {/* Center Section - Search bar for desktop */}
+      {!mobile && (
+        <div className="flex-1 flex justify-center">
+          <div className="relative w-full max-w-xl">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FiSearch className="h-4 w-4 text-neutral-400" />
             </div>
             <input
               type="text"
               placeholder="Search transactions, addresses..."
-              className="w-96 pl-10 pr-4 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-200"
+              className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-200"
             />
           </div>
-        )}
-      </div>
-
-      {/* Center Section - Logo for desktop */}
-      {!mobile && (
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-cyan-500 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">W3</span>
-          </div>
-          <span className="font-semibold text-neutral-900">Web3Lancer Pay</span>
         </div>
       )}
 
@@ -115,9 +108,9 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
           >
             <div className="h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center">
-              {isAuthenticated && user?.prefs?.profileImage ? (
+              {isAuthenticated && account?.prefs?.profileImage ? (
                 <img 
-                  src={user.prefs.profileImage} 
+                  src={account.prefs.profileImage} 
                   alt={displayName}
                   className="h-8 w-8 rounded-full object-cover" 
                 />
@@ -130,7 +123,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                 {isLoading
                   ? '...'
                   : (isAuthenticated
-                      ? (email || displayName.split(' ')[0] || '')
+                      ? (username || 'Account')
                       : 'Account')}
               </span>
             )}
@@ -143,8 +136,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                 <>
                   {/* Authenticated User Header */}
                   <div className="px-4 py-3 border-b border-neutral-200">
-                    <p className="text-sm font-medium text-neutral-900">{email || displayName}</p>
-                    <p className="text-xs text-neutral-500 truncate">{email}</p>
+                    <p className="text-sm font-medium text-neutral-900">{email}</p>
                   </div>
                   
                   {/* Authenticated Menu Items */}
