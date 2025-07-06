@@ -8,9 +8,10 @@
 
 ## Integrations
 
-### USDFC SDK
-USDFC SDK is a comprehensive toolkit for developers to integrate and interact with USDFC.
+### USDFC
 
+Integrated with Secured Finance's Fixed-Rate Lending protocol for on-chain lending, borrowing, and market data.  
+Access decentralized fixed-rate lending and collateral management directly from LancerPay.
 
 ## Features
 
