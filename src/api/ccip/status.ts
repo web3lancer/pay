@@ -2,14 +2,9 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { CCIPService } from '../../services/ccipService';
 import { SUPPORTED_CHAINS } from '../../config/chains';
 
-interface StatusRequest {
-  messageId: string;
-  chainId?: string;
-}
-
 interface StatusResponse {
   success: boolean;
-  payment?: any;
+  payment?: unknown;
   error?: string;
 }
 

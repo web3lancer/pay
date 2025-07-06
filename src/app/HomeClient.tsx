@@ -6,6 +6,7 @@ import { FiUser, FiMail, FiShield, FiLogOut } from 'react-icons/fi'
 import { AppShell } from '@/components/layout/AppShell'
 import { GuestSessionButton } from '@/components/auth/GuestSessionButton'
 import { GuestConversion } from '@/components/auth/GuestConversion'
+import Link from 'next/link'
 
 export function HomeClient() {
   const { user, isAuthenticated, isGuest, isLoading, signOut } = useAuth()
@@ -172,12 +173,12 @@ export function HomeClient() {
                   >
                     Try as Guest
                   </GuestSessionButton>
-                  <a 
+                  <Link 
                     href="/auth/login"
                     className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                   >
                     Sign In / Sign Up
-                  </a>
+                  </Link>
                 </div>
               </div>
             </>

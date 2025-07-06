@@ -2,15 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { DatabaseService } from '@/lib/database'
 
 // Defensive: Ensure required environment variables are set at runtime
-const requiredEnvVars = [
-  'NEXT_PUBLIC_APPWRITE_ENDPOINT'
-];
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar] || typeof process.env[envVar] !== 'string') {
-    // eslint-disable-next-line no-console
-    console.error(`[Startup] Missing required environment variable: ${envVar}`);
-    throw new Error(`Missing required environment variable: ${envVar}`);
+function validateRequiredEnvVars() {
+  const requiredEnvVars = [
+    'NEXT_PUBLIC_APPWRITE_ENDPOINT'
+  ];
+  
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar] || typeof process.env[envVar] !== 'string') {
+      console.error(`[Startup] Missing required environment variable: ${envVar}`);
+      // Don't throw error at module level, handle gracefully in route handlers
+      return false;
+    }
   }
+  return true;
 }
 
 // GET /api/payment-requests/[id] - Get payment request for bridge
@@ -19,6 +23,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Validate environment variables
+    if (!validateRequiredEnvVars()) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
     const requestId = params.id
     const paymentRequest = await DatabaseService.getPaymentRequest(requestId)
     
@@ -45,6 +57,14 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Validate environment variables
+    if (!validateRequiredEnvVars()) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
     const requestId = params.id
     const updates = await request.json()
     

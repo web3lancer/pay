@@ -2,24 +2,35 @@ import { NextRequest, NextResponse } from 'next/server'
 import { DatabaseService } from '@/lib/database'
 
 // Defensive: Ensure required environment variables are set at runtime
-const requiredEnvVars = [
-  'BRIDGE_API_KEY',
-  'NEXT_PUBLIC_APPWRITE_ENDPOINT', // Add this
-  // Add any other Appwrite env vars you use, e.g.:
-  // 'APPWRITE_PROJECT_ID',
-  // 'APPWRITE_API_KEY',
-];
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar] || typeof process.env[envVar] !== 'string') {
-    // eslint-disable-next-line no-console
-    console.error(`[Startup] Missing required environment variable: ${envVar}`);
-    throw new Error(`Missing required environment variable: ${envVar}`);
+function validateRequiredEnvVars() {
+  const requiredEnvVars = [
+    'BRIDGE_API_KEY',
+    'NEXT_PUBLIC_APPWRITE_ENDPOINT', // Add this
+    // Add any other Appwrite env vars you use, e.g.:\n    // 'APPWRITE_PROJECT_ID',
+    // 'APPWRITE_API_KEY',
+  ];
+  
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar] || typeof process.env[envVar] !== 'string') {
+      console.error(`[Startup] Missing required environment variable: ${envVar}`);
+      // Don't throw error at module level, handle gracefully in route handlers
+      return false;
+    }
   }
+  return true;
 }
 
 // POST /api/escrow/release - Handle escrow release notifications from bridge
 export async function POST(request: NextRequest) {
   try {
+    // Validate environment variables
+    if (!validateRequiredEnvVars()) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
     const { escrowId, transactionHash, milestoneId, network, timestamp } = await request.json()
     
     // Validate bridge authentication

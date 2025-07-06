@@ -15,7 +15,6 @@ interface AuthClientProps {
 type AuthMethod = 'email_password' | 'magic_url' | 'email_otp' | 'phone_otp'
 
 function AuthClientContent({ mode }: AuthClientProps) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { 
     signIn, 
@@ -64,8 +63,9 @@ function AuthClientContent({ mode }: AuthClientProps) {
       setIsSubmitting(true)
       await loginWithMagicURL(urlUserId, secret)
       // Don't redirect - let AuthGuard handle it
-    } catch (error: any) {
-      setErrors([error.message || 'Failed to authenticate with magic link'])
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate with magic link'
+      setErrors([errorMessage])
     } finally {
       setIsSubmitting(false)
     }
@@ -152,8 +152,9 @@ function AuthClientContent({ mode }: AuthClientProps) {
           setOtpSent(true)
         }
       }
-    } catch (error: any) {
-      setErrors([error.message || 'An error occurred during authentication'])
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during authentication'
+      setErrors([errorMessage])
     } finally {
       setIsSubmitting(false)
     }
@@ -166,8 +167,9 @@ function AuthClientContent({ mode }: AuthClientProps) {
       } else {
         await signInWithGithub()
       }
-    } catch (error: any) {
-      setErrors([error.message || `Failed to sign in with ${provider}`])
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : `Failed to sign in with ${provider}`
+      setErrors([errorMessage])
     }
   }
 

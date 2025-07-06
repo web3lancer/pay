@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   FiPlay, FiPause, FiChevronLeft, FiChevronRight, FiZap, FiShield, 
-  FiGlobe, FiTrendingUp, FiUsers, FiDollarSign, FiTarget, FiRocket,
-  FiCode, FiCreditCard, FiLock, FiRefreshCw, FiCheck, FiStar
+  FiGlobe, FiTrendingUp, FiUsers, FiDollarSign, FiTarget,
+  FiCode, FiCheck
 } from 'react-icons/fi'
 import Image from 'next/image'
 
@@ -278,7 +278,7 @@ export function PitchClient() {
             className="text-center"
           >
             <div className="inline-flex items-center gap-2 bg-green-900/30 border border-green-500/30 rounded-full px-6 py-2">
-              <FiRocket className="w-5 h-5 text-green-400" />
+              <FiZap className="w-5 h-5 text-green-400" />
               <span className="text-green-300 font-semibold">Production Ready & Scalable</span>
             </div>
           </motion.div>

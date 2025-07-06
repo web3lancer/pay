@@ -6,11 +6,10 @@ import { useAuth } from '@/contexts/AuthContext'
 import { 
   FiArrowUp, FiArrowDown, FiTrendingUp, FiTrendingDown, FiEye, FiEyeOff, 
   FiPlus, FiSend, FiCamera, FiRefreshCw, FiCreditCard, FiDollarSign,
-  FiBarChart3, FiZap, FiGift, FiStar, FiBell
+  FiZap, FiBell
 } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount, formatPercentage } from '@/lib/utils'
 import { AppShell } from '@/components/layout/AppShell'
-import { TransactionHistory } from '@/components/transactions/TransactionHistory'
 import { QRCodeGenerator } from '@/components/profile/QRCodeGenerator'
 
 interface Portfolio {
@@ -213,7 +212,7 @@ export function DashboardClient() {
             <h1 className="text-2xl font-bold text-neutral-900">
               Welcome back{user?.name ? `, ${user.name.split(' ')[0]}` : ''}! 👋
             </h1>
-            <p className="text-neutral-600 mt-1">Here's what's happening with your crypto today</p>
+            <p className="text-neutral-600 mt-1">Here&apos;s what&apos;s happening with your crypto today</p>
           </div>
           
           <div className="flex gap-2">

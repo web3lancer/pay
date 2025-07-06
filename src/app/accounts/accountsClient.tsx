@@ -3,11 +3,11 @@ import React, { useState } from 'react'
 import AccountList from '@/components/accounts/AccountList'
 import { useAccountContext } from '@/contexts/AccountContext'
 import Button from '@/components/ui/Button'
-import { updateVirtualAccount, deleteVirtualAccount, freezeVirtualAccount, reactivateVirtualAccount } from '@/lib/appwrite'
+import { deleteVirtualAccount, freezeVirtualAccount, reactivateVirtualAccount } from '@/lib/appwrite'
 
 export default function AccountsClient() {
   const [showCreate, setShowCreate] = useState(false)
-  const { accounts, fetchAccounts, loading } = useAccountContext()
+  const { fetchAccounts } = useAccountContext()
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const handleFreeze = async (accountId: string) => {
