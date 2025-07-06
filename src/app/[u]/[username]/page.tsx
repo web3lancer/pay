@@ -6,6 +6,7 @@ import { findUserByUsername, canonizeUsername } from '@/lib/appwrite'
 import type { Users } from '@/types/appwrite.d'
 import QRCode from 'react-qr-code'
 import { FiCopy, FiCheck, FiMessageCircle } from 'react-icons/fi'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function UserProfilePage() {
   const params = useParams()
@@ -14,6 +15,7 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [copied, setCopied] = useState(false)
+  const { userProfile } = useAuth()
 
   // Canonize username for link
   const canonUsername = canonizeUsername(username)
@@ -21,6 +23,12 @@ export default function UserProfilePage() {
   const profileLink = `${baseUrl}/u/${canonUsername}`
   const messageLink = `https://www.web3lancer.website/u/${canonUsername}`
   
+  // Determine if the logged-in user is viewing their own profile
+  const isOwnProfile =
+    userProfile &&
+    user &&
+    (userProfile.userId === user.userId ||
+      canonizeUsername(userProfile.username) === canonUsername)
 
   useEffect(() => {
     if (!username) return
@@ -113,7 +121,10 @@ export default function UserProfilePage() {
         <div className="w-full mt-6">
           <div className="bg-cyan-50 rounded-xl p-5 text-center">
             <span className="text-cyan-800 font-medium">
-              This is a public payment profile. Share your link or QR code to receive payments instantly.
+              {isOwnProfile
+                ? "This is your public payment profile. Share your link or QR code to receive payments instantly."
+                : "This is a public payment profile. Share this link or QR code to send payments instantly."
+              }
             </span>
           </div>
         </div>
