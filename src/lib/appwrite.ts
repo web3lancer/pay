@@ -288,7 +288,7 @@ export async function listTransactionsByUser(userId: string) {
     COLLECTION_IDS.TRANSACTIONS,
     [
       Query.equal('fromUserId', userId),
-      // Use Query.contains for array fields:
+      // Query.contains for array fields (toUserId is an array)
       Query.contains('toUserId', userId)
     ]
   )
@@ -538,15 +538,49 @@ export async function findUserByEmail(email: string) {
 }
 
 /**
- * Find user by username.
+ * Find user by username (public, no authentication required).
+ * Returns the user document from the Users collection, or null if not found.
  */
 export async function findUserByUsername(username: string) {
-  const res = await databases.listDocuments(
-    DATABASE_ID,
-    COLLECTION_IDS.USERS,
-    [Query.equal('username', username)]
-  );
-  return res.documents[0] || null;
+  try {
+    // Canonize username for consistency
+    const canon = canonizeUsername(username)
+    if (!canon) return null
+    
+    const res = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_IDS.USERS,
+      [Query.equal('username', canon)]
+    );
+    return res.documents[0] || null;
+  } catch (error: any) {
+    console.error('Error finding user by username:', error);
+    // If it's an authorization error, return null instead of throwing
+    if (error?.type === 'user_unauthorized' || error?.code === 401) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Find user by userId (fallback method for public profile access)
+ */
+export async function findUserById(userId: string) {
+  try {
+    const res = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_IDS.USERS,
+      [Query.equal('userId', userId)]
+    );
+    return res.documents[0] || null;
+  } catch (error: any) {
+    console.error('Error finding user by ID:', error);
+    if (error?.type === 'user_unauthorized' || error?.code === 401) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 /**
@@ -558,6 +592,24 @@ export async function listUsers(limit = 25, offset = 0) {
     COLLECTION_IDS.USERS,
     [Query.limit(limit), Query.offset(offset)]
   );
+}
+
+/**
+ * Test function to check if we can read from Users collection
+ */
+export async function testUsersCollectionAccess() {
+  try {
+    const res = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_IDS.USERS,
+      [Query.limit(1)]
+    );
+    console.log('Users collection access test successful:', res);
+    return true;
+  } catch (error: any) {
+    console.error('Users collection access test failed:', error);
+    return false;
+  }
 }
 
 // --- WALLET OPERATIONS ---
@@ -842,6 +894,9 @@ export async function revokeVirtualCard(cardId: string) {
 
 // --- ADVANCED ACCOUNT LOGIC ---
 
+// Assumes updateVirtualAccount, createSecurityLog, databases, DATABASE_ID, and COLLECTION_IDS are imported/defined elsewhere
+// Also assumes 'client' is defined elsewhere in your codebase
+
 /**
  * Freeze a virtual account.
  */
@@ -856,8 +911,6 @@ export async function reactivateVirtualAccount(accountId: string) {
   return updateVirtualAccount(accountId, { status: 'active' });
 }
 
-// --- ADVANCED SECURITY LOGIC ---
-
 /**
  * Log a security event for a user.
  */
@@ -865,36 +918,34 @@ export async function logSecurityEvent(userId: string, action: string, metadata:
   return createSecurityLog({
     userId,
     action,
-    metadata: JSON.stringify(metadata),
+    metadata,
     createdAt: new Date().toISOString(),
-    success: true
   });
 }
 
 /**
- * Get the current user's database profile (Users collection).
- * If not found, create a basic profile from the Appwrite account.
+ * Get current user profile from Appwrite Users collection.
+ * First try to get existing profile, else create one.
  */
 export async function getCurrentUserProfile(): Promise<any | null> {
   try {
-    const acc = await account.get()
-    const userId = acc.$id
-    if (!userId) return null
-    
-    // First try to get existing profile
+    // Get current Appwrite account
+    const acc = await account.get();
+    // Try to fetch existing user profile
     try {
-      const profile = await databases.getDocument(DATABASE_ID, COLLECTION_IDS.USERS, userId)
-      return profile
-    } catch (error) {
-      // Profile doesn't exist, create it
-      console.log('Creating user profile for:', userId)
-      
+      const profile = await databases.getDocument(
+        DATABASE_ID,
+        COLLECTION_IDS.USERS,
+        acc.$id
+      );
+      return profile;
+    } catch (err) {
+      // Not found, create profile
+      console.log('Creating user profile for:', acc.$id);
       const newProfile = {
-        userId: userId,
+        userId: acc.$id,
         email: acc.email,
-        username: acc.email.split('@')[0] || `user_${userId.slice(0, 8)}`,
         displayName: acc.name || acc.email.split('@')[0],
-        profileImage: null,
         phoneNumber: null,
         kycStatus: 'pending',
         kycLevel: 0,
@@ -904,21 +955,19 @@ export async function getCurrentUserProfile(): Promise<any | null> {
         timezone: null,
         preferredCurrency: 'USD',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-      
+        updatedAt: new Date().toISOString(),
+      };
       const createdProfile = await databases.createDocument(
-        DATABASE_ID, 
-        COLLECTION_IDS.USERS, 
-        userId, // Use the Appwrite account ID as the document ID
+        DATABASE_ID,
+        COLLECTION_IDS.USERS,
+        acc.$id, // Use Appwrite account ID as document ID
         newProfile
-      )
-      
-      return createdProfile
+      );
+      return createdProfile;
     }
   } catch (error) {
-    console.error('Failed to get/create user profile:', error)
-    return null
+    console.error('Failed to get/create user profile:', error);
+    return null;
   }
 }
 
@@ -926,9 +975,9 @@ export async function getCurrentUserProfile(): Promise<any | null> {
  * Canonize a username for URLs: lowercase, replace spaces and invalid chars with underscores.
  */
 export function canonizeUsername(username?: string): string | undefined {
-  if (!username || typeof username !== 'string') return undefined
+  if (!username || typeof username !== 'string') return undefined;
   // Replace spaces and non-alphanumeric/underscore with underscores, then lowercase
-  return username.trim().replace(/[^a-zA-Z0-9_]/g, '_').replace(/_+/g, '_').toLowerCase()
+  return username.trim().replace(/[^a-zA-Z0-9_]/g, '_').replace(/_+/g, '_').toLowerCase();
 }
 
 /**
@@ -936,14 +985,14 @@ export function canonizeUsername(username?: string): string | undefined {
  * Returns: /u/{username} or /u/{userId}
  */
 export function getUserProfileLink(user: { username?: string; userId?: string }) {
-  const canon = canonizeUsername(user?.username)
+  const canon = canonizeUsername(user?.username);
   if (canon && canon !== '') {
-    return `/u/${canon}`
+    return `/u/${canon}`;
   }
   if (user?.userId && typeof user.userId === 'string' && user.userId.trim() !== '') {
-    return `/u/${user.userId}`
+    return `/u/${user.userId}`;
   }
-  return '/'
+  return '/';
 }
 
-export default client
+export default client;

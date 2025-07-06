@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { findUserByUsername, canonizeUsername } from '@/lib/appwrite'
+import { findUserByUsername, findUserById, canonizeUsername } from '@/lib/appwrite'
 import type { Users } from '@/types/appwrite.d'
 import QRCode from 'react-qr-code'
 import { FiCopy, FiCheck, FiMessageCircle } from 'react-icons/fi'
@@ -22,7 +22,7 @@ export default function UserProfilePage() {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
   const profileLink = `${baseUrl}/u/${canonUsername}`
   const messageLink = `https://www.web3lancer.website/u/${canonUsername}`
-  
+
   // Determine if the logged-in user is viewing their own profile
   const isOwnProfile =
     userProfile &&
@@ -33,15 +33,32 @@ export default function UserProfilePage() {
   useEffect(() => {
     if (!username) return
     setLoading(true)
+    setNotFound(false)
+    
+    // First try to find by username
     findUserByUsername(username)
       .then((u) => {
         if (u) {
           setUser(u as Users)
           setNotFound(false)
         } else {
-          setUser(null)
+          // If not found by username, try by userId (fallback)
+          return findUserById(username)
+        }
+        return null
+      })
+      .then((u) => {
+        if (u) {
+          setUser(u as Users)
+          setNotFound(false)
+        } else if (!user) {
+          // Only set not found if we haven't found a user yet
           setNotFound(true)
         }
+      })
+      .catch((error) => {
+        console.error('Error loading user profile:', error)
+        setNotFound(true)
       })
       .finally(() => setLoading(false))
   }, [username])
@@ -57,8 +74,13 @@ export default function UserProfilePage() {
     return <div className="p-8 text-center">Loading profile...</div>
   }
 
-  if (notFound || !user) {
+  if (notFound) {
     return <div className="p-8 text-center text-red-600">User not found</div>
+  }
+
+  // Always show the profile if found in the Users collection, even if not logged in
+  if (!user) {
+    return <div className="p-8 text-center text-neutral-500">Profile unavailable.</div>
   }
 
   return (
@@ -123,7 +145,7 @@ export default function UserProfilePage() {
             <span className="text-cyan-800 font-medium">
               {isOwnProfile
                 ? "This is your public payment profile. Share your link or QR code to receive payments instantly."
-                : "This is a public payment profile. Share this link or QR code to send payments instantly."
+                : `This is @${user.username}'s public profile. Share this link or QR code to send payments instantly.`
               }
             </span>
           </div>
