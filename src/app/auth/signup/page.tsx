@@ -41,6 +41,13 @@ export default function SignupPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    // Username validation: no spaces, only a-z, 0-9, _, min 3 chars
+    const usernameRegex = /^[a-zA-Z0-9_]{3,}$/;
+    if (!usernameRegex.test(name)) {
+      setError('Username must be at least 3 characters, contain only letters, numbers, or underscores, and no spaces.')
+      setLoading(false)
+      return
+    }
     if (password !== password2) {
       setError('Passwords do not match')
       setLoading(false)
@@ -184,12 +191,15 @@ export default function SignupPage() {
                   <input
                     type="text"
                     required
-                    placeholder="Full Name"
+                    placeholder="Username"
                     className="w-full px-4 py-3 rounded-lg border border-neutral-200 focus:border-cyan-500 outline-none text-center"
                     value={name}
-                    onChange={e => setName(e.target.value)}
-                    autoComplete="name"
+                    onChange={e => setName(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                    autoComplete="username"
                   />
+                  <div className="text-xs text-neutral-500 mb-2">
+                    Username cannot be changed after account creation. Only letters, numbers, and underscores are allowed.
+                  </div>
                   <input
                     type="email"
                     required

@@ -933,15 +933,15 @@ export function canonizeUsername(username?: string): string | undefined {
 
 /**
  * Get the best profile link for a user (canonized username if exists, else userId).
- * Returns: /{username} or /{userId}
+ * Returns: /u/{username} or /u/{userId}
  */
 export function getUserProfileLink(user: { username?: string; userId?: string }) {
   const canon = canonizeUsername(user?.username)
   if (canon && canon !== '') {
-    return `/${canon}`
+    return `/u/${canon}`
   }
   if (user?.userId && typeof user.userId === 'string' && user.userId.trim() !== '') {
-    return `/${user.userId}`
+    return `/u/${user.userId}`
   }
   return '/'
 }
