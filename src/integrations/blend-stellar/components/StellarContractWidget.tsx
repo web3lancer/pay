@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { STELLAR_RPC_URL, STELLAR_NETWORK_PASSPHRASE, STELLAR_CONTRACT_ID } from '../config'
+import { STELLAR_RPC_URL } from '../config'
 
 // Only import if needed to avoid SSR issues
 let Server: any
@@ -15,6 +15,14 @@ function StatusDot({ status }: { status: 'loading' | 'success' | 'error' }) {
   if (status === 'success') color = 'bg-green-400'
   if (status === 'error') color = 'bg-yellow-400'
   return <span className={`inline-block w-2 h-2 rounded-full mr-2 ${color}`} />
+}
+
+function Loader() {
+  return (
+    <span className="inline-block align-middle mr-2">
+      <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-400"></span>
+    </span>
+  )
 }
 
 export function StellarContractWidget() {
@@ -49,10 +57,16 @@ export function StellarContractWidget() {
       <StatusDot status={status} />
       <div>
         <span className="text-blue-700 font-medium">Stellar Network</span>
-        <div className="text-xs text-neutral-500">
-          {status === 'loading' && <>Connecting...</>}
-          {status === 'success' && <>Latest Ledger: <span className="font-mono">{result.latestLedger}</span></>}
-          {status === 'error' && <>Not connected</>}
+        <div className="text-xs text-neutral-500 flex items-center">
+          {(status === 'loading' || status === 'error') && (
+            <>
+              <Loader />
+              Connecting...
+            </>
+          )}
+          {status === 'success' && (
+            <>Latest Ledger: <span className="font-mono">{result.latestLedger}</span></>
+          )}
         </div>
       </div>
     </div>
