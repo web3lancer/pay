@@ -11,6 +11,14 @@ import { FiSend, FiDownload, FiPlus, FiArrowRight, FiTrendingUp, FiRefreshCw, Fi
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+// Add Blend integration imports
+import dynamic from 'next/dynamic'
+const BlendPoolWidget = dynamic(() =>
+  import('@/integrations/blend-stellar/components/BlendPoolWidget').then(mod => mod.BlendPoolWidget),
+  { ssr: false }
+)
+import { BLEND_FEATURE_ENABLED } from '@/integrations/blend-stellar/config'
+
 export default function HomePage() {
   const { user, userProfile, isAuthenticated, isLoading } = useAuth()
   const { wallets, defaultWallet, isLoading: walletsLoading } = useWallet()
@@ -88,6 +96,13 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Blend Integration - Minimal, Feature-Flagged */}
+      {BLEND_FEATURE_ENABLED && (
+        <div className="mb-8">
+          <BlendPoolWidget />
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="grid md:grid-cols-4 gap-6 mb-8">
