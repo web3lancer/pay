@@ -4,39 +4,49 @@ import { BLEND_DEFAULT_NETWORK } from '../config';
 
 const DEMO_POOL_ID = process.env.NEXT_PUBLIC_BLEND_DEMO_POOL_ID || 'CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
 
+function StatusDot({ status }: { status: 'loading' | 'success' | 'error' }) {
+  let color = 'bg-gray-300';
+  if (status === 'success') color = 'bg-green-400';
+  if (status === 'error') color = 'bg-yellow-400';
+  return <span className={`inline-block w-2 h-2 rounded-full mr-2 ${color}`} />;
+}
+
 export function BlendPoolWidget() {
   const [pool, setPool] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setError(null);
+    setStatus('loading');
     BlendPoolService.loadPool(BLEND_DEFAULT_NETWORK, DEMO_POOL_ID)
       .then(data => {
         if (mounted) {
           setPool(data);
-          setLoading(false);
+          setStatus('success');
         }
       })
-      .catch(e => {
+      .catch(() => {
         if (mounted) {
-          setError('Failed to load Blend pool');
-          setLoading(false);
+          setStatus('error');
         }
       });
     return () => { mounted = false; };
   }, []);
 
-  if (loading) return <div className="text-neutral-500">Loading Blend pool...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (!pool) return null;
-
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-cyan-200 p-6">
-      <h2 className="text-xl font-semibold text-cyan-700 mb-2">Blend Pool (Demo)</h2>
-      <pre className="text-xs bg-cyan-50 rounded p-2 overflow-x-auto">{JSON.stringify(pool, null, 2)}</pre>
+    <div className="bg-white rounded-xl shadow-sm border border-cyan-200 p-6 flex items-center">
+      <StatusDot status={status} />
+      <div>
+        <span className="text-cyan-700 font-medium">Blend Pool</span>
+        <div className="text-xs text-neutral-500">
+          {status === 'loading' && <>Syncing pool data...</>}
+          {status === 'success' && <span>Pool loaded</span>}
+          {status === 'error' && <>Unavailable</>}
+        </div>
+        {status === 'success' && (
+          <pre className="text-xs bg-cyan-50 rounded p-2 overflow-x-auto mt-2">{JSON.stringify(pool, null, 2)}</pre>
+        )}
+      </div>
     </div>
   );
 }

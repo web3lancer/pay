@@ -17,6 +17,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.4(react@19.1.0))
+      '@stellar/stellar-sdk':
+        specifier: ^13.3.0
+        version: 13.3.0
       '@storybook/react':
         specifier: ^9.0.1
         version: 9.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(storybook@9.0.1(@testing-library/dom@10.4.0))(typescript@5.8.3)
@@ -1185,6 +1188,10 @@ packages:
 
   '@stellar/stellar-sdk@13.0.0':
     resolution: {integrity: sha512-+wvmKi+XWwu27nLYTM17EgBdpbKohEkOfCIK4XKfsI4WpMXAqvnqSm98i9h5dAblNB+w8BJqzGs1JY0PtTGm4A==}
+
+  '@stellar/stellar-sdk@13.3.0':
+    resolution: {integrity: sha512-8+GHcZLp+mdin8gSjcgfb/Lb6sSMYRX6Nf/0LcSJxvjLQR0XHpjGzOiRbYb2jSXo51EnA6kAV5j+4Pzh5OUKUg==}
+    engines: {node: '>=18.0.0'}
 
   '@storybook/global@5.0.0':
     resolution: {integrity: sha512-FcOqPAXACP0I3oJ/ws6/rrPT9WGhu915Cg8D02a9YxLo0DE9zI+a9A5gRGvmQ09fiWPukqI8ZAEoQEdWUKMQdQ==}
@@ -2395,6 +2402,9 @@ packages:
 
   feaxios@0.0.20:
     resolution: {integrity: sha512-g3hm2YDNffNxA3Re3Hd8ahbpmDee9Fv1Pb1C/NoWsjY7mtD8nyNeJytUzn+DK0Hyl9o6HppeWOrtnqgmhOYfWA==}
+
+  feaxios@0.0.23:
+    resolution: {integrity: sha512-eghR0A21fvbkcQBgZuMfQhrXxJzC0GNUGC9fXhBge33D+mFDTwl0aJ35zoQQn575BhyjQitRc5N4f+L4cP708g==}
 
   file-entry-cache@8.0.0:
     resolution: {integrity: sha512-XXTUwCvisa5oacNGRP9SfNtYBNAMi+RPwBFmblZEF7N7swHYQS6/Zfk7SRwx4D5j3CH211YNRco1DEMNVfZCnQ==}
@@ -5124,6 +5134,19 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  '@stellar/stellar-sdk@13.3.0':
+    dependencies:
+      '@stellar/stellar-base': 13.1.0
+      axios: 1.10.0
+      bignumber.js: 9.3.0
+      eventsource: 2.0.2
+      feaxios: 0.0.23
+      randombytes: 2.1.0
+      toml: 3.0.0
+      urijs: 1.19.11
+    transitivePeerDependencies:
+      - debug
+
   '@storybook/global@5.0.0': {}
 
   '@storybook/react-dom-shim@9.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(storybook@9.0.1(@testing-library/dom@10.4.0))':
@@ -6521,6 +6544,10 @@ snapshots:
       picomatch: 4.0.2
 
   feaxios@0.0.20:
+    dependencies:
+      is-retry-allowed: 3.0.0
+
+  feaxios@0.0.23:
     dependencies:
       is-retry-allowed: 3.0.0
 
