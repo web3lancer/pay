@@ -102,15 +102,19 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Stellar Contract Widget - Minimal, Feature-Flagged */}
-      {STELLAR_CONTRACT_WIDGET_ENABLED && (
-        <StellarContractWidget />
-      )}
-
-      {/* Blend Integration - Minimal, Feature-Flagged */}
-      {BLEND_FEATURE_ENABLED && (
-        <div className="mb-8">
-          <BlendPoolWidget />
+      {/* Stellar & Blend Integration - Side by Side, Feature-Flagged */}
+      {(STELLAR_CONTRACT_WIDGET_ENABLED || BLEND_FEATURE_ENABLED) && (
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          {STELLAR_CONTRACT_WIDGET_ENABLED && (
+            <div className="flex-1 min-w-0">
+              <StellarContractWidget />
+            </div>
+          )}
+          {BLEND_FEATURE_ENABLED && (
+            <div className="flex-1 min-w-0">
+              <BlendPoolWidget />
+            </div>
+          )}
         </div>
       )}
 

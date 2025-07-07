@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { STELLAR_RPC_URL } from '../config'
+const rpcUrl = process.env.NEXT_PUBLIC_STELLAR_RPC_URL || 'https://soroban-testnet.stellar.org'
 
 // Only import if needed to avoid SSR issues
 let Server: any
@@ -26,29 +26,26 @@ function Loader() {
 }
 
 export function StellarContractWidget() {
+  const [ledger, setLedger] = useState<string | null>(null)
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-  const [result, setResult] = useState<any>(null)
 
   useEffect(() => {
     let mounted = true
-    async function fetchContract() {
+    async function fetchLedger() {
       setStatus('loading')
       try {
         if (!Server) throw new Error()
-        const server = new Server(STELLAR_RPC_URL)
+        const server = new Server(rpcUrl)
         const ledger = await server.ledgers().order('desc').limit(1).call()
         if (mounted) {
-          setResult({ latestLedger: ledger.records[0]?.sequence })
+          setLedger(ledger.records[0]?.sequence)
           setStatus('success')
         }
       } catch {
-        if (mounted) {
-          setResult(null)
-          setStatus('error')
-        }
+        if (mounted) setStatus('error')
       }
     }
-    fetchContract()
+    fetchLedger()
     return () => { mounted = false }
   }, [])
 
@@ -65,7 +62,7 @@ export function StellarContractWidget() {
             </>
           )}
           {status === 'success' && (
-            <>Latest Ledger: <span className="font-mono">{result.latestLedger}</span></>
+            <>Latest Ledger: <span className="font-mono">{ledger}</span></>
           )}
         </div>
       </div>
