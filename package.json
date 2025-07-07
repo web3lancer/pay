@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@blend-capital/blend-sdk": "^2.2.0",
     "@headlessui/react": "^2.2.4",
     "@hookform/resolvers": "^5.0.1",
     "@storybook/react": "^9.0.1",

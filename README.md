@@ -27,7 +27,7 @@ Seamless decentralized file storage and retrieval powered by Filecoin and Web3.S
 - 🛡️ **Appwrite-powered**: Robust backend, real-time updates, and OAuth
 - 📱 **Responsive**: Works on all devices
 - 🧑‍💻 **Open Source**: Built for the community, by the community
-- 🎯 **Pitch Deck**: Interactive presentation mode at `/pitch`
+- 🎯 **Pitch Deck**: Interactive presentation mode at [/pitch](https://pay.web3lancer.website/pitch)
 
 ---
 
