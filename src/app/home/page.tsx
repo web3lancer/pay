@@ -13,11 +13,16 @@ import { useRouter } from 'next/navigation'
 
 // Add Blend integration imports
 import dynamic from 'next/dynamic'
+import { BLEND_FEATURE_ENABLED, STELLAR_CONTRACT_WIDGET_ENABLED } from '@/integrations/blend-stellar/config'
 const BlendPoolWidget = dynamic(() =>
   import('@/integrations/blend-stellar/components/BlendPoolWidget').then(mod => mod.BlendPoolWidget),
   { ssr: false }
 )
-import { BLEND_FEATURE_ENABLED } from '@/integrations/blend-stellar/config'
+// Add Stellar widget import
+const StellarContractWidget = dynamic(() =>
+  import('@/integrations/blend-stellar/components/StellarContractWidget').then(mod => mod.StellarContractWidget),
+  { ssr: false }
+)
 
 export default function HomePage() {
   const { user, userProfile, isAuthenticated, isLoading } = useAuth()
@@ -96,6 +101,11 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Stellar Contract Widget - Minimal, Feature-Flagged */}
+      {STELLAR_CONTRACT_WIDGET_ENABLED && (
+        <StellarContractWidget />
+      )}
 
       {/* Blend Integration - Minimal, Feature-Flagged */}
       {BLEND_FEATURE_ENABLED && (
