@@ -1064,4 +1064,127 @@ export function decryptWithWalletPassword(encrypted: string, password: string): 
   return decrypted.toString('utf8')
 }
 
+/**
+ * Create an inbuilt wallet (generates new mnemonic, private key).
+ */
+export async function createInbuiltWallet({
+  userId,
+  walletName,
+  blockchain,
+  walletPassword,
+  walletType = 'inbuilt',
+  derivationPath
+}: {
+  userId: string,
+  walletName: string,
+  blockchain: string,
+  walletPassword: string,
+  walletType?: 'inbuilt',
+  derivationPath?: string
+}) {
+  const input = {
+    walletType,
+    blockchain,
+    walletPassword,
+    walletName,
+    derivationPath
+  }
+  const result = await createWalletWithFunction(input)
+  // Save to DB
+  return createWallet({
+    userId,
+    walletName,
+    walletType,
+    blockchain,
+    publicKey: result.publicKey,
+    encryptedPrivateKey: result.encryptedPrivateKey,
+    walletAddress: result.walletAddress,
+    derivationPath: result.derivationPath,
+    isDefault: false,
+    isActive: true,
+    balance: 0,
+    creationMethod: 'inbuilt',
+    createdAt: new Date().toISOString()
+  })
+}
+
+/**
+ * Import a wallet using mnemonic.
+ */
+export async function importWallet({
+  userId,
+  walletName,
+  blockchain,
+  walletPassword,
+  mnemonic,
+  derivationPath
+}: {
+  userId: string,
+  walletName: string,
+  blockchain: string,
+  walletPassword: string,
+  mnemonic: string,
+  derivationPath?: string
+}) {
+  const input = {
+    walletType: 'imported',
+    blockchain,
+    walletPassword,
+    walletName,
+    mnemonic,
+    derivationPath
+  }
+  const result = await createWalletWithFunction(input)
+  return createWallet({
+    userId,
+    walletName,
+    walletType: 'imported',
+    blockchain,
+    publicKey: result.publicKey,
+    encryptedPrivateKey: result.encryptedPrivateKey,
+    walletAddress: result.walletAddress,
+    derivationPath: result.derivationPath,
+    isDefault: false,
+    isActive: true,
+    balance: 0,
+    creationMethod: 'imported',
+    createdAt: new Date().toISOString()
+  })
+}
+
+/**
+ * Add an external wallet (address only, no private key).
+ */
+export async function addExternalWallet({
+  userId,
+  walletName,
+  blockchain,
+  walletAddress,
+  publicKey
+}: {
+  userId: string,
+  walletName: string,
+  blockchain: string,
+  walletAddress: string,
+  publicKey?: string
+}) {
+  // Call backend function for consistency (optional)
+  // Or just create directly
+  return createWallet({
+    userId,
+    walletName,
+    walletType: 'external',
+    blockchain,
+    publicKey: publicKey || null,
+    encryptedPrivateKey: null,
+    walletAddress,
+    derivationPath: null,
+    isDefault: false,
+    isActive: true,
+    balance: 0,
+    creationMethod: 'external',
+    createdAt: new Date().toISOString()
+  })
+}
+
 export default client;
