@@ -295,6 +295,17 @@
                     "orders": [
                         "ASC"
                     ]
+                },
+                {
+                    "key": "index_6",
+                    "type": "key",
+                    "status": "available",
+                    "attributes": [
+                        "displayName"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 }
             ]
         },
@@ -446,6 +457,14 @@
                     "twoWayKey": "wallets",
                     "onDelete": "restrict",
                     "side": "parent"
+                },
+                {
+                    "key": "creationMethod",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null
                 }
             ],
             "indexes": [
@@ -1819,9 +1838,9 @@
             "$id": "686d7c0c00123bbd8a79",
             "name": "createWallet",
             "runtime": "node-22",
-            "specification": "s-0.5vcpu-512mb",
+            "specification": "s-1vcpu-512mb",
             "execute": [
-                "any"
+                "users"
             ],
             "events": [],
             "scopes": [
@@ -1834,6 +1853,80 @@
             "entrypoint": "src/main.js",
             "commands": "npm install",
             "path": "functions/createWallet"
+        }
+    ],
+    "buckets": [
+        {
+            "$id": "user_assets",
+            "$permissions": [],
+            "fileSecurity": true,
+            "name": "User Assets",
+            "enabled": true,
+            "maximumFileSize": 5000000000,
+            "allowedFileExtensions": [],
+            "compression": "none",
+            "encryption": true,
+            "antivirus": true
+        },
+        {
+            "$id": "app_assets",
+            "$permissions": [],
+            "fileSecurity": false,
+            "name": "App Assets",
+            "enabled": true,
+            "maximumFileSize": 5000000000,
+            "allowedFileExtensions": [],
+            "compression": "none",
+            "encryption": true,
+            "antivirus": true
+        },
+        {
+            "$id": "documents",
+            "$permissions": [],
+            "fileSecurity": true,
+            "name": "Documents",
+            "enabled": true,
+            "maximumFileSize": 5000000000,
+            "allowedFileExtensions": [],
+            "compression": "none",
+            "encryption": true,
+            "antivirus": true
+        },
+        {
+            "$id": "backups",
+            "$permissions": [],
+            "fileSecurity": true,
+            "name": "Backups",
+            "enabled": true,
+            "maximumFileSize": 5000000000,
+            "allowedFileExtensions": [],
+            "compression": "none",
+            "encryption": true,
+            "antivirus": true
+        },
+        {
+            "$id": "system_logs",
+            "$permissions": [],
+            "fileSecurity": true,
+            "name": "System Logs",
+            "enabled": true,
+            "maximumFileSize": 5000000000,
+            "allowedFileExtensions": [],
+            "compression": "none",
+            "encryption": true,
+            "antivirus": true
+        },
+        {
+            "$id": "temp_files",
+            "$permissions": [],
+            "fileSecurity": true,
+            "name": "Temp Files",
+            "enabled": true,
+            "maximumFileSize": 5000000000,
+            "allowedFileExtensions": [],
+            "compression": "none",
+            "encryption": true,
+            "antivirus": true
         }
     ]
 }
