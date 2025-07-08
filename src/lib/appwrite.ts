@@ -1,4 +1,5 @@
 import { Client, Account, Databases, Storage, ID, Query, Avatars, AuthenticationFactor, Permission, Role } from 'appwrite'
+import crypto from 'crypto'
 
 // Initialize Appwrite client
 const client = new Client()
@@ -999,6 +1000,68 @@ export function getUserProfileLink(user: { username?: string; userId?: string })
     return `/u/${user.userId}`;
   }
   return '/';
+}
+
+/**
+ * Call Appwrite wallet creation function.
+ * @param input { walletType, blockchain, mnemonic?, walletPassword, walletName, derivationPath? }
+ * Returns: { walletAddress, publicKey, encryptedPrivateKey, derivationPath, mnemonic? }
+ */
+export async function createWalletWithFunction(input: {
+  walletType: string
+  blockchain: string
+  mnemonic?: string
+  walletPassword: string
+  walletName: string
+  derivationPath?: string
+}) {
+  // Replace with your Appwrite function endpoint or SDK call
+  const endpoint = '/v1/functions/wallets-create/execution' // Adjust as per your deployment
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // Add Appwrite session headers if needed
+    },
+    body: JSON.stringify(input)
+  })
+  if (!res.ok) throw new Error('Wallet function failed')
+  return res.json()
+}
+
+/**
+ * Encrypt data with wallet password using AES-256-GCM.
+ */
+export function encryptWithWalletPassword(data: string, password: string): string {
+  const salt = crypto.randomBytes(16)
+  const iv = crypto.randomBytes(12)
+  const key = crypto.scryptSync(password, salt, 32)
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+  const encrypted = Buffer.concat([cipher.update(data, 'utf8'), cipher.final()])
+  const tag = cipher.getAuthTag()
+  // Return base64(salt).base64(iv).base64(tag).base64(encrypted), joined by '.'
+  return [
+    salt.toString('base64'),
+    iv.toString('base64'),
+    tag.toString('base64'),
+    encrypted.toString('base64')
+  ].join('.')
+}
+
+/**
+ * Decrypt data with wallet password using AES-256-GCM.
+ */
+export function decryptWithWalletPassword(encrypted: string, password: string): string {
+  const [saltB64, ivB64, tagB64, dataB64] = encrypted.split('.')
+  const salt = Buffer.from(saltB64, 'base64')
+  const iv = Buffer.from(ivB64, 'base64')
+  const tag = Buffer.from(tagB64, 'base64')
+  const data = Buffer.from(dataB64, 'base64')
+  const key = crypto.scryptSync(password, salt, 32)
+  const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
+  decipher.setAuthTag(tag)
+  const decrypted = Buffer.concat([decipher.update(data), decipher.final()])
+  return decrypted.toString('utf8')
 }
 
 export default client;
