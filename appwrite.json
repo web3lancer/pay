@@ -1813,5 +1813,27 @@
                 }
             ]
         }
+    ],
+    "functions": [
+        {
+            "$id": "686d7c0c00123bbd8a79",
+            "name": "createWallet",
+            "runtime": "node-22",
+            "specification": "s-0.5vcpu-512mb",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "scopes": [
+                "users.read"
+            ],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "path": "functions/createWallet"
+        }
     ]
 }
