@@ -43,6 +43,9 @@ export const BUCKET_IDS = {
   TEMP_FILES: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_TEMP_FILES!,
 }
 
+const APPWRITE_FUNCTION_ID_CREATEWALLET = process.env.NEXT_PUBLIC_APPWRITE_FUNCTION_ID_CREATEWALLET || process.env.APPWRITE_FUNCTION_ID_CREATEWALLET;
+const APPWRITE_FUNCTION_API_ENDPOINT_CREATEWALLET = process.env.NEXT_PUBLIC_APPWRITE_FUNCTION_API_ENDPOINT_CREATEWALLET || process.env.APPWRITE_FUNCTION_API_ENDPOINT_CREATEWALLET;
+
 // --- Account/Auth Flows ---
 
 // Email/password signup (with name)
@@ -1015,25 +1018,20 @@ export async function createWalletWithFunction(input: {
   walletPassword: string
   walletName: string
   derivationPath?: string
-}) 
-
-
-{
-  const functionId = process.env.NEXT_PUBLIC_APPWRITE_FUNCTION_CREATE_WALLET_ID!; // e.g. "686d7c0c00123bbd8a79"
-const execution = await functions.createExecution(
-  functionId,
-  JSON.stringify(input),
-  false, // async
-  '',    // path
-  'POST' as ExecutionMethod, // <-- must be uppercase
-  { 'Content-Type': 'application/json' }
-);
-
-// Appwrite v11+: use stdout, not response
-if (execution.status !== 'completed') throw new Error('Wallet function failed');
-
-// Type assertion if TypeScript complains about 'stdout'
-return JSON.parse((execution as any).stdout);
+}) {
+  if (!APPWRITE_FUNCTION_ID_CREATEWALLET) {
+    throw new Error('Missing required environment variable: APPWRITE_FUNCTION_ID_CREATEWALLET');
+  }
+  const execution = await functions.createExecution(
+    APPWRITE_FUNCTION_ID_CREATEWALLET,
+    JSON.stringify(input),
+    false,
+    '',
+    'post' as ExecutionMethod,
+    { 'Content-Type': 'application/json' }
+  );
+  if (execution.status !== 'completed') throw new Error('Wallet function failed');
+  return JSON.parse((execution as any).stdout);
 }
 
 /**
