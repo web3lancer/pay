@@ -15,9 +15,7 @@ const ZoraTradeWidget = dynamic(
   { ssr: false }
 )
 
-const integrationZora = typeof window !== "undefined"
-  ? window?.INTEGRATION_ZORA === "true" || process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
-  : process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
+const integrationZora = process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
 
 export default function SendPage() {
   const router = useRouter()
@@ -58,7 +56,13 @@ export default function SendPage() {
         tokenId: formData.tokenId,
         amount: formData.amount,
         description: formData.description,
-        fromWalletId: formData.fromWalletId
+        fromWalletId: formData.fromWalletId,
+        type: 'receive',
+        status: 'pending',
+        fromUserId: '',
+        fromAddress: '',
+        feeAmount: '',
+        confirmations: 0
       })
 
       setSuccess(`Transaction created! ID: ${transaction.transactionId}`)

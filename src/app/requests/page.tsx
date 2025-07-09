@@ -12,9 +12,7 @@ const ZoraTradeWidget = dynamic(
   { ssr: false }
 )
 
-const integrationZora = typeof window !== "undefined"
-  ? window?.INTEGRATION_ZORA === "true" || process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
-  : process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
+const integrationZora = process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
 
 export default function PaymentRequestsPage() {
   const { paymentRequests, isLoading, cancelPaymentRequest } = usePaymentRequest()
