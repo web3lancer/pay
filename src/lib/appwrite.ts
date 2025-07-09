@@ -1026,7 +1026,7 @@ export async function createWalletWithFunction(input: {
     APPWRITE_FUNCTION_ID_CREATEWALLET,
     JSON.stringify(input),
     false,
-    '',
+    undefined, // path
     'post' as ExecutionMethod,
     { 'Content-Type': 'application/json' }
   );
