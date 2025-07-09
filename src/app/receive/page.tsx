@@ -178,7 +178,7 @@ export default function ReceivePage() {
                     <FiCopy className="w-5 h-5" />
                   )}
                 </button>
-                {navigator.share && (
+                {navigator.share() && (
                   <button
                     onClick={shareAddress}
                     className="p-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700 transition-colors"
