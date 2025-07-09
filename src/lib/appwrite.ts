@@ -1026,11 +1026,19 @@ export async function createWalletWithFunction(input: {
     APPWRITE_FUNCTION_ID_CREATEWALLET,
     JSON.stringify(input),
     false,
-    undefined, // path
-    'post' as ExecutionMethod,
+    undefined,
+    'POST' as ExecutionMethod,
     { 'Content-Type': 'application/json' }
   );
-  if (execution.status !== 'completed') throw new Error('Wallet function failed');
+  if (execution.status !== 'completed') {
+    // Log more details for debugging
+    const errMsg =
+      (execution as any).stderr ||
+      (execution as any).response ||
+      (execution as any).stdout ||
+      'Wallet function failed';
+    throw new Error(`Wallet function failed: ${errMsg}`);
+  }
   return JSON.parse((execution as any).stdout);
 }
 
