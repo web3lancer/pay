@@ -17,6 +17,11 @@ Access decentralized fixed-rate lending and collateral management directly from 
 
 Seamless decentralized file storage and retrieval powered by Filecoin and Web3.Storage, integrated for secure asset management.
 
+### Zora
+
+Integrated with the Zora Coins SDK for on-chain coin creation, trading, and management.  
+Users can send, request, and manage Zora coins directly from LancerPay, with modular UI and API-powered features.
+
 ## Features
 
 - 🌐 **Multi-currency**: Send, receive, and swap crypto & fiat
