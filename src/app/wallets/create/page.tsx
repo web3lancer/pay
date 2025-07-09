@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useWallet } from '@/contexts/WalletContext'
-import { FiArrowLeft, FiCreditCard, FiHardDrive, FiDatabase, FiDownload, FiAlertCircle } from 'react-icons/fi'
+import { FiArrowLeft, FiCreditCard, FiHardDrive, FiDatabase, FiDownload, FiAlertCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi'
 import Link from 'next/link'
 import type { Wallets } from '@/types/appwrite.d'
 import { createWalletWithFunction, createWallet } from '@/lib/appwrite'
@@ -37,6 +37,9 @@ export default function CreateWalletPage() {
 
   // Add walletPassword state for inbuilt/imported wallets
   const [walletPassword, setWalletPassword] = useState('')
+
+  // Advanced dropdown state for derivation path
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const generateMockWallet = (blockchain: string) => {
     // Mock wallet generation - in real app, use proper crypto libraries
@@ -264,31 +267,33 @@ export default function CreateWalletPage() {
                   Your mnemonic phrase will be used to derive the wallet address and public key.
                 </p>
               </div>
+              {/* Advanced dropdown for derivation path */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Wallet Address
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.walletAddress}
-                  onChange={(e) => setFormData({ ...formData, walletAddress: e.target.value })}
-                  placeholder="Enter wallet address"
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Public Key
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.publicKey}
-                  onChange={(e) => setFormData({ ...formData, publicKey: e.target.value })}
-                  placeholder="Enter public key"
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                />
+                <button
+                  type="button"
+                  className="flex items-center text-sm text-cyan-600 hover:underline focus:outline-none"
+                  onClick={() => setShowAdvanced((v) => !v)}
+                >
+                  {showAdvanced ? <FiChevronUp className="mr-1" /> : <FiChevronDown className="mr-1" />}
+                  Advanced
+                </button>
+                {showAdvanced && (
+                  <div className="mt-3">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Derivation Path (optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.derivationPath || ''}
+                      onChange={(e) => setFormData({ ...formData, derivationPath: e.target.value })}
+                      placeholder="e.g. m/44'/60'/0'/0/0"
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-neutral-500 mt-1">
+                      Leave blank for default path.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
