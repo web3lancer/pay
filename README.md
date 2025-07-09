@@ -1,6 +1,6 @@
 # 🚀 LancerPay
 
-**The next-gen payment platform for freelancers, businesses, and the web3 world.**
+**The next-gen payment platform for freelancers, creators, businesses, and the web3 world.**
 
 ![LancerPay Logo](https://raw.githubusercontent.com/your-org/lancerpay-assets/main/logo-animated.gif)
 
