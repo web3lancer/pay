@@ -8,6 +8,16 @@ import { useTransaction } from '@/contexts/TransactionContext'
 import { useExchangeRate } from '@/contexts/ExchangeRateContext'
 import { FiArrowLeft, FiSend, FiAlertCircle, FiCheck } from 'react-icons/fi'
 import Link from 'next/link'
+import dynamic from "next/dynamic"
+
+const ZoraTradeWidget = dynamic(
+  () => import('@/integrations/zora/ui/ZoraTradeWidget'),
+  { ssr: false }
+)
+
+const integrationZora = typeof window !== "undefined"
+  ? window?.INTEGRATION_ZORA === "true" || process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
+  : process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
 
 export default function SendPage() {
   const router = useRouter()
@@ -288,6 +298,13 @@ export default function SendPage() {
           </button>
         </div>
       </form>
+      {/* Zora Integration */}
+      {integrationZora && (
+        <div className="mt-10">
+          <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Trade (Beta)</h2>
+          <ZoraTradeWidget />
+        </div>
+      )}
     </div>
   )
 }

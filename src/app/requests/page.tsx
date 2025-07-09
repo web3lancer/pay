@@ -5,6 +5,16 @@ import { usePaymentRequest } from '@/contexts/PaymentRequestContext'
 import { FiArrowLeft, FiPlus, FiFilter, FiCode, FiMail, FiCopy, FiCheck, FiX, FiExternalLink } from 'react-icons/fi'
 import Link from 'next/link'
 import type { PaymentRequests } from '@/types/appwrite.d'
+import dynamic from "next/dynamic"
+
+const ZoraTradeWidget = dynamic(
+  () => import('@/integrations/zora/ui/ZoraTradeWidget'),
+  { ssr: false }
+)
+
+const integrationZora = typeof window !== "undefined"
+  ? window?.INTEGRATION_ZORA === "true" || process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
+  : process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
 
 export default function PaymentRequestsPage() {
   const { paymentRequests, isLoading, cancelPaymentRequest } = usePaymentRequest()
@@ -106,6 +116,13 @@ export default function PaymentRequestsPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
+      {/* Zora Integration */}
+      {integrationZora && (
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Trade (Beta)</h2>
+          <ZoraTradeWidget />
+        </div>
+      )}
       {/* Header */}
       <div className="mb-8">
         <Link

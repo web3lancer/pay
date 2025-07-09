@@ -6,6 +6,16 @@ import { useAuth } from '@/contexts/AuthContext'
 import TwoFactorSettings from '@/components/security/TwoFactorSettings'
 import { motion } from 'framer-motion'
 import { FiUser, FiShield, FiKey, FiBell, FiGlobe, FiCreditCard } from 'react-icons/fi'
+import dynamic from "next/dynamic"
+
+const ZoraUpdateWidget = dynamic(
+  () => import('@/integrations/zora/ui/ZoraUpdateWidget'),
+  { ssr: false }
+)
+
+const integrationZora = typeof window !== "undefined"
+  ? window?.INTEGRATION_ZORA === "true" || process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
+  : process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
 
 export default function SettingsPage() {
   const { user, userProfile } = useAuth()
@@ -317,6 +327,13 @@ export default function SettingsPage() {
                 {activeTab === 'notifications' && renderNotificationsTab()}
                 {activeTab === 'preferences' && renderPreferencesTab()}
               </motion.div>
+              {/* Zora Integration */}
+              {integrationZora && (
+                <div className="mt-10">
+                  <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Management (Beta)</h2>
+                  <ZoraUpdateWidget />
+                </div>
+              )}
             </div>
           </div>
         </div>
