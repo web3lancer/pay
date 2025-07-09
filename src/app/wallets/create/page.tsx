@@ -7,11 +7,12 @@ import { useWallet } from '@/contexts/WalletContext'
 import { FiArrowLeft, FiCreditCard, FiHardDrive, FiDatabase, FiDownload, FiAlertCircle } from 'react-icons/fi'
 import Link from 'next/link'
 import type { Wallets } from '@/types/appwrite.d'
+import { createWalletWithFunction, createWallet } from '@/lib/appwrite'
 
 export default function CreateWalletPage() {
   const router = useRouter()
   const { userProfile, isAuthenticated } = useAuth()
-  const { createWallet } = useWallet()
+  const { createWallet: createWalletContext } = useWallet()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -33,6 +34,9 @@ export default function CreateWalletPage() {
 
   // For imported wallets, use mnemonic (not private key)
   const [mnemonic, setMnemonic] = useState('')
+
+  // Add walletPassword state for inbuilt/imported wallets
+  const [walletPassword, setWalletPassword] = useState('')
 
   const generateMockWallet = (blockchain: string) => {
     // Mock wallet generation - in real app, use proper crypto libraries
@@ -57,36 +61,44 @@ export default function CreateWalletPage() {
     setError('')
 
     try {
-      let walletData: Omit<Wallets, 'walletId' | '$id' | '$createdAt' | '$updatedAt' | 'users' | 'transactions'> = {
+      let walletData: any = {
         ...formData,
         userId: userProfile.userId,
       }
 
-      // Generate wallet if creating new hot wallet
-      if (formData.walletType === 'hot' && !formData.walletAddress) {
-        const generated = generateMockWallet(formData.blockchain)
-        walletData = {
-          ...walletData,
-          walletAddress: generated.address,
-          publicKey: generated.publicKey,
-          encryptedPrivateKey: generated.encryptedPrivateKey // In real app, encrypt this
-        }
+      // Prepare input for Appwrite function
+      let functionInput: any = {
+        walletType: formData.walletType === 'hot' ? 'inbuilt' : formData.walletType,
+        blockchain: formData.blockchain,
+        walletPassword,
+        walletName: formData.walletName,
       }
-
-      // For imported wallets, use mnemonic (not private key)
       if (formData.walletType === 'imported') {
-        // In a real app, derive address/publicKey from mnemonic
+        functionInput.mnemonic = mnemonic
+      }
+      // Optionally add derivationPath if present
+      if (formData.derivationPath) functionInput.derivationPath = formData.derivationPath
+
+      // Call Appwrite function for inbuilt/imported wallets
+      if (['hot', 'imported'].includes(formData.walletType)) {
+        const result = await createWalletWithFunction(functionInput)
         walletData = {
           ...walletData,
-          // For demo, just use the entered address and publicKey fields
-          // mnemonic: mnemonic, // Not stored in DB, only used for derivation
+          walletAddress: result.walletAddress,
+          publicKey: result.publicKey,
+          encryptedPrivateKey: result.encryptedPrivateKey,
+          derivationPath: result.derivationPath,
+          creationMethod: result.creationMethod,
         }
+      } else if (formData.walletType === 'external') {
+        // For external wallets, set creationMethod
+        walletData.creationMethod = 'external'
       }
 
-      // Remove any fields not in Wallets type
-      delete (walletData as any).mnemonic
+      // Remove mnemonic from walletData if present
+      delete walletData.mnemonic
 
-      await createWallet(walletData)
+      await createWalletContext(walletData)
       router.push('/wallets')
     } catch (error: any) {
       setError(error.message || 'Failed to create wallet')
@@ -279,6 +291,26 @@ export default function CreateWalletPage() {
                 />
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Add password field for inbuilt/imported wallets */}
+        {(formData.walletType === 'hot' || formData.walletType === 'imported') && (
+          <div className="bg-white rounded-xl border border-neutral-200 p-6">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              Wallet Password
+            </label>
+            <input
+              type="password"
+              required
+              value={walletPassword}
+              onChange={(e) => setWalletPassword(e.target.value)}
+              placeholder="Enter a strong password"
+              className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            />
+            <p className="text-xs text-neutral-500 mt-1">
+              This password will be used to encrypt your wallet's private key.
+            </p>
           </div>
         )}
 

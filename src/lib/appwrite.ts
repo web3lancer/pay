@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Storage, ID, Query, Avatars, AuthenticationFactor, Permission, Role } from 'appwrite'
+import { Client, Account, Databases, Storage, ID, Query, Avatars, AuthenticationFactor, Permission, Role, Functions } from 'appwrite'
 import crypto from 'crypto'
 
 // Initialize Appwrite client
@@ -13,6 +13,7 @@ export const account = new Account(client)
 export const databases = new Databases(client)
 export const storage = new Storage(client)
 export const avatars = new Avatars(client)
+export const functions = new Functions(client)
 export { ID, Query }
 
 // Database and collection IDs from environment variables
@@ -1003,9 +1004,9 @@ export function getUserProfileLink(user: { username?: string; userId?: string })
 }
 
 /**
- * Call Appwrite wallet creation function.
+ * Call Appwrite wallet creation function using SDK.
  * @param input { walletType, blockchain, mnemonic?, walletPassword, walletName, derivationPath? }
- * Returns: { walletAddress, publicKey, encryptedPrivateKey, derivationPath, mnemonic? }
+ * Returns: { walletAddress, publicKey, encryptedPrivateKey, derivationPath, mnemonic?, creationMethod }
  */
 export async function createWalletWithFunction(input: {
   walletType: string
@@ -1015,18 +1016,19 @@ export async function createWalletWithFunction(input: {
   walletName: string
   derivationPath?: string
 }) {
-  // Replace with your Appwrite function endpoint or SDK call
-  const endpoint = '/v1/functions/wallets-create/execution' // Adjust as per your deployment
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      // Add Appwrite session headers if needed
-    },
-    body: JSON.stringify(input)
-  })
-  if (!res.ok) throw new Error('Wallet function failed')
-  return res.json()
+  // Use Appwrite SDK to call the function
+  const functionId = process.env.NEXT_PUBLIC_APPWRITE_FUNCTION_CREATE_WALLET_ID! // e.g. "686d7c0c00123bbd8a79"
+  const execution = await functions.createExecution(
+    functionId,
+    JSON.stringify(input),
+    false, // async
+    '',    // path
+    'POST',
+    { 'Content-Type': 'application/json' }
+  )
+  if (execution.status !== 'completed') throw new Error('Wallet function failed')
+  // Parse response body (Appwrite returns as string)
+  return JSON.parse(execution.response)
 }
 
 /**
