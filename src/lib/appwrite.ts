@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Storage, ID, Query, Avatars, AuthenticationFactor, Permission, Role, Functions } from 'appwrite'
+import { Client, Account, Databases, Storage, ID, Query, Avatars, AuthenticationFactor, Permission, Role, Functions, ExecutionMethod } from 'appwrite'
 import crypto from 'crypto'
 
 // Initialize Appwrite client
@@ -1015,20 +1015,25 @@ export async function createWalletWithFunction(input: {
   walletPassword: string
   walletName: string
   derivationPath?: string
-}) {
-  // Use Appwrite SDK to call the function
-  const functionId = process.env.NEXT_PUBLIC_APPWRITE_FUNCTION_CREATE_WALLET_ID! // e.g. "686d7c0c00123bbd8a79"
-  const execution = await functions.createExecution(
-    functionId,
-    JSON.stringify(input),
-    false, // async
-    '',    // path
-    'POST',
-    { 'Content-Type': 'application/json' }
-  )
-  if (execution.status !== 'completed') throw new Error('Wallet function failed')
-  // Parse response body (Appwrite returns as string)
-  return JSON.parse(execution.response)
+}) 
+
+
+{
+  const functionId = process.env.NEXT_PUBLIC_APPWRITE_FUNCTION_CREATE_WALLET_ID!; // e.g. "686d7c0c00123bbd8a79"
+const execution = await functions.createExecution(
+  functionId,
+  JSON.stringify(input),
+  false, // async
+  '',    // path
+  'POST' as ExecutionMethod, // <-- must be uppercase
+  { 'Content-Type': 'application/json' }
+);
+
+// Appwrite v11+: use stdout, not response
+if (execution.status !== 'completed') throw new Error('Wallet function failed');
+
+// Type assertion if TypeScript complains about 'stdout'
+return JSON.parse((execution as any).stdout);
 }
 
 /**
