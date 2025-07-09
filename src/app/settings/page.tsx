@@ -17,7 +17,7 @@ const integrationZora = process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
 
 export default function SettingsPage() {
   const { user, userProfile } = useAuth()
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'preferences'>('security')
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'preferences' | 'integrations'>('security')
 
   const tabs = [
     {
@@ -43,6 +43,12 @@ export default function SettingsPage() {
       label: 'Preferences',
       icon: FiGlobe,
       description: 'Currency, language and display settings'
+    },
+    {
+      id: 'integrations' as const,
+      label: 'Integrations',
+      icon: FiCreditCard,
+      description: 'Manage third-party integrations'
     }
   ]
 
@@ -324,14 +330,14 @@ export default function SettingsPage() {
                 {activeTab === 'security' && renderSecurityTab()}
                 {activeTab === 'notifications' && renderNotificationsTab()}
                 {activeTab === 'preferences' && renderPreferencesTab()}
+                {activeTab === 'integrations' && integrationZora && (
+                  <div>
+                    <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Management (Beta)</h2>
+                    <ZoraUpdateWidget />
+                    {/* Future integrations can be added here */}
+                  </div>
+                )}
               </motion.div>
-              {/* Zora Integration */}
-              {integrationZora && (
-                <div className="mt-10">
-                  <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Management (Beta)</h2>
-                  <ZoraUpdateWidget />
-                </div>
-              )}
             </div>
           </div>
         </div>
