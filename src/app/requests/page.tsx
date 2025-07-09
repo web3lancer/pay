@@ -117,8 +117,11 @@ export default function PaymentRequestsPage() {
       {/* Zora Integration */}
       {integrationZora && (
         <div className="mb-8">
-          <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Trade (Beta)</h2>
-          <ZoraTradeWidget />
+          <h2 className="text-xl font-bold mb-2 text-cyan-700">Request Payment in Zora Coins</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Request payments in trending Zora community coins for better engagement and potential appreciation
+          </p>
+          <ZoraTradeWidget context="request" />
         </div>
       )}
       {/* Header */}

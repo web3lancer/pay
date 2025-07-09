@@ -305,8 +305,15 @@ export default function SendPage() {
       {/* Zora Integration */}
       {integrationZora && (
         <div className="mt-10">
-          <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Trade (Beta)</h2>
-          <ZoraTradeWidget />
+          <h2 className="text-xl font-bold mb-2 text-cyan-700">Alternative: Send with Zora Coins</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Convert your payment to trending Zora coins for enhanced value and community engagement
+          </p>
+          <ZoraTradeWidget 
+            context="send" 
+            suggestedAmount={formData.amount}
+            suggestedToken={formData.tokenId}
+          />
         </div>
       )}
     </div>
