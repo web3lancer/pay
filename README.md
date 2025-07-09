@@ -45,7 +45,7 @@ LancerPay uniquely combines multi-currency (crypto & fiat) payments, modular wal
 
 ```bash
 # 1. Clone the repo
-$ git clone https://github.com/your-org/lancerpay.git
+$ git clone https://github.com/web3lancer/pay.git
 $ cd lancerpay
 
 # 2. Install dependencies
@@ -122,19 +122,19 @@ We welcome PRs, issues, and ideas! See [CONTRIBUTING.md](CONTRIBUTING.md) for de
 
 - Star ⭐ the repo
 - Fork & PR
-- Join our [Discord](https://discord.gg/your-invite)
+- Join our [Discord](https://discord.gg/B8efmXtE)
 
 ---
 
 ## Screenshots
 
-![Dashboard](https://raw.githubusercontent.com/your-org/lancerpay-assets/main/dashboard-animated.gif)
+![Dashboard]()
 
 ---
 
 ## License
 
-MIT © [Your Name or Org](https://github.com/your-org)
+MIT © [Your Name or Org](https://github.com/web3lancer)
 
 ---
 
