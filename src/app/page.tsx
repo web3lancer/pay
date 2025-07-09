@@ -291,6 +291,10 @@ export default function LandingPage() {
                 <span className="font-semibold text-cyan-600"> lightning speed</span>, 
                 <span className="font-semibold text-emerald-600"> bank-grade security</span>, and 
                 <span className="font-semibold text-purple-600"> zero boundaries</span>.
+                <br />
+                <span className="text-base text-slate-500">
+                  Perfect for freelancers, creators, and anyone who values global freedom.
+                </span>
               </motion.p>
               
               <motion.div
