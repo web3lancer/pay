@@ -1,5 +1,5 @@
-import { aptosClient } from './client'
-import type { AptosContractCall } from './types'
+import { aptosClient } from './client';
+import type { AptosContractCall } from './types';
 
 /**
  * Call a contract function (generic, pending ABI details).

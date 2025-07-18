@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react'
-import { createAptosAccount, getAccountBalance } from './client'
-import type { AptosWallet } from './types'
+import {
+  useEffect,
+  useState,
+} from 'react';
+
+import {
+  createAptosAccount,
+  getAccountBalance,
+} from './client';
+import type { AptosWallet } from './types';
 
 export function useAptosWallet() {
   const [wallet, setWallet] = useState<AptosWallet | null>(null)
