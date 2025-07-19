@@ -22,6 +22,11 @@ Seamless decentralized file storage and retrieval powered by Filecoin and Web3.S
 Integrated with the Zora Coins SDK for on-chain coin creation, trading, and management.  
 Users can send, request, and manage Zora coins directly from LancerPay, with modular UI and API-powered features.
 
+### Aptos
+
+Integrated with Aptos for secure, scalable smart contract payments and wallet management.  
+[Integration repo](https://github.com/web3lancer/pay_integration_aptos.git)
+
 ## Features
 
 - 🌐 **Multi-currency**: Send, receive, and swap crypto & fiat
