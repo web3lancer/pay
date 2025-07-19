@@ -19,3 +19,5 @@ export function WalletSelector({ wallets, onConnect, onDisconnect }: { wallets: 
     </div>
   );
 }
+
+// No changes needed, just ensure usage is limited to relevant pages

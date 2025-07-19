@@ -28,3 +28,5 @@ export function WalletProvider({ children }: PropsWithChildren) {
     </AptosWalletAdapterProvider>
   );
 }
+
+// No changes needed if used inside AptosIntegrationProvider

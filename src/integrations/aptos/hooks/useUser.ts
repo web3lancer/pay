@@ -6,8 +6,7 @@ import {
 // Replace with actual Aptos client logic
 async function fetchUser(address: string) {
   // e.g. call view function
-  // return aptosClient().view({ function: `${MODULE_ADDRESS}::user::get_user`, arguments: [address] });
-  return {}; // placeholder
+  return aptosClient().view({ function: `${MODULE_ADDRESS}::user::get_user`, arguments: [address] });
 }
 
 export function useUser(address: string) {
@@ -27,4 +26,5 @@ export function useCreateUser() {
       return {}; // placeholder
     },
   });
+}
 }
