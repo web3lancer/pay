@@ -6,11 +6,11 @@ import {
 } from '@tanstack/react-query';
 
 // Correct payload for Aptos SDK view function
-async function fetchUser(address: string) {
+async function fetchUser(_address: string) {
   return aptosClient().view({
     payload: {
       function: `${MODULE_ADDRESS}::user::get_user`,
-      arguments: [address], // <-- use 'arguments', not 'args'
+    //   arguments: [address], // <-- use 'arguments', not 'args'
     },
   });
 }
@@ -26,7 +26,7 @@ export function useUser(address: string) {
 // Mutation example (create/update/delete)
 export function useCreateUser() {
   return useMutation({
-    mutationFn: async (args: any) => {
+    mutationFn: async (_args: any) => {
       // Use correct payload structure for transactions too
       // return aptosClient().submitTransaction({ payload: { function: `${MODULE_ADDRESS}::user::create_user`, arguments: [...] } });
       return {}; // placeholder
