@@ -1,12 +1,26 @@
 'use client'
 
-import React, { useState } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
-import { useAuth } from '@/contexts/AuthContext'
-import TwoFactorSettings from '@/components/security/TwoFactorSettings'
-import { motion } from 'framer-motion'
-import { FiUser, FiShield, FiKey, FiBell, FiGlobe, FiCreditCard } from 'react-icons/fi'
-import dynamic from "next/dynamic"
+import React, { useState } from 'react';
+
+import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import {
+  FiBell,
+  FiCreditCard,
+  FiGlobe,
+  FiKey,
+  FiShield,
+  FiUser,
+} from 'react-icons/fi';
+
+import { AppShell } from '@/components/layout/AppShell';
+import TwoFactorSettings from '@/components/security/TwoFactorSettings';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  AptosIntegrationProvider,
+} from '@/integrations/aptos/components/AptosIntegrationProvider';
+import { WalletSelector } from '@/integrations/aptos/components/WalletSelector';
+import { ENABLE_APTOS } from '@/integrations/aptos/constants';
 
 const ZoraUpdateWidget = dynamic(
   () => import('@/integrations/zora/ui/ZoraUpdateWidget'),
@@ -276,6 +290,29 @@ export default function SettingsPage() {
     </div>
   )
 
+  const renderIntegrationsTab = () => (
+    <div className="space-y-6">
+      {integrationZora && (
+        <div>
+          <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Management (Beta)</h2>
+          <ZoraUpdateWidget />
+        </div>
+      )}
+      {ENABLE_APTOS && (
+        <div>
+          <h2 className="text-xl font-bold mb-2 text-cyan-700">Aptos Wallet Integration</h2>
+          <AptosIntegrationProvider>
+            <WalletSelector wallets={[]} onConnect={function (wallet: any): void {
+              throw new Error('Function not implemented.');
+            } } onDisconnect={function (): void {
+              throw new Error('Function not implemented.');
+            } } />
+          </AptosIntegrationProvider>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -330,13 +367,7 @@ export default function SettingsPage() {
                 {activeTab === 'security' && renderSecurityTab()}
                 {activeTab === 'notifications' && renderNotificationsTab()}
                 {activeTab === 'preferences' && renderPreferencesTab()}
-                {activeTab === 'integrations' && integrationZora && (
-                  <div>
-                    <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Management (Beta)</h2>
-                    <ZoraUpdateWidget />
-                    {/* Future integrations can be added here */}
-                  </div>
-                )}
+                {activeTab === 'integrations' && renderIntegrationsTab()}
               </motion.div>
             </div>
           </div>

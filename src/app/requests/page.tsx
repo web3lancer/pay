@@ -1,11 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { usePaymentRequest } from '@/contexts/PaymentRequestContext'
-import { FiArrowLeft, FiPlus, FiFilter, FiCode, FiMail, FiCopy, FiCheck, FiX, FiExternalLink } from 'react-icons/fi'
-import Link from 'next/link'
-import type { PaymentRequests } from '@/types/appwrite.d'
-import dynamic from "next/dynamic"
+import {
+  useEffect,
+  useState,
+} from 'react';
+
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import {
+  FiArrowLeft,
+  FiCheck,
+  FiCode,
+  FiCopy,
+  FiExternalLink,
+  FiFilter,
+  FiMail,
+  FiPlus,
+  FiX,
+} from 'react-icons/fi';
+
+import { usePaymentRequest } from '@/contexts/PaymentRequestContext';
+import {
+  AptosIntegrationProvider,
+} from '@/integrations/aptos/components/AptosIntegrationProvider';
+import { WalletSelector } from '@/integrations/aptos/components/WalletSelector';
+import { ENABLE_APTOS } from '@/integrations/aptos/constants';
 
 const ZoraTradeWidget = dynamic(
   () => import('@/integrations/zora/ui/ZoraTradeWidget'),
@@ -116,6 +135,19 @@ export default function PaymentRequestsPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
+      {/* Aptos Integration */}
+      {ENABLE_APTOS && (
+        <AptosIntegrationProvider>
+          <div className="mb-6">
+            <WalletSelector wallets={[]} onConnect={function (wallet: any): void {
+              throw new Error('Function not implemented.');
+            } } onDisconnect={function (): void {
+              throw new Error('Function not implemented.');
+            } } />
+          </div>
+        </AptosIntegrationProvider>
+      )}
+
       {/* Tabs */}
       {integrationZora && (
         <div className="mb-6">

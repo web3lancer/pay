@@ -1,9 +1,17 @@
 'use client'
 
-import React, { useState } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
-import { useExchangeRate } from '@/contexts/ExchangeRateContext'
-import Link from 'next/link'
+import React, { useState } from 'react';
+
+import Link from 'next/link';
+
+import { AppShell } from '@/components/layout/AppShell';
+import { useExchangeRate } from '@/contexts/ExchangeRateContext';
+import {
+  AptosIntegrationProvider,
+} from '@/integrations/aptos/components/AptosIntegrationProvider';
+import { WalletSelector } from '@/integrations/aptos/components/WalletSelector';
+import { ENABLE_APTOS } from '@/integrations/aptos/constants';
+
 // import { motion } from 'framer-motion'
 // import { FiSend, FiDownload, FiRepeat, FiMoreVertical, FiPlus } from 'react-icons/fi'
 
@@ -141,6 +149,17 @@ export function WalletsClient() {
                   </div>
                 ))}
               </div>
+              {ENABLE_APTOS && (
+                <AptosIntegrationProvider>
+                  <div className="mt-4">
+                    <WalletSelector wallets={[]} onConnect={function (wallet: any): void {
+                      throw new Error('Function not implemented.');
+                    } } onDisconnect={function (): void {
+                      throw new Error('Function not implemented.');
+                    } } />
+                  </div>
+                </AptosIntegrationProvider>
+              )}
             </div>
             
             {/* Selected Wallet Details */}
