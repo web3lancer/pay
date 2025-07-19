@@ -1,7 +1,12 @@
-import { PropsWithChildren } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WalletProvider } from "./WalletProvider";
-import { ENABLE_APTOS } from "../constants";
+import { PropsWithChildren } from 'react';
+
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
+
+import { ENABLE_APTOS } from '../constants';
+import { WalletProvider } from './WalletProvider';
 
 const queryClient = new QueryClient();
 
