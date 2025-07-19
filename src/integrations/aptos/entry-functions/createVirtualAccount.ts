@@ -1,4 +1,4 @@
-import { MODULE_ADDRESS } from '../constants';
+import { MODULE_ADDRESS } from '@/integrations/aptos/constants';
 
 export type CreateVirtualAccountArgs = {
   accountId: string;

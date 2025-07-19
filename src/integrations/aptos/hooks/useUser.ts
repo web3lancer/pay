@@ -1,12 +1,18 @@
+import { MODULE_ADDRESS } from '@/integrations/aptos/constants';
+import { aptosClient } from '@/integrations/aptos/utils/aptosClient';
 import {
   useMutation,
   useQuery,
 } from '@tanstack/react-query';
 
-// Replace with actual Aptos client logic
+// Correct payload for Aptos SDK view function
 async function fetchUser(address: string) {
-  // e.g. call view function
-  return aptosClient().view({ function: `${MODULE_ADDRESS}::user::get_user`, arguments: [address] });
+  return aptosClient().view({
+    payload: {
+      function: `${MODULE_ADDRESS}::user::get_user`,
+      arguments: [address], // <-- use 'arguments', not 'args'
+    },
+  });
 }
 
 export function useUser(address: string) {
@@ -21,10 +27,9 @@ export function useUser(address: string) {
 export function useCreateUser() {
   return useMutation({
     mutationFn: async (args: any) => {
-      // e.g. call entry function
-      // return aptosClient().submitTransaction({ function: `${MODULE_ADDRESS}::user::create_user`, arguments: [...] });
+      // Use correct payload structure for transactions too
+      // return aptosClient().submitTransaction({ payload: { function: `${MODULE_ADDRESS}::user::create_user`, arguments: [...] } });
       return {}; // placeholder
     },
   });
-}
 }

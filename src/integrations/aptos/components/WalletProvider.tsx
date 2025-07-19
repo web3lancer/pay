@@ -1,7 +1,12 @@
 import { PropsWithChildren } from 'react';
 
-import { toast } from './ui/toast'; // Use local toast component
-import { AptosWalletAdapterProvider } from '@aptos-labs/wallet-adapter-react';
+import {
+  toast,
+} from '@/integrations/aptos/components/ui/toast'; // Use local toast component
+import {
+  AptosWalletAdapterProvider,
+  Network,
+} from '@aptos-labs/wallet-adapter-react';
 
 import {
   APTOS_API_KEY,
@@ -12,7 +17,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
   return (
     <AptosWalletAdapterProvider
       autoConnect={true}
-      dappConfig={{ network: NETWORK, aptosApiKeys: { [NETWORK]: APTOS_API_KEY } }}
+      dappConfig={{ network: NETWORK as Network, aptosApiKeys: { [NETWORK as Network]: APTOS_API_KEY } }}
       onError={(error) => {
         toast({
           variant: "destructive",

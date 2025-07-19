@@ -1,4 +1,4 @@
-import { aptosClient } from "@/utils/aptosClient";
+import { aptosClient } from '@/integrations/aptos/utils/aptosClient';
 
 export type GetAccountAPTBalanceArguments = {
   accountAddress: string;
