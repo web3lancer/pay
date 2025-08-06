@@ -6,6 +6,9 @@
 
 ---
 
+Paylancer is here to fix cross-border payment delays, High transaction fees, Complex freelancer payment flows with blockchain powered instant transfers, API first, secure architecture, low fees.
+---
+
 ## Integrations
 
 ### USDFC
