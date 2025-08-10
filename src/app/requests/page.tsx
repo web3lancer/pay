@@ -127,29 +127,29 @@ export default function PaymentRequestsPage() {
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       {/* Header */}
       <div className="mb-8">
-            <Link
-              href="/"
-              className="inline-flex items-center text-neutral-600 hover:text-neutral-900 mb-4"
-            >
-              <FiArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Link>
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-neutral-900">Payment Requests</h1>
-                <p className="text-neutral-600 mt-2">
-                  Manage your payment requests and invoices
-                </p>
-              </div>
-              <Link
-                href="/requests/create"
-                className="flex items-center px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
-              >
-                <FiPlus className="w-4 h-4 mr-2" />
-                Create Request
-              </Link>
-            </div>
+        <Link
+          href="/"
+          className="inline-flex items-center text-neutral-600 hover:text-neutral-900 mb-4"
+        >
+          <FiArrowLeft className="w-4 h-4 mr-2" />
+          Back to Dashboard
+        </Link>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900">Payment Requests</h1>
+            <p className="text-neutral-600 mt-2">
+              Manage your payment requests and invoices
+            </p>
           </div>
+          <Link
+            href="/requests/create"
+            className="flex items-center px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+          >
+            <FiPlus className="w-4 h-4 mr-2" />
+            Create Request
+          </Link>
+        </div>
+      </div>
 
           {/* Filters */}
           <div className="bg-white rounded-xl border border-neutral-200 p-4 mb-6">
@@ -301,6 +301,7 @@ export default function PaymentRequestsPage() {
               </div>
             )}
           </div>
+        </div>
       </div>
     </div>
   )
