@@ -21,24 +21,11 @@ import {
   FiEyeOff
 } from 'react-icons/fi'
 import Link from 'next/link'
-
-interface TransactionData {
-  id: string
-  type: 'send' | 'receive' | 'payment'
-  amount: number
-  currency: string
-  recipient?: string
-  sender?: string
-  timestamp: Date
-  status: 'completed' | 'pending' | 'failed'
-}
-
-interface PortfolioData {
-  totalBalance: number
-  monthlyChange: number
-  transactions: TransactionData[]
-  assets: { symbol: string; name: string; balance: number; value: number; change: number }[]
-}
+import { useAuth } from '@/contexts/AuthContext'
+import { useWallet } from '@/contexts/WalletContext'
+import { useTransaction } from '@/contexts/TransactionContext'
+import { usePaymentRequest } from '@/contexts/PaymentRequestContext'
+import { useExchangeRate } from '@/contexts/ExchangeRateContext'
 
 const formatCurrency = (amount: number, currency = 'USD') => {
   return new Intl.NumberFormat('en-US', {
@@ -60,83 +47,48 @@ const formatRelativeTime = (date: Date) => {
 }
 
 export function Dashboard() {
-  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
+  const { user, userProfile } = useAuth()
+  const { wallets, isLoading: walletsLoading } = useWallet()
+  const { transactions, isLoading: transactionsLoading } = useTransaction()
+  const { paymentRequests, getActiveRequests } = usePaymentRequest()
+  const { calculateUsdValue, formatUsdValue } = useExchangeRate()
+  
   const [isBalanceVisible, setIsBalanceVisible] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [selectedTimeframe, setSelectedTimeframe] = useState('24h')
+  const [totalBalance, setTotalBalance] = useState(0)
 
-  // Simulate real-time data updates
+  // Calculate total balance from real wallet data
   useEffect(() => {
-    const generateMockData = (): PortfolioData => {
-      const baseBalance = 12547.83
-      const variation = (Math.random() - 0.5) * 1000
-      
-      return {
-        totalBalance: baseBalance + variation,
-        monthlyChange: Math.random() * 20 - 10,
-        transactions: [
-          {
-            id: '1',
-            type: 'receive',
-            amount: 2500,
-            currency: 'USD',
-            sender: 'john.doe@example.com',
-            timestamp: new Date(Date.now() - Math.random() * 86400000),
-            status: 'completed'
-          },
-          {
-            id: '2',
-            type: 'send',
-            amount: 750,
-            currency: 'USD',
-            recipient: 'alice.smith@example.com',
-            timestamp: new Date(Date.now() - Math.random() * 86400000 * 2),
-            status: 'completed'
-          },
-          {
-            id: '3',
-            type: 'payment',
-            amount: 1200,
-            currency: 'USD',
-            recipient: 'Freelance Project #4',
-            timestamp: new Date(Date.now() - Math.random() * 86400000 * 3),
-            status: 'pending'
-          }
-        ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
-        assets: [
-          { symbol: 'USD', name: 'US Dollar', balance: 8500 + Math.random() * 1000, value: 8500, change: Math.random() * 4 - 2 },
-          { symbol: 'EUR', name: 'Euro', balance: 2200 + Math.random() * 500, value: 2400, change: Math.random() * 4 - 2 },
-          { symbol: 'GBP', name: 'British Pound', balance: 1800 + Math.random() * 300, value: 2200, change: Math.random() * 4 - 2 }
-        ]
-      }
+    if (wallets.length > 0) {
+      let total = 0
+      wallets.forEach(wallet => {
+        const balance = parseFloat(wallet.balance?.toString() || '0')
+        if (balance > 0) {
+          const usdValue = calculateUsdValue(balance, wallet.blockchain)
+          total += usdValue
+        }
+      })
+      setTotalBalance(total)
     }
-
-    setPortfolioData(generateMockData())
-
-    // Update data every 30 seconds
-    const interval = setInterval(() => {
-      setPortfolioData(generateMockData())
-    }, 30000)
-
-    return () => clearInterval(interval)
-  }, [])
+  }, [wallets, calculateUsdValue])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
-    // Simulate API call delay
+    // Simulate refresh delay
     await new Promise(resolve => setTimeout(resolve, 1000))
-    setPortfolioData(prev => prev ? { ...prev, totalBalance: prev.totalBalance + (Math.random() - 0.5) * 100 } : null)
     setIsRefreshing(false)
   }
 
-  if (!portfolioData) {
+  const isLoading = walletsLoading || transactionsLoading
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="flex items-center justify-center h-96">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full"
+            className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full"
           />
         </div>
       </div>
@@ -154,7 +106,9 @@ export function Dashboard() {
         >
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back! Here's your financial overview.</p>
+            <p className="text-gray-600 mt-1">
+              Welcome back, {userProfile?.displayName || user?.name || 'User'}!
+            </p>
           </div>
           
           <div className="flex items-center gap-3">
@@ -175,7 +129,7 @@ export function Dashboard() {
             </motion.button>
             
             <motion.div whileHover={{ scale: 1.02 }}>
-              <Link href="/send" className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
+              <Link href="/send" className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors">
                 <FiSend className="h-4 w-4" />
                 Send Money
               </Link>
@@ -189,7 +143,7 @@ export function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl shadow-lg p-6 mb-8 overflow-hidden relative"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-purple-500/5" />
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5" />
           <div className="relative">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900">Total Balance</h2>
@@ -210,26 +164,15 @@ export function Dashboard() {
                 transition={{ duration: 0.2 }}
               >
                 <div className="text-4xl font-bold text-gray-900 mb-2">
-                  {isBalanceVisible ? formatCurrency(portfolioData.totalBalance) : '••••••'}
+                  {isBalanceVisible ? formatUsdValue(totalBalance) : '••••••'}
                 </div>
               </motion.div>
             </AnimatePresence>
             
             <div className="flex items-center gap-2">
-              <motion.div
-                animate={{ 
-                  color: portfolioData.monthlyChange >= 0 ? '#10B981' : '#EF4444',
-                }}
-                className="flex items-center gap-1 text-sm font-medium"
-              >
-                {portfolioData.monthlyChange >= 0 ? (
-                  <FiTrendingUp className="h-4 w-4" />
-                ) : (
-                  <FiTrendingDown className="h-4 w-4" />
-                )}
-                {Math.abs(portfolioData.monthlyChange).toFixed(2)}% this month
-              </motion.div>
-              <span className="text-gray-500 text-sm">vs last month</span>
+              <span className="text-gray-500 text-sm">
+                Across {wallets.length} {wallets.length === 1 ? 'wallet' : 'wallets'}
+              </span>
             </div>
           </div>
         </motion.div>
@@ -243,9 +186,9 @@ export function Dashboard() {
         >
           {[
             { icon: FiSend, label: 'Send', href: '/send', color: 'bg-blue-500' },
-            { icon: FiDownload, label: 'Request', href: '/request', color: 'bg-green-500' },
+            { icon: FiDownload, label: 'Receive', href: '/receive', color: 'bg-green-500' },
             { icon: FiCreditCard, label: 'Cards', href: '/cards', color: 'bg-purple-500' },
-            { icon: FiUsers, label: 'Contacts', href: '/contacts', color: 'bg-orange-500' }
+            { icon: FiUsers, label: 'Wallets', href: '/wallets', color: 'bg-orange-500' }
           ].map((action, index) => (
             <motion.div
               key={action.label}
@@ -279,16 +222,30 @@ export function Dashboard() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-gray-900">Recent Transactions</h3>
-                <Link href="/transactions" className="text-primary-500 hover:text-primary-600 text-sm font-medium">
+                <Link href="/transactions" className="text-cyan-500 hover:text-cyan-600 text-sm font-medium">
                   View all
                 </Link>
               </div>
               
               <div className="space-y-4">
-                <AnimatePresence>
-                  {portfolioData.transactions.slice(0, 5).map((transaction, index) => (
+                {transactions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 mb-4">
+                      <FiCreditCard className="h-12 w-12 mx-auto" />
+                    </div>
+                    <p className="text-gray-500 mb-4">No transactions yet</p>
+                    <Link
+                      href="/send"
+                      className="inline-flex items-center px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+                    >
+                      <FiSend className="h-4 w-4 mr-2" />
+                      Send Your First Payment
+                    </Link>
+                  </div>
+                ) : (
+                  transactions.slice(0, 5).map((transaction, index) => (
                     <motion.div
-                      key={transaction.id}
+                      key={transaction.transactionId}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
@@ -297,30 +254,30 @@ export function Dashboard() {
                       <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-full ${
                           transaction.type === 'receive' ? 'bg-green-100 text-green-600' :
-                          transaction.type === 'send' ? 'bg-red-100 text-red-600' :
-                          'bg-blue-100 text-blue-600'
+                          'bg-red-100 text-red-600'
                         }`}>
-                          {transaction.type === 'receive' ? <FiArrowDownRight className="h-4 w-4" /> :
-                           transaction.type === 'send' ? <FiArrowUpRight className="h-4 w-4" /> :
-                           <FiCreditCard className="h-4 w-4" />}
+                          {transaction.type === 'receive' ? 
+                            <FiArrowDownRight className="h-4 w-4" /> :
+                            <FiArrowUpRight className="h-4 w-4" />
+                          }
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {transaction.type === 'receive' ? 'Received from' :
-                             transaction.type === 'send' ? 'Sent to' :
-                             'Payment to'} {transaction.recipient || transaction.sender}
+                            {transaction.type === 'receive' ? 'Received' : 'Sent'}
                           </p>
-                          <p className="text-sm text-gray-500">{formatRelativeTime(transaction.timestamp)}</p>
+                          <p className="text-sm text-gray-500">
+                            {transaction.description || `${transaction.type} transaction`}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className={`font-semibold ${
                           transaction.type === 'receive' ? 'text-green-600' : 'text-gray-900'
                         }`}>
-                          {transaction.type === 'receive' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                          {transaction.type === 'receive' ? '+' : '-'}{transaction.amount} {transaction.tokenId.toUpperCase()}
                         </p>
                         <span className={`text-xs px-2 py-1 rounded-full ${
-                          transaction.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          transaction.status === 'confirmed' ? 'bg-green-100 text-green-800' :
                           transaction.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                           'bg-red-100 text-red-800'
                         }`}>
@@ -328,87 +285,100 @@ export function Dashboard() {
                         </span>
                       </div>
                     </motion.div>
-                  ))}
-                </AnimatePresence>
+                  ))
+                )}
               </div>
             </div>
           </motion.div>
 
-          {/* Assets & Stats */}
+          {/* Wallets & Payment Requests */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
             className="space-y-6"
           >
-            {/* Currency Breakdown */}
+            {/* Wallets Overview */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Currency Breakdown</h3>
-              <div className="space-y-4">
-                {portfolioData.assets.map((asset, index) => (
-                  <motion.div
-                    key={asset.symbol}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-bold text-gray-700">{asset.symbol}</span>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-900">Wallets</h3>
+                <Link href="/wallets" className="text-cyan-500 hover:text-cyan-600 text-sm font-medium">
+                  Manage
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {wallets.length === 0 ? (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500 text-sm mb-3">No wallets created</p>
+                    <Link
+                      href="/wallets/create"
+                      className="inline-flex items-center px-3 py-2 bg-cyan-500 text-white text-sm rounded-lg hover:bg-cyan-600 transition-colors"
+                    >
+                      <FiPlus className="h-4 w-4 mr-1" />
+                      Create Wallet
+                    </Link>
+                  </div>
+                ) : (
+                  wallets.slice(0, 3).map((wallet) => (
+                    <div key={wallet.walletId} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-gray-600">
+                            {wallet.blockchain.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{wallet.walletName}</p>
+                          <p className="text-xs text-gray-500 capitalize">{wallet.blockchain}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{asset.name}</p>
-                        <p className="text-sm text-gray-500">{formatCurrency(asset.balance)}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-gray-900">{formatCurrency(asset.value)}</p>
-                      <p className={`text-sm ${asset.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(2)}%
+                      <p className="text-sm font-medium text-gray-900">
+                        {wallet.balance} {wallet.blockchain.toUpperCase()}
                       </p>
                     </div>
-                  </motion.div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
-            {/* Quick Stats */}
+            {/* Payment Requests */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Quick Stats</h3>
-              <div className="space-y-4">
-                <motion.div 
-                  whileHover={{ scale: 1.02 }}
-                  className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <FiZap className="h-5 w-5 text-blue-600" />
-                    <span className="font-medium text-gray-900">Active</span>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-900">Payment Requests</h3>
+                <Link href="/requests" className="text-cyan-500 hover:text-cyan-600 text-sm font-medium">
+                  View all
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {getActiveRequests().length === 0 ? (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500 text-sm mb-3">No active requests</p>
+                    <Link
+                      href="/requests/create"
+                      className="inline-flex items-center px-3 py-2 bg-cyan-500 text-white text-sm rounded-lg hover:bg-cyan-600 transition-colors"
+                    >
+                      <FiPlus className="h-4 w-4 mr-1" />
+                      Create Request
+                    </Link>
                   </div>
-                  <span className="text-blue-600 font-semibold">24/7</span>
-                </motion.div>
-                
-                <motion.div 
-                  whileHover={{ scale: 1.02 }}
-                  className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-green-100 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <FiShield className="h-5 w-5 text-green-600" />
-                    <span className="font-medium text-gray-900">Security</span>
-                  </div>
-                  <span className="text-green-600 font-semibold">Protected</span>
-                </motion.div>
-                
-                <motion.div 
-                  whileHover={{ scale: 1.02 }}
-                  className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <FiGlobe className="h-5 w-5 text-purple-600" />
-                    <span className="font-medium text-gray-900">Global</span>
-                  </div>
-                  <span className="text-purple-600 font-semibold">Available</span>
-                </motion.div>
+                ) : (
+                  getActiveRequests().slice(0, 3).map((request) => (
+                    <div key={request.requestId} className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{request.invoiceNumber}</p>
+                        <p className="text-xs text-gray-500">{request.description || 'Payment request'}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">
+                          {request.amount} {request.tokenId.toUpperCase()}
+                        </p>
+                        <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">
+                          pending
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </motion.div>

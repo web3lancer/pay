@@ -287,19 +287,15 @@ export default function SettingsPage() {
 
   const renderIntegrationsTab = () => (
     <div className="space-y-6">
-      
-      {ENABLE_APTOS && (
-        <div>
-          <h2 className="text-xl font-bold mb-2 text-cyan-700">Aptos Wallet Integration</h2>
-          <AptosIntegrationProvider>
-            <WalletSelector wallets={[]} onConnect={function (wallet: any): void {
-              throw new Error('Function not implemented.');
-            } } onDisconnect={function (): void {
-              throw new Error('Function not implemented.');
-            } } />
-          </AptosIntegrationProvider>
+      <div className="text-center py-12">
+        <div className="text-neutral-400 mb-4">
+          <span className="text-4xl">🔌</span>
         </div>
-      )}
+        <h3 className="text-lg font-medium text-neutral-700 mb-2">No integrations available</h3>
+        <p className="text-neutral-500">
+          Integration features will be available in future updates.
+        </p>
+      </div>
     </div>
   );
 
