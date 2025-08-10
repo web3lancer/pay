@@ -125,9 +125,9 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-2 sm:px-0">
       <Card className="w-full max-w-md shadow-2xl">
-        <div className="flex justify-center pt-8 pb-2">
+        <div className="flex justify-center pt-4 pb-1">
           <Image
             src="/images/logo.png"
             alt="LancerPay Logo"
@@ -162,7 +162,7 @@ export default function SignupPage() {
             </div>
           ) : (
             <div>
-              <div className="flex justify-center space-x-2 mb-6">
+              <div className="flex justify-center space-x-1 mb-4" />
                 <Button 
                   variant={mode === 'email' ? 'primary' : 'outline'} 
                   onClick={() => setMode('email')}
