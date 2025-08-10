@@ -10,27 +10,6 @@
 Paylancer is here to fix cross-border payment delays, High transaction fees, Complex freelancer payment flows with blockchain powered instant transfers, API first, secure architecture, low fees.
 ---
 
-## Integrations
-
-### USDFC
-
-Integrated with Secured Finance's Fixed-Rate Lending protocol for on-chain lending, borrowing, and market data.  
-Access decentralized fixed-rate lending and collateral management directly from LancerPay.
-
-### Filecoin
-
-Seamless decentralized file storage and retrieval powered by Filecoin and Web3.Storage, integrated for secure asset management.
-
-### Zora
-
-Integrated with the Zora Coins SDK for on-chain coin creation, trading, and management.  
-Users can send, request, and manage Zora coins directly from LancerPay, with modular UI and API-powered features.
-
-### Aptos
-
-Integrated with Aptos for secure, scalable smart contract payments and wallet management.  
-[Integration repo](https://github.com/web3lancer/pay_integration_aptos.git)
-
 ## Features
 
 - 🌐 **Multi-currency**: Send, receive, and swap crypto & fiat
@@ -84,18 +63,6 @@ Visit http://localhost:3000/pitch for the interactive presentation
 - **Dexie** (IndexedDB)
 
 ---
-
-## Web3 Integrations
-
-LancerPay is designed to bridge Web2 and Web3 payments seamlessly. You can send and receive crypto payments, manage blockchain wallets, and interact with smart contracts directly from the app.
-
-### Bless Network Integration
-- **Native support for Bless Network (BLS, USDC, ETH, USDT, BTC)**
-- **Escrow payments** for freelancers and milestone-based projects
-- **Web2 ↔ Web3 bridge**: Sync payment requests and statuses between the frontend and the Bless Network backend
-- **API endpoints** for payment processing, escrow creation, and wallet management [Blessnet deployment](https://coral-earwig-verene-2jkylule.bls.dev/)
-- **Frontend URI**: [https://pay.web3lancer.website](https://pay.web3lancer.website)
-- **Blessnet repo**: [Blessnet repository](https://github.com/web3lancer/lancerpaybless.git)
 
 ## Pitch Deck
 
