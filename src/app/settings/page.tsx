@@ -287,12 +287,7 @@ export default function SettingsPage() {
 
   const renderIntegrationsTab = () => (
     <div className="space-y-6">
-      {integrationZora && (
-        <div>
-          <h2 className="text-xl font-bold mb-2 text-cyan-700">Zora Coin Management (Beta)</h2>
-          <ZoraUpdateWidget />
-        </div>
-      )}
+      
       {ENABLE_APTOS && (
         <div>
           <h2 className="text-xl font-bold mb-2 text-cyan-700">Aptos Wallet Integration</h2>

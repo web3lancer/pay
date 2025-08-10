@@ -26,19 +26,13 @@ import {
 import { WalletSelector } from '@/integrations/aptos/components/WalletSelector';
 import { ENABLE_APTOS } from '@/integrations/aptos/constants';
 
-const ZoraTradeWidget = dynamic(
-  () => import('@/integrations/zora/ui/ZoraTradeWidget'),
-  { ssr: false }
-)
-
-const integrationZora = process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
 
 export default function PaymentRequestsPage() {
   const { paymentRequests, isLoading, cancelPaymentRequest } = usePaymentRequest()
   const [filteredRequests, setFilteredRequests] = useState(paymentRequests)
   const [filter, setFilter] = useState<'all' | 'pending' | 'paid' | 'cancelled' | 'overdue'>('all')
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'standard' | 'zora'>('standard')
+  const [activeTab, setActiveTab] = useState<'standard'>('standard')
   const isDesktop = typeof window !== "undefined" ? window.innerWidth >= 768 : true
 
   useEffect(() => {
@@ -350,11 +344,7 @@ export default function PaymentRequestsPage() {
         </>
       )}
 
-      {integrationZora && activeTab === 'zora' && (
-        <div className="mt-4">
-          <ZoraTradeWidget context="request" />
-        </div>
-      )}
+      
     </div>
   )
 }

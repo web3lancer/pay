@@ -342,11 +342,7 @@ export default function SendPage() {
         </>
       )}
 
-      {integrationZora && activeTab === 'zora' && (
-        <div className="mt-4">
-          <ZoraTradeWidget context="send" suggestedAmount={formData.amount} suggestedToken={formData.tokenId} />
-        </div>
-      )}
+      
     </div>
   )
 }
