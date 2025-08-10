@@ -125,12 +125,8 @@ export default function PaymentRequestsPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
-
-
-      {/* Main Content */}
-      <>
-        {/* Header */}
-        <div className="mb-8">
+      {/* Header */}
+      <div className="mb-8">
             <Link
               href="/"
               className="inline-flex items-center text-neutral-600 hover:text-neutral-900 mb-4"
@@ -305,8 +301,7 @@ export default function PaymentRequestsPage() {
               </div>
             )}
           </div>
-        </>
-      </>
+      </div>
     </div>
   )
 }
