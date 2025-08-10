@@ -109,7 +109,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md shadow-2xl" />
+      <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md shadow-2xl">
         <div className="flex justify-center pt-8 pb-2">
           <Image
             src="/images/logo.png"

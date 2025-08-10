@@ -162,7 +162,7 @@ export default function SignupPage() {
             </div>
           ) : (
             <div>
-              <div className="flex justify-center space-x-1 mb-4" />
+              <div className="flex justify-center space-x-1 mb-4">
                 <Button 
                   variant={mode === 'email' ? 'primary' : 'outline'} 
                   onClick={() => setMode('email')}
