@@ -6,36 +6,14 @@ import Link from 'next/link';
 
 import { AppShell } from '@/components/layout/AppShell';
 import { useWallet } from '@/contexts/WalletContext';
+import { formatCurrency, formatCryptoAmount, shortenAddress } from '@/lib/utils';
+import EmptyState from '@/components/ui/EmptyState';
+import { SkeletonList } from '@/components/ui/Skeleton';
 
 // import { motion } from 'framer-motion'
 // import { FiSend, FiDownload, FiRepeat, FiMoreVertical, FiPlus } from 'react-icons/fi'
 
-// Simplified utility functions
-const truncateString = (str: string, startChars: number = 6, endChars: number = 4): string => {
-  if (str.length <= startChars + endChars) {
-    return str;
-  }
-  return `${str.slice(0, startChars)}...${str.slice(-endChars)}`;
-};
 
-const formatCurrency = (amount: number, currency: string = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
-
-const formatCryptoAmount = (amount: number, symbol: string): string => {
-  let decimals = 8;
-  if (symbol === 'BTC') decimals = 8;
-  else if (symbol === 'ETH') decimals = 6;
-  else if (symbol === 'USDC' || symbol === 'USDT') decimals = 2;
-  
-  const formattedAmount = amount.toFixed(decimals).replace(/\.?0+$/, '');
-  return `${formattedAmount} ${symbol}`;
-};
 
 
 
@@ -53,8 +31,34 @@ export function WalletsClient() {
     return (
       <AppShell>
         <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-600"></div>
+          <div className="flex flex-col space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-neutral-900">Wallets</h1>
+                <p className="text-sm text-neutral-500">Manage your crypto wallets</p>
+              </div>
+              <Link href="/wallets/create">
+                <button className="flex items-center px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors">
+                  <span className="mr-2">+</span>
+                  Add Wallet
+                </button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-4">
+                <h2 className="text-lg font-medium text-neutral-800 mb-4">Your Wallets</h2>
+                <SkeletonList count={3} />
+              </div>
+              <div className="lg:col-span-8">
+                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </AppShell>
@@ -122,7 +126,7 @@ export function WalletsClient() {
                           </div>
                           <div className="ml-3">
                             <p className="font-medium text-neutral-900">{wallet.walletName}</p>
-                            <p className="text-xs text-neutral-500">{truncateString(wallet.walletAddress)}</p>
+                            <p className="text-xs text-neutral-500">{shortenAddress(wallet.walletAddress)}</p>
                           </div>
                         </div>
                         <div className="text-right">
