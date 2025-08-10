@@ -17,12 +17,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import TwoFactorSettings from '@/components/security/TwoFactorSettings';
 import { useAuth } from '@/contexts/AuthContext';
 
-const ZoraUpdateWidget = dynamic(
-  () => import('@/integrations/zora/ui/ZoraUpdateWidget'),
-  { ssr: false }
-)
 
-const integrationZora = process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
 
 export default function SettingsPage() {
   const { user, userProfile } = useAuth()

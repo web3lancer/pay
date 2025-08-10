@@ -90,21 +90,15 @@ export function WalletsClient() {
               <h2 className="text-lg font-medium text-neutral-800">Your Wallets</h2>
               <div className="bg-white rounded-xl shadow-sm border border-neutral-200 divide-y divide-neutral-200">
                 {wallets.length === 0 ? (
-                  <div className="p-8 text-center">
-                    <div className="text-neutral-400 mb-4">
-                      <span className="text-4xl">💼</span>
-                    </div>
-                    <h3 className="text-lg font-medium text-neutral-700 mb-2">No wallets found</h3>
-                    <p className="text-neutral-500 mb-4">
-                      You haven't created any wallets yet. Create your first wallet to get started.
-                    </p>
-                    <Link href="/wallets/create">
-                      <button className="inline-flex items-center px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors">
-                        <span className="mr-2">+</span>
-                        Create Your First Wallet
-                      </button>
-                    </Link>
-                  </div>
+                  <EmptyState
+                    icon="💼"
+                    title="No wallets found"
+                    description="You haven't created any wallets yet. Create your first wallet to get started."
+                    action={{
+                      label: "Create Your First Wallet",
+                      href: "/wallets/create"
+                    }}
+                  />
                 ) : (
                   wallets.map((wallet, index) => (
                     <div
@@ -210,17 +204,11 @@ export function WalletsClient() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-                  <div className="text-center py-12">
-                    <div className="text-neutral-400 mb-4">
-                      <span className="text-4xl">💼</span>
-                    </div>
-                    <h3 className="text-lg font-medium text-neutral-700 mb-2">No wallet selected</h3>
-                    <p className="text-neutral-500">
-                      Select a wallet from the list to view its details
-                    </p>
-                  </div>
-                </div>
+                <EmptyState
+                  icon="💼"
+                  title="No wallet selected"
+                  description="Select a wallet from the list to view its details"
+                />
               )}
             </div>
           </div>
