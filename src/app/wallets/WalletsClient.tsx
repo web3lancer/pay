@@ -8,7 +8,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { useWallet } from '@/contexts/WalletContext';
 import { formatCurrency, formatCryptoAmount, shortenAddress } from '@/lib/utils';
 import EmptyState from '@/components/ui/EmptyState';
-import { SkeletonList } from '@/components/ui/Skeleton';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 // import { motion } from 'framer-motion'
 // import { FiSend, FiDownload, FiRepeat, FiMoreVertical, FiPlus } from 'react-icons/fi'
@@ -47,7 +47,11 @@ export function WalletsClient() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-4">
                 <h2 className="text-lg font-medium text-neutral-800 mb-4">Your Wallets</h2>
-                <SkeletonList count={3} />
+                <div className="space-y-4">
+                  <Skeleton className="h-16" />
+                  <Skeleton className="h-16" />
+                  <Skeleton className="h-16" />
+                </div>
               </div>
               <div className="lg:col-span-8">
                 <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
