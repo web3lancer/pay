@@ -11,12 +11,7 @@ import Link from 'next/link'
 import dynamic from "next/dynamic"
 import { useMediaQuery } from 'react-responsive' // or your preferred method
 
-const ZoraTradeWidget = dynamic(
-  () => import('@/integrations/zora/ui/ZoraTradeWidget'),
-  { ssr: false }
-)
 
-const integrationZora = process.env.NEXT_PUBLIC_INTEGRATION_ZORA === "true"
 
 export default function SendPage() {
   const router = useRouter()
@@ -27,7 +22,7 @@ export default function SendPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'standard' | 'zora'>('standard')
+  const [activeTab, setActiveTab] = useState<'standard'>('standard')
   const isDesktop = typeof window !== "undefined" ? window.innerWidth >= 768 : true // fallback for SSR
   
   const [formData, setFormData] = useState({
@@ -139,42 +134,12 @@ export default function SendPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-2xl">
-      {/* Tabs */}
-      {integrationZora && (
-        <div className="mb-6">
-          {isDesktop ? (
-            <div className="flex space-x-4 border-b">
-              <button
-                className={`px-4 py-2 font-semibold ${activeTab === 'standard' ? 'border-b-2 border-cyan-600 text-cyan-700' : 'text-neutral-500'}`}
-                onClick={() => setActiveTab('standard')}
-              >
-                Standard
-              </button>
-              <button
-                className={`px-4 py-2 font-semibold ${activeTab === 'zora' ? 'border-b-2 border-cyan-600 text-cyan-700' : 'text-neutral-500'}`}
-                onClick={() => setActiveTab('zora')}
-              >
-                Zora
-              </button>
-            </div>
-          ) : (
-            <select
-              className="w-full mb-4 border rounded"
-              value={activeTab}
-              onChange={e => setActiveTab(e.target.value as 'standard' | 'zora')}
-            >
-              <option value="standard">Standard</option>
-              <option value="zora">Zora</option>
-            </select>
-          )}
-        </div>
-      )}
+
 
       {/* Main Content */}
-      {activeTab === 'standard' && (
-        <>
-          {/* Header */}
-          <div className="mb-8">
+      <>
+        {/* Header */}
+        <div className="mb-8">
             <Link
               href="/"
               className="inline-flex items-center text-neutral-600 hover:text-neutral-900 mb-4"
@@ -340,7 +305,7 @@ export default function SendPage() {
             </div>
           </form>
         </>
-      )}
+      
 
       
     </div>
