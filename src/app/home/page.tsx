@@ -13,16 +13,6 @@ import { useRouter } from 'next/navigation'
 
 // Add Blend integration imports
 import dynamic from 'next/dynamic'
-import { BLEND_FEATURE_ENABLED, STELLAR_CONTRACT_WIDGET_ENABLED } from '@/integrations/blend-stellar/config'
-const BlendPoolWidget = dynamic(() =>
-  import('@/integrations/blend-stellar/components/BlendPoolWidget').then(mod => mod.BlendPoolWidget),
-  { ssr: false }
-)
-// Add Stellar widget import
-const StellarContractWidget = dynamic(() =>
-  import('@/integrations/blend-stellar/components/StellarContractWidget').then(mod => mod.StellarContractWidget),
-  { ssr: false }
-)
 
 export default function HomePage() {
   const { user, userProfile, isAuthenticated, isLoading } = useAuth()
@@ -102,21 +92,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Stellar & Blend Integration - Side by Side, Feature-Flagged */}
-      {(STELLAR_CONTRACT_WIDGET_ENABLED || BLEND_FEATURE_ENABLED) && (
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          {STELLAR_CONTRACT_WIDGET_ENABLED && (
-            <div className="flex-1 min-w-0">
-              <StellarContractWidget />
-            </div>
-          )}
-          {BLEND_FEATURE_ENABLED && (
-            <div className="flex-1 min-w-0">
-              <BlendPoolWidget />
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Quick Actions */}
       <div className="grid md:grid-cols-4 gap-6 mb-8">

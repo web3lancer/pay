@@ -16,11 +16,6 @@ import {
 import { AppShell } from '@/components/layout/AppShell';
 import TwoFactorSettings from '@/components/security/TwoFactorSettings';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  AptosIntegrationProvider,
-} from '@/integrations/aptos/components/AptosIntegrationProvider';
-import { WalletSelector } from '@/integrations/aptos/components/WalletSelector';
-import { ENABLE_APTOS } from '@/integrations/aptos/constants';
 
 const ZoraUpdateWidget = dynamic(
   () => import('@/integrations/zora/ui/ZoraUpdateWidget'),

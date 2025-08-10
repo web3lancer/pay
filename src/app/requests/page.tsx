@@ -136,17 +136,6 @@ export default function PaymentRequestsPage() {
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       {/* Aptos Integration */}
-      {ENABLE_APTOS && (
-        <AptosIntegrationProvider>
-          <div className="mb-6">
-            <WalletSelector wallets={[]} onConnect={function (wallet: any): void {
-              throw new Error('Function not implemented.');
-            } } onDisconnect={function (): void {
-              throw new Error('Function not implemented.');
-            } } />
-          </div>
-        </AptosIntegrationProvider>
-      )}
 
       {/* Tabs */}
       {integrationZora && (
