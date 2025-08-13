@@ -1,0 +1,60 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address payable", "name": "recipient", "type": "address" }
+    ],
+    "name": "sendPayment",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" },
+      { "internalType": "address", "name": "token", "type": "address" }
+    ],
+    "name": "sendTokenPayment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" },
+      { "internalType": "address", "name": "token", "type": "address" }
+    ],
+    "name": "createPaymentRequest",
+    "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [ { "internalType": "uint256", "name": "requestId", "type": "uint256" } ],
+    "name": "fulfillPaymentRequestETH",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [ { "internalType": "uint256", "name": "requestId", "type": "uint256" } ],
+    "name": "fulfillPaymentRequestToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
+    "name": "paymentRequests",
+    "outputs": [
+      { "internalType": "address", "name": "requester", "type": "address" },
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" },
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "bool", "name": "fulfilled", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
