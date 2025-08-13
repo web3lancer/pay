@@ -108,6 +108,13 @@ We welcome PRs, issues, and ideas! See [CONTRIBUTING.md](CONTRIBUTING.md) for de
 
 ---
 
+## Integrations
+
+### Morph
+
+Contract logic for Morph integration is maintained at:
+[https://github.com/web3lancer/contracts_pay_morph](https://github.com/web3lancer/contracts_pay_morph)
+
 ## License
 
 MIT © [Your Name or Org](https://github.com/web3lancer)
