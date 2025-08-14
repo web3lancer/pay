@@ -124,11 +124,11 @@ function AuthClientContent({ mode }: AuthClientProps) {
       setErrors([])
 
       if (authMethod === 'email_password') {
-        if (mode === 'signup') {
-          await signUp(formData.email, formData.password, formData.name)
-        } else {
-          await signIn(formData.email, formData.password)
-        }
+if (mode === 'signup') {
+            await register(formData.email, formData.password, formData.name)
+          } else {
+            await login(formData.email, formData.password)
+          }
         // Don't redirect here - let AuthGuard handle it based on profile completion status
       } else if (authMethod === 'magic_url') {
         await sendMagicURL(formData.email)
