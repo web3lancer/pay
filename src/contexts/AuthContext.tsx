@@ -94,8 +94,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     try {
       const successUrl = window.location.origin + '/auth/login'
       const failureUrl = window.location.origin + '/auth/login?error=google'
-      await import('@/lib/appwrite').then(({ account }) =>
-        account.createOAuth2Session('google', successUrl, failureUrl)
+      await import('appwrite').then(({ OAuthProvider }) =>
+        import('@/lib/appwrite').then(({ account }) =>
+          account.createOAuth2Session(OAuthProvider.Google, successUrl, failureUrl)
+        )
       )
       // Appwrite will redirect, so no need to refresh profile here
     } finally {
@@ -108,8 +110,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     try {
       const successUrl = window.location.origin + '/auth/login'
       const failureUrl = window.location.origin + '/auth/login?error=github'
-      await import('@/lib/appwrite').then(({ account }) =>
-        account.createOAuth2Session('github', successUrl, failureUrl)
+      await import('appwrite').then(({ OAuthProvider }) =>
+        import('@/lib/appwrite').then(({ account }) =>
+          account.createOAuth2Session(OAuthProvider.Github, successUrl, failureUrl)
+        )
       )
     } finally {
       setIsLoading(false)
@@ -170,8 +174,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const sendPhoneOTP = async (phone: string) => {
     setIsLoading(true)
     try {
-      const res = await import('@/lib/appwrite').then(({ account }) =>
-        account.createPhoneToken(undefined, phone)
+      const res = await import('@/lib/appwrite').then(({ account, ID }) =>
+        account.createPhoneToken(ID.unique(), phone)
       )
       return { userId: res.userId }
     } finally {

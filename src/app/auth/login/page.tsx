@@ -1,22 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/Card'
-import Button from '@/components/ui/Button'
-import { 
-  loginEmailPassword, 
-  sendEmailOtp, 
-  completeEmailOtpLogin, 
-  sendMagicUrl, 
-  completeMagicUrlLogin 
-} from '@/lib/appwrite'
-import { ID } from 'appwrite'
-import Link from 'next/link'
-import Image from 'next/image'
-
-type Mode = 'email' | 'otp' | 'magic'
-
-import { AuthClient } from './AuthClient'
+import { AuthClient } from '../AuthClient'
 
 export default function LoginPage() {
   const [mode, setMode] = useState<Mode>('email')

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiLoader, FiShield, FiSmartphone, FiGithub } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface AuthClientProps {
@@ -15,11 +15,10 @@ interface AuthClientProps {
 type AuthMethod = 'email_password' | 'magic_url' | 'email_otp' | 'phone_otp'
 
 function AuthClientContent({ mode }: AuthClientProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { 
-    signIn, 
-    signUp, 
+const searchParams = useSearchParams()
+const { 
+    login, 
+    register, 
     sendMagicURL, 
     sendEmailOTP, 
     sendPhoneOTP,
@@ -30,6 +29,7 @@ function AuthClientContent({ mode }: AuthClientProps) {
     signInWithGithub,
     isLoading 
   } = useAuth()
+// Removed unused router and legacy signIn/signUp variables
 
   // Form state
   const [authMethod, setAuthMethod] = useState<AuthMethod>('email_password')

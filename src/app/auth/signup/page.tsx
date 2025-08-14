@@ -1,24 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/Card'
-import Button from '@/components/ui/Button'
-import { 
-  signupEmailPassword, 
-  sendEmailOtp, 
-  completeEmailOtpLogin, 
-  sendMagicUrl, 
-  completeMagicUrlLogin,
-  sendEmailVerification,
-  getEmailVerificationStatus,
-  loginEmailPassword
-} from '@/lib/appwrite'
-import { ID } from 'appwrite'
-import Link from 'next/link'
-import Image from 'next/image'
-
-type Mode = 'email' | 'otp' | 'magic'
-
 import { AuthClient } from '../AuthClient'
 
 export default function SignupPage() {
