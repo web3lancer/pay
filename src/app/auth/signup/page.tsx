@@ -19,6 +19,8 @@ import Image from 'next/image'
 
 type Mode = 'email' | 'otp' | 'magic'
 
+import { AuthClient } from '../AuthClient'
+
 export default function SignupPage() {
   const [mode, setMode] = useState<Mode>('email')
   const [loading, setLoading] = useState(false)
