@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiLoader, FiShield, FiSmartphone, FiGithub } from 'react-icons/fi'
+import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiLoader, FiShield, FiGithub } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSearchParams } from 'next/navigation'
@@ -12,7 +12,7 @@ interface AuthClientProps {
   mode: 'login' | 'signup'
 }
 
-type AuthMethod = 'email_password' | 'magic_url' | 'email_otp' | 'phone_otp'
+type AuthMethod = 'email_password' | 'magic_url' | 'email_otp'
 
 function AuthClientContent({ mode }: AuthClientProps) {
 const searchParams = useSearchParams()
@@ -24,7 +24,7 @@ const {
     sendPhoneOTP,
     loginWithEmailOTP,
     loginWithMagicURL,
-    loginWithPhoneOTP,
+    
     signInWithGoogle, 
     signInWithGithub,
     isLoading 
@@ -87,11 +87,7 @@ const {
       }
     }
 
-    if (authMethod === 'phone_otp') {
-      if (!formData.phone) {
-        newErrors.push('Phone number is required')
-      }
-    }
+    
 
     if (authMethod === 'email_password') {
       if (!formData.password) {
@@ -142,7 +138,7 @@ if (mode === 'signup') {
           setUserId(response.userId)
           setOtpSent(true)
         }
-      } else if (authMethod === 'phone_otp') {
+      } 
         if (otpSent && formData.otp) {
           await loginWithPhoneOTP(userId, formData.otp)
           // Don't redirect - let AuthGuard handle it
@@ -264,18 +260,7 @@ if (mode === 'signup') {
                   <FiShield className="mr-2 h-4 w-4" />
                   Email OTP
                 </button>
-                <button
-                  type="button"
-                  onClick={() => switchAuthMethod('phone_otp')}
-                  className={`flex items-center justify-center px-3 py-2 text-sm border rounded-md transition-colors ${
-                    authMethod === 'phone_otp'
-                      ? 'border-primary-500 bg-primary-50 text-primary-700'
-                      : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'
-                  }`}
-                >
-                  <FiSmartphone className="mr-2 h-4 w-4" />
-                  SMS OTP
-                </button>
+
               </div>
             </div>
 
@@ -307,13 +292,7 @@ if (mode === 'signup') {
               </div>
             )}
 
-            {otpSent && authMethod === 'phone_otp' && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <p className="text-sm text-blue-600">
-                  OTP sent to your phone! Enter the 6-digit code below.
-                </p>
-              </div>
-            )}
+            
 
             {/* Auth Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -362,26 +341,7 @@ if (mode === 'signup') {
               )}
 
               {/* Phone field */}
-              {authMethod === 'phone_otp' && !otpSent && (
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-neutral-700 mb-1">
-                    Phone Number
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FiSmartphone className="h-5 w-5 text-neutral-400" />
-                    </div>
-                    <input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      className="block w-full pl-10 pr-3 py-2 border border-neutral-300 rounded-md placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      placeholder="+1 (555) 123-4567"
-                    />
-                  </div>
-                </div>
-              )}
+              
 
               {/* Password field */}
               {authMethod === 'email_password' && (
