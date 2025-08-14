@@ -21,7 +21,6 @@ const {
     register, 
     sendMagicURL, 
     sendEmailOTP, 
-    sendPhoneOTP,
     loginWithEmailOTP,
     loginWithMagicURL,
     
@@ -36,7 +35,6 @@ const {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
     otp: ''
@@ -138,16 +136,8 @@ if (mode === 'signup') {
           setUserId(response.userId)
           setOtpSent(true)
         }
-      } 
-        if (otpSent && formData.otp) {
-          await loginWithPhoneOTP(userId, formData.otp)
-          // Don't redirect - let AuthGuard handle it
-        } else {
-          const response = await sendPhoneOTP(formData.phone)
-          setUserId(response.userId)
-          setOtpSent(true)
-        }
       }
+
     } catch (error: any) {
       setErrors([error.message || 'An error occurred during authentication'])
     } finally {
@@ -171,14 +161,13 @@ if (mode === 'signup') {
     setOtpSent(false)
     setMagicLinkSent(false)
     setUserId('')
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      password: '',
-      confirmPassword: '',
-      otp: ''
-    })
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        otp: ''
+      })
   }
 
   const switchAuthMethod = (method: AuthMethod) => {
@@ -410,7 +399,7 @@ if (mode === 'signup') {
               )}
 
               {/* OTP field */}
-              {(otpSent && (authMethod === 'email_otp' || authMethod === 'phone_otp')) && (
+              {(otpSent && authMethod === 'email_otp') && (
                 <div>
                   <label htmlFor="otp" className="block text-sm font-medium text-neutral-700 mb-1">
                     Enter OTP Code
@@ -441,7 +430,7 @@ if (mode === 'signup') {
                       {authMethod === 'email_password' && (mode === 'login' ? 'Sign In' : 'Sign Up')}
                       {authMethod === 'magic_url' && 'Send Magic Link'}
                       {authMethod === 'email_otp' && (otpSent ? 'Verify OTP' : 'Send OTP')}
-                      {authMethod === 'phone_otp' && (otpSent ? 'Verify OTP' : 'Send SMS')}
+                      
                     </>
                   )}
                 </button>
