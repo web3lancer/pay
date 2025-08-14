@@ -7,6 +7,8 @@ import type { Users } from '@/types/appwrite.d'
 import QRCode from 'react-qr-code'
 import { FiCopy, FiCheck, FiMessageCircle } from 'react-icons/fi'
 import { useAuth } from '@/contexts/AuthContext'
+import { Skeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export default function UserProfilePage() {
   const params = useParams()
@@ -70,8 +72,9 @@ export default function UserProfilePage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  import { Skeleton } from '@/components/ui/Skeleton'
+import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
+
 
 if (loading) {
     // Show skeleton loader for profile page
