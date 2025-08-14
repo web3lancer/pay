@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 
 export default function HomePage() {
-  const { user, userProfile, isAuthenticated, isLoading } = useAuth()
+  const { account, userProfile, isAuthenticated, isLoading, refreshProfile } = useAuth()
   const { wallets, defaultWallet, isLoading: walletsLoading } = useWallet()
   const { transactions } = useTransaction()
   const { paymentRequests, getActiveRequests, getPaidRequests } = usePaymentRequest()
@@ -29,6 +29,12 @@ export default function HomePage() {
       router.push('/')
     }
   }, [isAuthenticated, isLoading, router])
+
+  // Refresh profile on mount (important for OAuth2 redirects)
+  useEffect(() => {
+    refreshProfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Calculate total balance in USD (only for authenticated users)
   useEffect(() => {
@@ -62,7 +68,7 @@ export default function HomePage() {
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-          Welcome back, {userProfile?.displayName || userProfile?.email?.split('@')[0] || user?.name || 'User'}!
+          Welcome back, {userProfile?.displayName || userProfile?.email?.split('@')[0] || account?.name || 'User'}!
         </h1>
         <p className="text-neutral-600">
           Manage your crypto wallets and transactions

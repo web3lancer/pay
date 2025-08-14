@@ -2,6 +2,14 @@
 
 import { AuthClient } from '../AuthClient'
 
+import { useEffect } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+
 export default function SignupPage() {
-  return <AuthClient mode="signup" />;
+  const { refreshProfile } = useAuth()
+  useEffect(() => {
+    refreshProfile()
+    // eslint-disable-next-line
+  }, [])
+  return <AuthClient mode="signup" />
 }

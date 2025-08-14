@@ -25,8 +25,6 @@ export type AuthContextType = {
   loginWithMagicURL: (userId: string, secret: string) => Promise<void>
   sendEmailOTP: (email: string) => Promise<{ userId: string }>
   loginWithEmailOTP: (userId: string, otp: string) => Promise<void>
-  sendPhoneOTP: (phone: string) => Promise<{ userId: string }>
-  loginWithPhoneOTP: (userId: string, otp: string) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -92,7 +90,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const signInWithGoogle = async () => {
     setIsLoading(true)
     try {
-      const successUrl = window.location.origin + '/auth/login'
+      const successUrl = window.location.origin + '/home'
       const failureUrl = window.location.origin + '/auth/login?error=google'
       await import('appwrite').then(({ OAuthProvider }) =>
         import('@/lib/appwrite').then(({ account }) =>
@@ -108,7 +106,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const signInWithGithub = async () => {
     setIsLoading(true)
     try {
-      const successUrl = window.location.origin + '/auth/login'
+      const successUrl = window.location.origin + '/home'
       const failureUrl = window.location.origin + '/auth/login?error=github'
       await import('appwrite').then(({ OAuthProvider }) =>
         import('@/lib/appwrite').then(({ account }) =>
@@ -170,31 +168,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     }
   }
 
-  // --- Phone OTP ---
-  const sendPhoneOTP = async (phone: string) => {
-    setIsLoading(true)
-    try {
-      const res = await import('@/lib/appwrite').then(({ account, ID }) =>
-        account.createPhoneToken(ID.unique(), phone)
-      )
-      return { userId: res.userId }
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const loginWithPhoneOTP = async (userId: string, otp: string) => {
-    setIsLoading(true)
-    try {
-      await import('@/lib/appwrite').then(({ account }) =>
-        account.createSession(userId, otp)
-      )
-      await refreshProfile()
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
     <AuthContext.Provider value={{
       account,
@@ -211,8 +184,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       loginWithMagicURL,
       sendEmailOTP,
       loginWithEmailOTP,
-      sendPhoneOTP,
-      loginWithPhoneOTP,
     }}>
       {children}
     </AuthContext.Provider>
