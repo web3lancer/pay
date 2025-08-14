@@ -11,5 +11,11 @@ export default function SignupPage() {
     refreshProfile()
     // eslint-disable-next-line
   }, [])
-  return <AuthClient mode="signup" />
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600">
+      <div className="backdrop-blur-lg bg-white/60 rounded-xl shadow-xl border border-white/30 p-8">
+        <AuthClient mode="signup" />
+      </div>
+    </div>
+  )
 }

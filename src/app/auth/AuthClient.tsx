@@ -7,6 +7,9 @@ import { FcGoogle } from 'react-icons/fc'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/Card'
 
 interface AuthClientProps {
   mode: 'login' | 'signup'
