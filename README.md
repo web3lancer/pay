@@ -10,6 +10,13 @@
 Paylancer is here to fix cross-border payment delays, High transaction fees, Complex freelancer payment flows with blockchain powered instant transfers, API first, secure architecture, low fees.
 ---
 
+## Integrations
+
+### Morph
+
+Contract logic for Morph integration is maintained at:
+[https://github.com/web3lancer/contracts_pay_morph](https://github.com/web3lancer/contracts_pay_morph)
+
 ## Features
 
 - 🌐 **Multi-currency**: Send, receive, and swap crypto & fiat
