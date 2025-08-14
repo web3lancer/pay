@@ -37,44 +37,51 @@ export default function UserProfilePage() {
     setLoading(true);
     setNotFound(false);
 
-    // Canonize username for query
     const canon = canonizeUsername(username);
+    const safeCastUser = (u: any): Users | null => {
+      if (
+        u &&
+        typeof u.userId === 'string' &&
+        typeof u.email === 'string' &&
+        typeof u.username === 'string'
+      ) {
+        return u as unknown as Users;
+      }
+      return null;
+    };
 
-    // Try canonized username first, then raw username, then userId
-    findUserByUsername(canon)
-      .then((u) => {
-        if (u) {
-          setUser(u as Users);
+    (async () => {
+      let userDoc: any = null;
+      if (typeof canon === 'string' && canon.length > 0) {
+        userDoc = await findUserByUsername(canon);
+        if (safeCastUser(userDoc)) {
+          setUser(safeCastUser(userDoc));
           setNotFound(false);
-          return null;
-        } else {
-          // Try raw username for legacy support
-          return findUserByUsername(username);
+          setLoading(false);
+          return;
         }
-      })
-      .then((u) => {
-        if (u) {
-          setUser(u as Users);
-          setNotFound(false);
-          return null;
-        } else {
-          // Fallback: try by userId
-          return findUserById(username);
-        }
-      })
-      .then((u) => {
-        if (u) {
-          setUser(u as Users);
-          setNotFound(false);
-        } else {
-          setNotFound(true);
-        }
-      })
-      .catch((error) => {
-        console.error('Error loading user profile:', error);
-        setNotFound(true);
-      })
-      .finally(() => setLoading(false));
+      }
+      userDoc = await findUserByUsername(username);
+      if (safeCastUser(userDoc)) {
+        setUser(safeCastUser(userDoc));
+        setNotFound(false);
+        setLoading(false);
+        return;
+      }
+      userDoc = await findUserById(username);
+      if (safeCastUser(userDoc)) {
+        setUser(safeCastUser(userDoc));
+        setNotFound(false);
+        setLoading(false);
+        return;
+      }
+      setNotFound(true);
+      setLoading(false);
+    })().catch((error) => {
+      console.error('Error loading user profile:', error);
+      setNotFound(true);
+      setLoading(false);
+    });
   }, [username]);
 
   const handleCopy = () => {
