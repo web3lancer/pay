@@ -70,17 +70,55 @@ export default function UserProfilePage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  if (loading) {
-    return <div className="p-8 text-center">Loading profile...</div>
+  import { Skeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
+
+if (loading) {
+    // Show skeleton loader for profile page
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4">
+        <div className="bg-white rounded-3xl shadow-xl border border-neutral-200 p-8 flex flex-col items-center gap-8">
+          <Skeleton variant="circular" width={112} height={112} className="mb-4" />
+          <Skeleton variant="text" width={180} height={32} className="mb-2" />
+          <Skeleton variant="text" width={120} height={20} className="mb-4" />
+          <Skeleton variant="rectangular" width={144} height={144} className="mb-4" />
+          <Skeleton variant="card" width={"100%"} height={64} className="mb-4" />
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Skeleton variant="card" height={56} />
+            <Skeleton variant="card" height={56} />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (notFound) {
-    return <div className="p-8 text-center text-red-600">User not found</div>
+    // Show a visually rich empty state instead of a single sentence
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4">
+        <EmptyState
+          icon={"🙅‍♂️"}
+          title="User not found"
+          description="We couldn't find a profile for this username. Double-check the link or try searching for another user."
+          className="bg-white rounded-3xl shadow-xl border border-neutral-200 p-8"
+        />
+      </div>
+    )
   }
 
   // Always show the profile if found in the Users collection, even if not logged in
   if (!user) {
-    return <div className="p-8 text-center text-neutral-500">Profile unavailable.</div>
+    // Show a generic skeleton layout for unavailable profile
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4">
+        <EmptyState
+          icon={"🕵️‍♂️"}
+          title="Profile unavailable"
+          description="This profile is currently unavailable. Please try again later."
+          className="bg-white rounded-3xl shadow-xl border border-neutral-200 p-8"
+        />
+      </div>
+    )
   }
 
   return (
