@@ -33,37 +33,49 @@ export default function UserProfilePage() {
       canonizeUsername(userProfile.username) === canonUsername)
 
   useEffect(() => {
-    if (!username) return
-    setLoading(true)
-    setNotFound(false)
-    
-    // First try to find by username
-    findUserByUsername(username)
+    if (!username) return;
+    setLoading(true);
+    setNotFound(false);
+
+    // Canonize username for query
+    const canon = canonizeUsername(username);
+
+    // Try canonized username first, then raw username, then userId
+    findUserByUsername(canon)
       .then((u) => {
         if (u) {
-          setUser(u as Users)
-          setNotFound(false)
+          setUser(u as Users);
+          setNotFound(false);
+          return null;
         } else {
-          // If not found by username, try by userId (fallback)
-          return findUserById(username)
+          // Try raw username for legacy support
+          return findUserByUsername(username);
         }
-        return null
       })
       .then((u) => {
         if (u) {
-          setUser(u as Users)
-          setNotFound(false)
-        } else if (!user) {
-          // Only set not found if we haven't found a user yet
-          setNotFound(true)
+          setUser(u as Users);
+          setNotFound(false);
+          return null;
+        } else {
+          // Fallback: try by userId
+          return findUserById(username);
+        }
+      })
+      .then((u) => {
+        if (u) {
+          setUser(u as Users);
+          setNotFound(false);
+        } else {
+          setNotFound(true);
         }
       })
       .catch((error) => {
-        console.error('Error loading user profile:', error)
-        setNotFound(true)
+        console.error('Error loading user profile:', error);
+        setNotFound(true);
       })
-      .finally(() => setLoading(false))
-  }, [username])
+      .finally(() => setLoading(false));
+  }, [username]);
 
   const handleCopy = () => {
     if (!profileLink) return
@@ -72,11 +84,7 @@ export default function UserProfilePage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-import { Skeleton } from '@/components/ui/Skeleton'
-import { EmptyState } from '@/components/ui/EmptyState'
-
-
-if (loading) {
+  if (loading) {
     // Show skeleton loader for profile page
     return (
       <div className="max-w-2xl mx-auto py-12 px-4">
