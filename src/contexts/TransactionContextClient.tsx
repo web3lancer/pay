@@ -1,66 +1,79 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import { DatabaseService, Transaction } from '@/lib/database'
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import * as appwrite from '@/lib/appwrite'
+import { useAuth } from './AuthContext'
+import { Transactions } from '@/types/appwrite.d'
+import { Models } from 'appwrite'
 
 interface TransactionContextType {
-  transactions: Transaction[]
+  transactions: Transactions[]
   isLoading: boolean
-  sendTransaction: (transaction: Omit<Transaction, 'transactionId' | 'createdAt'>) => Promise<string>
-  getTransactionsByWallet: (walletId: string) => Transaction[]
+  error: Error | null
+  sendTransaction: (transaction: Omit<Transactions, '$id' | '$collectionId' | '$databaseId' | '$createdAt' | '$updatedAt' | '$permissions'>) => Promise<Models.Document>
+  getTransactionsByWallet: (walletId: string) => Transactions[]
   refreshTransactions: () => Promise<void>
 }
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined)
 
 export function TransactionProvider({ children }: { children: React.ReactNode }) {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const { account } = useAuth()
+  const [transactions, setTransactions] = useState<Transactions[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
 
-  const loadTransactions = async () => {
+  const refreshTransactions = useCallback(async () => {
+    if (!account) {
+      setTransactions([])
+      return
+    }
     setIsLoading(true)
+    setError(null)
     try {
-      const userTransactions = await DatabaseService.getUserTransactions('current-user-id')
-      setTransactions(userTransactions)
-    } catch (error) {
-      console.error('Failed to load transactions:', error)
+      const response = await appwrite.listTransactionsByUser(account.$id)
+      setTransactions(response.documents as unknown as Transactions[])
+    } catch (err) {
+      console.error('Failed to load transactions:', err)
+      const fetchError = err instanceof Error ? err : new Error('An unknown error occurred');
+      setError(fetchError)
+      setTransactions([])
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [account])
 
   const sendTransaction = async (
-    transactionData: Omit<Transaction, 'transactionId' | 'createdAt'>
-  ): Promise<string> => {
+    transactionData: Omit<Transactions, '$id' | '$collectionId' | '$databaseId' | '$createdAt' | '$updatedAt' | '$permissions'>
+  ): Promise<Models.Document> => {
+    if (!account) throw new Error('User is not authenticated')
     try {
-      const transaction = await DatabaseService.createTransaction(transactionData)
-
-      // Refresh transactions to show the new one
-      await loadTransactions()
-      
-      return transaction.transactionId
+      const newTransactionData = {
+        ...transactionData,
+        fromUserId: account.$id,
+      }
+      const transaction = await appwrite.createTransaction(newTransactionData)
+      await refreshTransactions()
+      return transaction
     } catch (error) {
       console.error('Failed to send transaction:', error)
       throw error
     }
   }
 
-  const getTransactionsByWallet = (walletId: string): Transaction[] => {
-    return transactions.filter(tx => tx.fromWalletId === walletId || tx.toAddress === walletId)
-  }
-
-  const refreshTransactions = async () => {
-    await loadTransactions()
+  const getTransactionsByWallet = (walletId: string): Transactions[] => {
+    return transactions.filter(tx => tx.fromWalletId === walletId || tx.toWalletId === walletId)
   }
 
   useEffect(() => {
-    loadTransactions()
-  }, [])
+    refreshTransactions()
+  }, [refreshTransactions])
 
   return (
     <TransactionContext.Provider value={{
       transactions,
       isLoading,
+      error,
       sendTransaction,
       getTransactionsByWallet,
       refreshTransactions
