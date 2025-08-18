@@ -1,23 +1,26 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { DatabaseService, Wallet } from '@/lib/database'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import * as appwrite from '@/lib/appwrite'
 import { useAuth } from './AuthContext'
+import { Wallets } from '@/types/appwrite.d'
+import { Models } from 'appwrite'
 
 interface WalletContextType {
-  wallets: Wallet[]
-  defaultWallet: Wallet | null
+  wallets: Wallets[]
+  defaultWallet: Wallets | null
   isLoading: boolean
+  error: Error | null
   createWallet: (walletData: {
     walletName: string
-    walletType: 'hot' | 'cold' | 'hardware' | 'imported'
+    walletType: 'hot' | 'cold' | 'hardware' | 'imported' | 'inbuilt' | 'external'
     blockchain: string
     walletAddress: string
     publicKey: string
     encryptedPrivateKey?: string
     derivationPath?: string
-  }) => Promise<Wallet>
-  updateWallet: (walletId: string, updates: Partial<Wallet>) => Promise<void>
+  }) => Promise<Wallets>
+  updateWallet: (walletId: string, updates: Partial<Wallets>) => Promise<void>
   setDefaultWallet: (walletId: string) => Promise<void>
   refreshWallets: () => Promise<void>
   getWalletBalance: (walletId: string) => Promise<number>
@@ -26,13 +29,14 @@ interface WalletContextType {
 const WalletContext = createContext<WalletContextType | undefined>(undefined)
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
-  const [wallets, setWallets] = useState<Wallet[]>([])
-  const [defaultWallet, setDefaultWalletState] = useState<Wallet | null>(null)
+  const { account } = useAuth()
+  const [wallets, setWallets] = useState<Wallets[]>([])
+  const [defaultWallet, setDefaultWalletState] = useState<Wallets | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
-  const refreshWallets = async () => {
-    if (!user) {
+  const refreshWallets = useCallback(async () => {
+    if (!account) {
       setWallets([])
       setDefaultWalletState(null)
       setIsLoading(false)
@@ -40,49 +44,52 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }
 
     setIsLoading(true)
+    setError(null)
     try {
-      const userWallets = await DatabaseService.getUserWallets(user.$id)
+      const userWalletsResponse = await appwrite.listWalletsByUser(account.$id)
+      const userWallets = userWalletsResponse.documents as unknown as Wallets[]
       setWallets(userWallets)
       
       const defaultWal = userWallets.find(w => w.isDefault) || userWallets[0] || null
       setDefaultWalletState(defaultWal)
-    } catch (error) {
-      console.error('Failed to fetch wallets:', error)
+    } catch (err) {
+      console.error('Failed to fetch wallets:', err)
+      const fetchError = err instanceof Error ? err : new Error('An unknown error occurred');
+      setError(fetchError)
       setWallets([])
       setDefaultWalletState(null)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [account])
 
   const createWallet = async (walletData: {
     walletName: string
-    walletType: 'hot' | 'cold' | 'hardware' | 'imported'
+    walletType: 'hot' | 'cold' | 'hardware' | 'imported' | 'inbuilt' | 'external'
     blockchain: string
     walletAddress: string
     publicKey: string
     encryptedPrivateKey?: string
     derivationPath?: string
-  }): Promise<Wallet> => {
-    if (!user) throw new Error('User not authenticated')
+  }): Promise<Wallets> => {
+    if (!account) throw new Error('User not authenticated')
 
     try {
-      // If this is the first wallet, make it default
       const isFirstWallet = wallets.length === 0
-
-      const newWallet = await DatabaseService.createWallet({
-          userId: user.$id,
+      const newWalletData = {
+          userId: account.$id,
           ...walletData,
           isDefault: isFirstWallet,
           isActive: true,
           balance: 0,
-          name: '',
-          address: ''
-      })
+      }
+
+      // The appwrite.ts createWallet is generic, so we can pass the data object.
+      const newWallet = await appwrite.createWallet(newWalletData)
 
       // Log security event
-      await DatabaseService.createSecurityLog({
-        userId: user.$id,
+      await appwrite.createSecurityLog({
+        userId: account.$id,
         action: 'wallet_created',
         ipAddress: 'unknown',
         success: true,
@@ -101,14 +108,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const updateWallet = async (walletId: string, updates: Partial<Wallet>) => {
+  const updateWallet = async (walletId: string, updates: Partial<Wallets>) => {
+    if (!account) throw new Error('User not authenticated')
     try {
-      await DatabaseService.updateWallet(walletId, updates)
+      await appwrite.updateWallet(walletId, updates)
       
-      // Log security event for sensitive updates
       if (updates.encryptedPrivateKey || updates.publicKey) {
-        await DatabaseService.createSecurityLog({
-          userId: user!.$id,
+        await appwrite.createSecurityLog({
+          userId: account.$id,
           action: 'wallet_keys_updated',
           ipAddress: 'unknown',
           success: true,
@@ -125,14 +132,27 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }
 
   const setDefaultWallet = async (walletId: string) => {
-    if (!user) throw new Error('User not authenticated')
+    if (!account) throw new Error('User not authenticated')
 
     try {
-      await DatabaseService.setDefaultWallet(user.$id, walletId)
+      // Get all user wallets
+      const userWalletsResponse = await appwrite.listWalletsByUser(account.$id)
+      const userWallets = userWalletsResponse.documents
+
+      // Create a batch of update promises
+      const updatePromises = userWallets.map(wallet => {
+        const isNewDefault = wallet.$id === walletId
+        // Only update if the status is changing
+        if (wallet.isDefault !== isNewDefault) {
+          return appwrite.updateWallet(wallet.$id, { isDefault: isNewDefault })
+        }
+        return Promise.resolve() // No update needed
+      })
+
+      await Promise.all(updatePromises)
       
-      // Log security event
-      await DatabaseService.createSecurityLog({
-        userId: user.$id,
+      await appwrite.createSecurityLog({
+        userId: account.$id,
         action: 'default_wallet_changed',
         ipAddress: 'unknown',
         success: true,
@@ -149,7 +169,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   const getWalletBalance = async (walletId: string): Promise<number> => {
     try {
-      const wallet = await DatabaseService.getWallet(walletId)
+      const wallet = await appwrite.getWallet(walletId) as unknown as Wallets
       
       // In a real app, you'd fetch from blockchain here
       // For now, return the cached balance and update it
@@ -167,13 +187,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refreshWallets()
-  }, [user])
+  }, [refreshWallets])
 
   return (
     <WalletContext.Provider value={{
       wallets,
       defaultWallet,
       isLoading,
+      error,
       createWallet,
       updateWallet,
       setDefaultWallet,

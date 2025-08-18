@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { DatabaseService } from '@/lib/database'
+import * as appwrite from '@/lib/appwrite'
 
 // Defensive: Ensure required environment variables are set at runtime
 const requiredEnvVars = [
@@ -20,7 +20,7 @@ export async function GET(
 ) {
   try {
     const requestId = params.id
-    const paymentRequest = await DatabaseService.getPaymentRequest(requestId)
+    const paymentRequest = await appwrite.getPaymentRequest(requestId)
     
     if (!paymentRequest) {
       return NextResponse.json(
@@ -57,10 +57,10 @@ export async function PATCH(
       )
     }
     
-    await DatabaseService.updatePaymentRequest(requestId, updates)
+    await appwrite.updatePaymentRequest(requestId, updates)
     
     // Log the bridge update
-    await DatabaseService.createSecurityLog({
+    await appwrite.createSecurityLog({
       userId: 'bridge',
       action: 'payment_request_updated_by_bridge',
       ipAddress: getClientIP(request),
