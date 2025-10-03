@@ -180,8 +180,6 @@ if (mode === 'signup') {
   }
 
   return (
-  // Only return the Card structure, remove any unreachable code
-  return (
     <Card className="max-w-md mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -16,6 +16,7 @@ const navigation = [
   { name: 'Send', href: '/send', icon: '📤' },
   { name: 'Request', href: '/requests', icon: '📥' },
   { name: 'Exchange', href: '/exchange', icon: '🔄' },
+  { name: 'Trading', href: 'https://deepcoin.deepersensor.com', icon: '📈', external: true },
   { name: 'History', href: '/history', icon: '📋' },
   { name: 'Settings', href: '/settings', icon: '⚙️' },
 ]
@@ -49,6 +50,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <nav className="flex-1 px-4 py-6 space-y-2">
             {navigation.map((item) => {
               const isActive = pathname === item.href
+              const isExternal = 'external' in item && item.external
+              
+              if (isExternal) {
+                return (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => onClose()}
+                    className="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+                  >
+                    <span className="mr-3 text-base">{item.icon}</span>
+                    {item.name}
+                  </a>
+                )
+              }
               
               return (
                 <Link

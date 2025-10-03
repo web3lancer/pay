@@ -12,15 +12,13 @@ Paylancer is here to fix cross-border payment delays, High transaction fees, Com
 
 ## Integrations
 
-
 ### Aptos
 
-Powering cross border payment infra on move. Aptos contracts repo: [contracts_aptos](https://github.com/web3lancer/contracts_aptos_lancerpay)
-
-### Morph
-
-Contract logic for Morph integration is maintained at:
-[https://github.com/web3lancer/contracts_pay_morph](https://github.com/web3lancer/contracts_pay_morph)
+Powering cross border payment infra on Move. 
+- Smart contracts built with Move language
+- Direct APT payments
+- Payment request system
+- See `docs/APTOS_INTEGRATION.md` for setup guide
 
 ## Features
 
@@ -94,7 +92,7 @@ The pitch deck features smooth animations, auto-play functionality, and keyboard
 - [x] Multi-currency wallet support
 - [x] KYC & 2FA security
 - [x] Invoicing & payment requests
-- [x] Bless Network integration
+- [x] Aptos blockchain integration
 - [x] Interactive pitch deck presentation
 - [ ] Token swaps & on/off ramp
 - [ ] Mobile app (PWA)
@@ -119,13 +117,6 @@ We welcome PRs, issues, and ideas! See [CONTRIBUTING.md](CONTRIBUTING.md) for de
 ![Dashboard]()
 
 ---
-
-## Integrations
-
-### Morph
-
-Contract logic for Morph integration is maintained at:
-[https://github.com/web3lancer/contracts_pay_morph](https://github.com/web3lancer/contracts_pay_morph)
 
 ## License
 
