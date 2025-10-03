@@ -180,37 +180,247 @@ if (mode === 'signup') {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="text-center">
-            <h2 className="mt-6 text-3xl font-bold text-neutral-900">
-              {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
-            </h2>
-            <p className="mt-2 text-sm text-neutral-600">
-              {mode === 'login' ? (
-                <>
-                  Or{' '}
-                  <Link href="/auth/signup" className="font-medium text-primary-600 hover:text-primary-500">
-                    create a new account
-                  </Link>
-                </>
-              ) : (
-                <>
-                  Or{' '}
-                  <Link href="/auth/login" className="font-medium text-primary-600 hover:text-primary-500">
-                    sign in to your existing account
-                  </Link>
-                </>
-              )}
-            </p>
+  // Only return the Card structure, remove any unreachable code
+  return (
+    <Card className="max-w-md mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <CardHeader className="text-center">
+          <CardTitle>
+            {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
+          </CardTitle>
+          <CardDescription>
+            {mode === 'login' ? (
+              <>
+                Or{' '}
+                <Link href="/auth/signup" className="font-medium text-primary-600 hover:text-primary-500">
+                  create a new account
+                </Link>
+              </>
+            ) : (
+              <>
+                Or{' '}
+                <Link href="/auth/login" className="font-medium text-primary-600 hover:text-primary-500">
+                  sign in to your existing account
+                </Link>
+              </>
+            )}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Auth Method Selector */}
+          <div className="mb-6">
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <Button
+                type="button"
+                variant={authMethod === 'email_password' ? 'primary' : 'outline'}
+                onClick={() => switchAuthMethod('email_password')}
+                icon={<FiLock className="h-4 w-4" />}
+                size="sm"
+              >
+                Password
+              </Button>
+              <Button
+                type="button"
+                variant={authMethod === 'magic_url' ? 'primary' : 'outline'}
+                onClick={() => switchAuthMethod('magic_url')}
+                icon={<FiMail className="h-4 w-4" />}
+                size="sm"
+              >
+                Magic Link
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant={authMethod === 'email_otp' ? 'primary' : 'outline'}
+                onClick={() => switchAuthMethod('email_otp')}
+                icon={<FiShield className="h-4 w-4" />}
+                size="sm"
+              >
+                Email OTP
+              </Button>
+            </div>
           </div>
 
-          <div className="mt-8 bg-white py-8 px-6 shadow-sm rounded-lg border border-neutral-200">
+          {/* Error Display */}
+          {errors.length > 0 && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <ul className="text-sm text-red-600 space-y-1">
+                {errors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Success Messages */}
+          {magicLinkSent && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
+              <p className="text-sm text-green-600">
+                Magic link sent! Check your email and click the link to sign in.
+              </p>
+            </div>
+          )}
+
+          {otpSent && authMethod === 'email_otp' && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-600">
+                OTP sent to your email! Enter the 6-digit code below.
+              </p>
+            </div>
+          )}
+
+          {/* Auth Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name field for signup with email/password only */}
+            {mode === 'signup' && authMethod === 'email_password' && (
+              <Input
+                id="name"
+                label="Full Name"
+                type="text"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="Enter your full name"
+              />
+            )}
+
+            {/* Email field */}
+            {(authMethod === 'email_password' || authMethod === 'magic_url' || authMethod === 'email_otp') && !otpSent && (
+              <Input
+                id="email"
+                label="Email Address"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                placeholder="Enter your email"
+                endIcon={<FiMail className="h-5 w-5 text-neutral-400" />}
+              />
+            )}
+
+            {/* Password field */}
+            {authMethod === 'email_password' && (
+              <Input
+                id="password"
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                placeholder="Enter your password"
+                endIcon={
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <FiEyeOff className="h-5 w-5 text-neutral-400" /> : <FiEye className="h-5 w-5 text-neutral-400" />}
+                  </button>
+                }
+              />
+            )}
+
+            {/* Confirm Password field for signup */}
+            {mode === 'signup' && authMethod === 'email_password' && (
+              <Input
+                id="confirmPassword"
+                label="Confirm Password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={formData.confirmPassword}
+                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                placeholder="Confirm your password"
+                endIcon={
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                    {showConfirmPassword ? <FiEyeOff className="h-5 w-5 text-neutral-400" /> : <FiEye className="h-5 w-5 text-neutral-400" />}
+                  </button>
+                }
+              />
+            )}
+
+            {/* OTP field */}
+            {(otpSent && authMethod === 'email_otp') && (
+              <Input
+                id="otp"
+                label="Enter OTP Code"
+                type="text"
+                value={formData.otp}
+                onChange={(e) => handleInputChange('otp', e.target.value)}
+                placeholder="123456"
+                maxLength={6}
+                className="text-center text-lg tracking-widest"
+              />
+            )}
+
+            {/* Submit Button */}
+            {!magicLinkSent && (
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                disabled={isSubmitting || isLoading}
+                className="w-full"
+                icon={isSubmitting || isLoading ? <FiLoader className="animate-spin h-5 w-5" /> : undefined}
+              >
+                {authMethod === 'email_password' && (mode === 'login' ? 'Sign In' : 'Sign Up')}
+                {authMethod === 'magic_url' && 'Send Magic Link'}
+                {authMethod === 'email_otp' && (otpSent ? 'Verify OTP' : 'Send OTP')}
+              </Button>
+            )}
+          </form>
+
+          {/* OAuth Buttons */}
+          {!otpSent && !magicLinkSent && (
+            <>
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-neutral-300" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-neutral-500">Or continue with</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  className="w-full"
+                  onClick={() => handleOAuthSignIn('google')}
+                  icon={<FcGoogle className="h-5 w-5" />}
+                >
+                  Google
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  className="w-full"
+                  onClick={() => handleOAuthSignIn('github')}
+                  icon={<FiGithub className="h-5 w-5" />}
+                >
+                  GitHub
+                </Button>
+              </div>
+            </>
+          )}
+
+          {/* Additional Links */}
+          {mode === 'login' && authMethod === 'email_password' && !otpSent && (
+            <div className="mt-6 text-center">
+              <Link
+                href="/auth/forgot-password"
+                className="text-sm text-primary-600 hover:text-primary-500"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          )}
+        </CardContent>
+      </motion.div>
+    </Card>
+  )
+
             {/* Auth Method Selector */}
             <div className="mb-6">
               <div className="grid grid-cols-2 gap-2 mb-4">

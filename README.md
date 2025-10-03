@@ -12,6 +12,11 @@ Paylancer is here to fix cross-border payment delays, High transaction fees, Com
 
 ## Integrations
 
+
+### Aptos
+
+Powering cross border payment infra on move.
+
 ### Morph
 
 Contract logic for Morph integration is maintained at:
