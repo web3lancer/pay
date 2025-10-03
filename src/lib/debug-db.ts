@@ -1,5 +1,5 @@
-import { DatabaseService } from './database'
-import { databases, DATABASE_ID, COLLECTION_IDS } from './appwrite'
+import * as appwrite from './appwrite'
+import { databases, DATABASE_ID, COLLECTION_IDS, ID } from './appwrite'
 
 export const debugDatabaseOperations = {
   async testConnection() {
@@ -41,7 +41,12 @@ export const debugDatabaseOperations = {
       
       console.log('User data to be created:', userData)
       
-      const result = await DatabaseService.createUser(userData)
+      const result = await appwrite.databases.createDocument(
+        DATABASE_ID,
+        COLLECTION_IDS.USERS,
+        userData.userId,
+        userData
+      )
       console.log('User creation successful:', result)
       return result
     } catch (error) {
@@ -52,7 +57,7 @@ export const debugDatabaseOperations = {
 
   async checkUserExists(userId: string) {
     try {
-      const user = await DatabaseService.getUser(userId)
+      const user = await appwrite.getUser(userId)
       console.log('User found:', user)
       return user
     } catch (error) {

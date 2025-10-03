@@ -16,9 +16,9 @@ import dynamic from 'next/dynamic'
 
 export default function HomePage() {
   const { account, userProfile, isAuthenticated, isLoading, refreshProfile } = useAuth()
-  const { wallets, defaultWallet, isLoading: walletsLoading } = useWallet()
-  const { transactions } = useTransaction()
-  const { paymentRequests, getActiveRequests, getPaidRequests } = usePaymentRequest()
+  const { wallets, defaultWallet, isLoading: walletsLoading, error: walletsError } = useWallet()
+  const { transactions, isLoading: transactionsLoading, error: transactionsError } = useTransaction()
+  const { paymentRequests, getActiveRequests, getPaidRequests, isLoading: paymentRequestsLoading, error: paymentRequestsError } = usePaymentRequest()
   const { calculateUsdValue, formatUsdValue, getRate } = useExchangeRate()
   const [totalBalance, setTotalBalance] = useState(0)
   const router = useRouter()
@@ -77,25 +77,37 @@ export default function HomePage() {
 
       {/* Balance Overview */}
       <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl p-6 mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-cyan-100 mb-2">Total Portfolio Balance</p>
-            <h2 className="text-4xl font-bold">
-              {formatUsdValue(totalBalance)}
-            </h2>
-            <p className="text-cyan-100 mt-2">
-              {wallets.length} {wallets.length === 1 ? 'Wallet' : 'Wallets'}
-            </p>
+        {walletsLoading ? (
+          <div className="animate-pulse">
+            <div className="h-5 w-48 bg-cyan-400/50 rounded mb-2"></div>
+            <div className="h-10 w-64 bg-cyan-400/50 rounded"></div>
+            <div className="h-5 w-32 bg-cyan-400/50 rounded mt-2"></div>
           </div>
-          <div className="text-right">
-            <button
-              onClick={() => window.location.reload()}
-              className="p-3 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
-            >
-              <FiRefreshCw className="w-6 h-6" />
-            </button>
+        ) : walletsError ? (
+          <div className="text-center text-white">
+            <p>Error loading balance: {walletsError.message}</p>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-cyan-100 mb-2">Total Portfolio Balance</p>
+              <h2 className="text-4xl font-bold">
+                {formatUsdValue(totalBalance)}
+              </h2>
+              <p className="text-cyan-100 mt-2">
+                {wallets.length} {wallets.length === 1 ? 'Wallet' : 'Wallets'}
+              </p>
+            </div>
+            <div className="text-right">
+              <button
+                onClick={() => window.location.reload()}
+                className="p-3 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
+              >
+                <FiRefreshCw className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
 
@@ -151,21 +163,47 @@ export default function HomePage() {
       </div>
 
       {/* Recent Payment Requests */}
-      {getActiveRequests().length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-neutral-900">Recent Payment Requests</h2>
-            <Link
-              href="/requests"
-              className="text-cyan-600 hover:text-cyan-700 text-sm font-medium"
-            >
-              View All
-            </Link>
+      <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-neutral-900">Recent Payment Requests</h2>
+          <Link
+            href="/requests"
+            className="text-cyan-600 hover:text-cyan-700 text-sm font-medium"
+          >
+            View All
+          </Link>
+        </div>
+
+        {paymentRequestsLoading ? (
+          <div className="space-y-4">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="flex items-center justify-between border-b border-neutral-100 pb-3 animate-pulse">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-neutral-200"></div>
+                  <div>
+                    <div className="h-4 w-24 bg-neutral-200 rounded"></div>
+                    <div className="h-3 w-32 bg-neutral-200 rounded mt-1"></div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="h-4 w-20 bg-neutral-200 rounded"></div>
+                  <div className="h-3 w-16 bg-neutral-200 rounded mt-1"></div>
+                </div>
+              </div>
+            ))}
           </div>
-          
+        ) : paymentRequestsError ? (
+          <div className="text-center py-8 text-red-600">
+            <p>Error loading payment requests: {paymentRequestsError.message}</p>
+          </div>
+        ) : getActiveRequests().length === 0 ? (
+          <div className="text-center py-4">
+            <p className="text-neutral-500">No active payment requests.</p>
+          </div>
+        ) : (
           <div className="space-y-4">
             {getActiveRequests().slice(0, 3).map((request) => (
-              <div key={request.requestId} className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div key={request.$id} className="flex items-center justify-between border-b border-neutral-100 pb-3">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-full bg-yellow-100">
                     <FiCode className="w-4 h-4 text-yellow-600" />
@@ -190,8 +228,8 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Recent Transactions and Exchange Rates */}
       <div className="grid lg:grid-cols-3 gap-6">
@@ -206,7 +244,29 @@ export default function HomePage() {
             </Link>
           </div>
           
-          {transactions.length === 0 ? (
+          {transactionsLoading ? (
+             <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between border-b border-neutral-100 pb-3 animate-pulse">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-neutral-200"></div>
+                    <div>
+                      <div className="h-4 w-20 bg-neutral-200 rounded"></div>
+                      <div className="h-3 w-32 bg-neutral-200 rounded mt-1"></div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="h-4 w-24 bg-neutral-200 rounded"></div>
+                    <div className="h-3 w-16 bg-neutral-200 rounded mt-1"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : transactionsError ? (
+            <div className="text-center py-8 text-red-600">
+              <p>Error loading transactions: {transactionsError.message}</p>
+            </div>
+          ) : transactions.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-neutral-500">No transactions yet</p>
               <Link
@@ -220,7 +280,7 @@ export default function HomePage() {
           ) : (
             <div className="space-y-4">
               {transactions.slice(0, 5).map((tx) => (
-                <div key={tx.transactionId} className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                <div key={tx.$id} className="flex items-center justify-between border-b border-neutral-100 pb-3">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-full ${tx.type === 'send' ? 'bg-red-100' : 'bg-green-100'}`}>
                       <FiSend className={`w-4 h-4 ${tx.type === 'send' ? 'text-red-600' : 'text-green-600'}`} />

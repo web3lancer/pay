@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { DatabaseService } from '@/lib/database'
+import * as appwrite from '@/lib/appwrite'
 
 // Defensive: Ensure required environment variables are set at runtime
 const requiredEnvVars = [
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Log the escrow release event
-    await DatabaseService.createSecurityLog({
+    await appwrite.createSecurityLog({
       userId: 'bridge',
       action: 'escrow_released_on_bless_network',
       ipAddress: getClientIP(request),
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     // You could also update any related payment requests or user notifications here
     // For example, if you track escrow status in your database:
     /*
-    await DatabaseService.updateEscrowStatus(escrowId, {
+    await appwrite.updateDocument(appwrite.COLLECTION_IDS.ESCROWS, escrowId, {
       status: milestoneId ? 'milestone_released' : 'fully_released',
       releasedAt: new Date(timestamp).toISOString(),
       blessTransactionHash: transactionHash
