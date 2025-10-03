@@ -15,7 +15,6 @@ const navigation = [
   { name: 'Wallets', href: '/wallets', icon: '👛' },
   { name: 'Send', href: '/send', icon: '📤' },
   { name: 'Request', href: '/requests', icon: '📥' },
-  { name: 'Exchange', href: '/exchange', icon: '🔄' },
   { name: 'Trading', href: 'https://deepcoin.deepersensor.com', icon: '📈', external: true },
   { name: 'History', href: '/history', icon: '📋' },
   { name: 'Settings', href: '/settings', icon: '⚙️' },

@@ -7,7 +7,18 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
+    // Fix for 'fs' module not found errors in client-side bundles
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+      };
+    }
+
     // Ignore dynamic require warnings for optional keyv adapters
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),
