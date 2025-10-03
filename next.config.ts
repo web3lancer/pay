@@ -7,26 +7,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  webpack: (config, { isServer }) => {
-    // Ignore optional keyv adapters that aren't used
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-    };
-    
-    config.externals = [
-      ...(config.externals || []),
-      {
-        '@keyv/redis': 'commonjs @keyv/redis',
-        '@keyv/mongo': 'commonjs @keyv/mongo',
-        '@keyv/sqlite': 'commonjs @keyv/sqlite',
-        '@keyv/postgres': 'commonjs @keyv/postgres',
-        '@keyv/mysql': 'commonjs @keyv/mysql',
-        '@keyv/etcd': 'commonjs @keyv/etcd',
-        '@keyv/offline': 'commonjs @keyv/offline',
-        '@keyv/tiered': 'commonjs @keyv/tiered',
-      },
-    ];
-    
+  webpack: (config) => {
     // Ignore dynamic require warnings for optional keyv adapters
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),

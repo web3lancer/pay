@@ -11,20 +11,15 @@
   "dependencies": {
     "@aptos-labs/ts-sdk": "^3.1.3",
     "@aptos-labs/wallet-adapter-react": "^7.0.1",
-    "@blend-capital/blend-sdk": "^2.2.0",
     "@headlessui/react": "^2.2.4",
     "@hookform/resolvers": "^5.0.1",
     "@stellar/stellar-sdk": "^13.3.0",
     "@tanstack/react-query": "^5.79.0",
-    "@tanstack/react-query-devtools": "^5.79.0",
-    "@tanstack/react-virtual": "^3.13.9",
     "appwrite": "^18.1.1",
     "bignumber.js": "^9.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "dexie": "^4.0.11",
-    "dexie-react-hooks": "^1.1.7",
     "ethers": "^6.15.0",
     "framer-motion": "^12.15.0",
     "next": "15.3.3",
@@ -43,13 +38,14 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@next/bundle-analyzer": "^15.3.3",
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
-    "tailwindcss": "^4",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18",
     "typescript": "^5"
   }
 }
