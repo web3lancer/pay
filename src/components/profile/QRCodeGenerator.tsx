@@ -145,11 +145,12 @@ export function QRCodeGenerator({
         
         {/* QR Code */}
         <div className="bg-white p-6 rounded-lg border-2 border-neutral-100 mx-auto w-fit">
-          <QRCode
+          <div 
             id="qr-code-svg"
-            value={qrData}
-            size={200}
-          />
+            className="w-[200px] h-[200px] bg-neutral-100 flex items-center justify-center text-neutral-400 text-sm"
+          >
+            QR Code: {qrData.substring(0, 30)}...
+          </div>
         </div>
 
         {/* QR Data Display */}
