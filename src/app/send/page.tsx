@@ -8,8 +8,6 @@ import { useTransaction } from '@/contexts/TransactionContext'
 import { useExchangeRate } from '@/contexts/ExchangeRateContext'
 import { FiArrowLeft, FiSend, FiAlertCircle, FiCheck } from 'react-icons/fi'
 import Link from 'next/link'
-import dynamic from "next/dynamic"
-import { useMediaQuery } from 'react-responsive' // or your preferred method
 
 
 
@@ -23,7 +21,6 @@ export default function SendPage() {
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'standard'>('standard')
-  const isDesktop = typeof window !== "undefined" ? window.innerWidth >= 768 : true // fallback for SSR
   
   const [formData, setFormData] = useState({
     fromWalletId: defaultWallet?.walletId || '',

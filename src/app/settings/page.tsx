@@ -1,9 +1,6 @@
 'use client'
 
 import React, { useState } from 'react';
-
-import { motion } from 'framer-motion';
-import dynamic from 'next/dynamic';
 import {
   FiBell,
   FiCreditCard,
@@ -338,18 +335,13 @@ export default function SettingsPage() {
           {/* Main Content */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-xl border border-neutral-200 p-6">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-              >
+              <div key={activeTab} className="animate-fadeIn">
                 {activeTab === 'profile' && renderProfileTab()}
                 {activeTab === 'security' && renderSecurityTab()}
                 {activeTab === 'notifications' && renderNotificationsTab()}
                 {activeTab === 'preferences' && renderPreferencesTab()}
                 {activeTab === 'integrations' && renderIntegrationsTab()}
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>

@@ -11,8 +11,7 @@ import { FiSend, FiDownload, FiPlus, FiArrowRight, FiTrendingUp, FiRefreshCw, Fi
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-// Add Blend integration imports
-import dynamic from 'next/dynamic'
+
 
 export default function HomePage() {
   const { account, userProfile, isAuthenticated, isLoading, refreshProfile } = useAuth()
