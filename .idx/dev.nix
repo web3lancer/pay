@@ -5,6 +5,7 @@
     pkgs.pnpm
     pkgs.gh
     pkgs.openssl
+    pkgs.systemd
     
   ];
   idx.extensions = [
