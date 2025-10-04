@@ -76,16 +76,16 @@ export function MobileNavigation() {
   return (
     <>
       {/* Quick Actions Overlay */}
-      <AnimatePresence>
+      <>
         {showQuickActions && (
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-end justify-center pb-24"
             onClick={() => setShowQuickActions(false)}
           >
-            <motion.div
+            <div
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
@@ -101,7 +101,7 @@ export function MobileNavigation() {
 
               <div className="grid grid-cols-2 gap-4">
                 {quickActions.map((action, index) => (
-                  <motion.button
+                  <button
                     key={action.path}
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -115,25 +115,25 @@ export function MobileNavigation() {
                       <action.icon className={`h-8 w-8 ${action.iconColor}`} />
                     </div>
                     <span className="font-semibold text-neutral-900">{action.label}</span>
-                  </motion.button>
+                  </button>
                 ))}
               </div>
 
-              <motion.button
+              <button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowQuickActions(false)}
                 className="w-full mt-6 py-3 bg-neutral-100 text-neutral-700 rounded-xl font-medium hover:bg-neutral-200 transition-colors"
               >
                 Cancel
-              </motion.button>
-            </motion.div>
-          </motion.div>
+              </button>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
 
       {/* Bottom Navigation */}
-      <motion.div
+      <div
         initial={{ y: 100 }}
         animate={{ y: 0 }}
         className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 z-30 md:hidden"
@@ -143,14 +143,14 @@ export function MobileNavigation() {
             const active = isActive(item.path)
             
             return (
-              <motion.button
+              <button
                 key={item.path}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => handleNavigation(item.path)}
                 className="flex flex-col items-center py-2 px-3 relative"
               >
-                <motion.div
+                <div
                   animate={{
                     backgroundColor: active ? '#6366f1' : 'transparent',
                     scale: active ? 1.1 : 1
@@ -160,7 +160,7 @@ export function MobileNavigation() {
                   }`}
                 >
                   <item.icon className="h-5 w-5" />
-                </motion.div>
+                </div>
                 
                 <motion.span
                   animate={{
@@ -173,31 +173,31 @@ export function MobileNavigation() {
                 </motion.span>
 
                 {active && (
-                  <motion.div
+                  <div
                     layoutId="activeTab"
                     className="absolute bottom-0 w-8 h-1 bg-primary-500 rounded-full"
                   />
                 )}
-              </motion.button>
+              </button>
             )
           })}
           
           {/* Quick Actions Button */}
-          <motion.button
+          <button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowQuickActions(true)}
             className="relative"
           >
-            <motion.div
+            <div
               animate={{ rotate: showQuickActions ? 45 : 0 }}
               className="w-12 h-12 bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg"
             >
               <FiPlus className="h-6 w-6 text-white" />
-            </motion.div>
+            </div>
             
             {/* Pulsing animation for emphasis */}
-            <motion.div
+            <div
               animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.7, 0.3, 0.7]
@@ -209,12 +209,12 @@ export function MobileNavigation() {
               }}
               className="absolute inset-0 w-12 h-12 bg-primary-500 rounded-2xl -z-10"
             />
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Quick Stats Bar (appears above navigation) */}
-      <motion.div
+      <div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
@@ -238,17 +238,17 @@ export function MobileNavigation() {
             <span className="text-sm font-semibold">+7.2%</span>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Notification Indicator */}
       {user && (
-        <motion.div
+        <div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.5 }}
           className="fixed top-4 right-4 z-50 md:hidden"
         >
-          <motion.button
+          <button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => router.push('/notifications')}
@@ -257,15 +257,15 @@ export function MobileNavigation() {
             <FiBell className="h-5 w-5 text-neutral-600" />
             
             {/* Notification badge */}
-            <motion.div
+            <div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center"
             >
               <span className="text-white text-xs font-bold">3</span>
-            </motion.div>
-          </motion.button>
-        </motion.div>
+            </div>
+          </button>
+        </div>
       )}
     </>
   )

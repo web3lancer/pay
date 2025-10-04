@@ -209,7 +209,7 @@ export function TransactionHistory({
           </div>
         ) : (
           filteredTransactions.map((transaction) => (
-            <motion.div
+            <div
               key={transaction.id}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -272,7 +272,7 @@ export function TransactionHistory({
                   )}
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))
         )}
       </div>

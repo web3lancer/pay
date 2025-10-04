@@ -31,7 +31,7 @@ export function WalletCard({
   onDetails
 }: WalletCardProps) {
   return (
-    <motion.div
+    <div
       whileHover={{ y: -5 }}
       transition={{ duration: 0.2 }}
     >
@@ -114,6 +114,6 @@ export function WalletCard({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

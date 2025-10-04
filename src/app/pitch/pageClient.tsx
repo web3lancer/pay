@@ -30,7 +30,7 @@ export function PitchClient() {
       textColor: "text-white",
       content: (
         <div className="text-center space-y-8">
-          <motion.div
+          <div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.5, type: "spring" }}
@@ -43,12 +43,12 @@ export function PitchClient() {
               height={128}
               className="rounded-3xl shadow-2xl"
             />
-            <motion.div
+            <div
               animate={{ rotate: 360 }}
               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
               className="absolute -inset-2 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-3xl opacity-30 blur-md"
             />
-          </motion.div>
+          </div>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -57,22 +57,22 @@ export function PitchClient() {
           >
             Next-gen payment platform for freelancers, businesses, and the web3 world
           </motion.p>
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
             className="flex justify-center gap-8 text-cyan-300"
           >
             {[FiZap, FiShield, FiGlobe].map((Icon, i) => (
-              <motion.div
+              <div
                 key={i}
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
               >
                 <Icon className="w-8 h-8" />
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       )
     },
@@ -90,7 +90,7 @@ export function PitchClient() {
               "Limited crypto payment options",
               "Complex freelancer payment flows"
             ].map((problem, i) => (
-              <motion.div
+              <div
                 key={i}
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -101,10 +101,10 @@ export function PitchClient() {
                   {i + 1}
                 </div>
                 <span className="text-xl">{problem}</span>
-              </motion.div>
+              </div>
             ))}
           </div>
-          <motion.div
+          <div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.5 }}
@@ -112,7 +112,7 @@ export function PitchClient() {
           >
             <div className="text-6xl font-bold text-red-400 mb-4">$50B+</div>
             <div className="text-xl text-red-200">Lost annually to payment inefficiencies</div>
-          </motion.div>
+          </div>
         </div>
       )
     },
@@ -131,7 +131,7 @@ export function PitchClient() {
             { icon: FiCode, title: "API-First", desc: "Easy integration for devs" },
             { icon: FiUsers, title: "Team Features", desc: "Built for collaboration" }
           ].map((feature, i) => (
-            <motion.div
+            <div
               key={i}
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
@@ -139,16 +139,16 @@ export function PitchClient() {
               whileHover={{ scale: 1.05, y: -10 }}
               className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center"
             >
-              <motion.div
+              <div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.6 }}
                 className="w-16 h-16 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4"
               >
                 <feature.icon className="w-8 h-8 text-white" />
-              </motion.div>
+              </div>
               <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
               <p className="text-cyan-200">{feature.desc}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       )
@@ -166,7 +166,7 @@ export function PitchClient() {
               { label: "Freelancer Economy", value: "$400B+", growth: "+15% CAGR" },
               { label: "Crypto Payments", value: "$180B", growth: "+45% CAGR" }
             ].map((stat, i) => (
-              <motion.div
+              <div
                 key={i}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -176,26 +176,26 @@ export function PitchClient() {
                 <div className="text-4xl font-bold text-purple-300 mb-2">{stat.value}</div>
                 <div className="text-xl mb-1">{stat.label}</div>
                 <div className="text-green-400 font-semibold">{stat.growth}</div>
-              </motion.div>
+              </div>
             ))}
           </div>
-          <motion.div
+          <div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 }}
             className="flex items-center justify-center"
           >
             <div className="text-center">
-              <motion.div
+              <div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                 className="w-48 h-48 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 opacity-80"
               >
                 <FiTrendingUp className="w-24 h-24 text-white" />
-              </motion.div>
+              </div>
               <div className="text-2xl text-purple-200">Massive growth trajectory</div>
             </div>
-          </motion.div>
+          </div>
         </div>
       )
     },
@@ -212,22 +212,22 @@ export function PitchClient() {
             { metric: "180+", label: "Countries", icon: FiGlobe },
             { metric: "99.99%", label: "Uptime", icon: FiZap }
           ].map((item, i) => (
-            <motion.div
+            <div
               key={i}
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.2 }}
               className="text-center"
             >
-              <motion.div
+              <div
                 whileHover={{ scale: 1.1 }}
                 className="w-20 h-20 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
               >
                 <item.icon className="w-10 h-10 text-white" />
-              </motion.div>
+              </div>
               <div className="text-4xl font-bold text-cyan-300 mb-2">{item.metric}</div>
               <div className="text-lg text-blue-200">{item.label}</div>
-            </motion.div>
+            </div>
           ))}
         </div>
       )
@@ -245,7 +245,7 @@ export function PitchClient() {
               { category: "Backend", techs: ["Appwrite", "Node.js", "PostgreSQL", "Redis"] },
               { category: "Blockchain", techs: ["Bless Network", "Ethereum", "Bitcoin", "USDC/USDT"] }
             ].map((stack, i) => (
-              <motion.div
+              <div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -255,7 +255,7 @@ export function PitchClient() {
                 <h3 className="text-xl font-bold mb-4 text-cyan-400">{stack.category}</h3>
                 <div className="space-y-2">
                   {stack.techs.map((tech, j) => (
-                    <motion.div
+                    <div
                       key={j}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -264,13 +264,13 @@ export function PitchClient() {
                     >
                       <FiCheck className="w-4 h-4 text-green-400" />
                       <span>{tech}</span>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
@@ -280,7 +280,7 @@ export function PitchClient() {
               <FiPocket className="w-5 h-5 text-green-400" />
               <span className="text-green-300 font-semibold">Production Ready & Scalable</span>
             </div>
-          </motion.div>
+          </div>
         </div>
       )
     },
@@ -291,7 +291,7 @@ export function PitchClient() {
       textColor: "text-white",
       content: (
         <div className="text-center space-y-12">
-          <motion.div
+          <div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, type: "spring" }}
@@ -299,7 +299,7 @@ export function PitchClient() {
           >
             <div className="text-7xl font-bold text-violet-300">$2M</div>
             <div className="text-2xl text-violet-200">Seed Funding Round</div>
-          </motion.div>
+          </div>
           
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -307,7 +307,7 @@ export function PitchClient() {
               { percent: "35%", use: "Product Development", desc: "New Features & Mobile" },
               { percent: "25%", use: "Marketing & Partnerships", desc: "Global Expansion" }
             ].map((item, i) => (
-              <motion.div
+              <div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -317,11 +317,11 @@ export function PitchClient() {
                 <div className="text-4xl font-bold text-violet-300 mb-2">{item.percent}</div>
                 <div className="text-xl font-semibold mb-2">{item.use}</div>
                 <div className="text-violet-200">{item.desc}</div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
@@ -335,7 +335,7 @@ export function PitchClient() {
               <FiTrendingUp className="w-5 h-5 text-violet-300" />
               <span className="text-violet-200">10x growth target</span>
             </div>
-          </motion.div>
+          </div>
         </div>
       )
     }
@@ -357,7 +357,7 @@ export function PitchClient() {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <AnimatePresence mode="wait">
-        <motion.div
+        <div
           key={currentSlide}
           initial={{ opacity: 0, x: 100 }}
           animate={{ opacity: 1, x: 0 }}
@@ -389,17 +389,17 @@ export function PitchClient() {
 
           {/* Content */}
           <div className="flex-1 px-8 pb-24">
-            <motion.div
+            <div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
               className="h-full flex items-center"
             >
               {slides[currentSlide].content}
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      </>
 
       {/* Controls */}
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
@@ -444,7 +444,7 @@ export function PitchClient() {
       </div>
 
       {/* Progress Bar */}
-      <motion.div
+      <div
         className="fixed top-0 left-0 h-1 bg-gradient-to-r from-cyan-400 to-purple-500 z-50"
         style={{
           width: `${((currentSlide + 1) / slides.length) * 100}%`

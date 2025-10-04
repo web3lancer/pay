@@ -71,7 +71,7 @@ export function NotificationSystem({
 
   return (
     <div className={`fixed ${getPositionClasses()} z-50 max-w-sm w-full space-y-3`}>
-      <AnimatePresence>
+      <>
         {notifications.map((notification) => (
           <NotificationItem
             key={notification.id}
@@ -81,7 +81,7 @@ export function NotificationSystem({
             getBackgroundColor={getBackgroundColor}
           />
         ))}
-      </AnimatePresence>
+      </>
     </div>
   )
 }
@@ -118,7 +118,7 @@ function NotificationItem({
   }
 
   return (
-    <motion.div
+    <div
       initial={{ opacity: 0, x: 100, scale: 0.8 }}
       animate={{ 
         opacity: isVisible ? 1 : 0, 
@@ -164,14 +164,14 @@ function NotificationItem({
 
       {/* Progress bar for timed notifications */}
       {notification.duration && notification.duration > 0 && (
-        <motion.div
+        <div
           initial={{ width: '100%' }}
           animate={{ width: '0%' }}
           transition={{ duration: notification.duration / 1000, ease: 'linear' }}
           className="absolute bottom-0 left-0 h-1 bg-primary-500 rounded-bl-lg"
         />
       )}
-    </motion.div>
+    </div>
   )
 }
 

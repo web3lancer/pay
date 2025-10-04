@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { FiCopy, FiCheck, FiShare2, FiExternalLink, FiCamera, FiUser } from 'react-icons/fi'
-import QRCode from 'react-qr-code'
 import { formatCryptoAmount } from '@/lib/utils'
 
 interface PaymentProfileProps {
@@ -98,7 +97,7 @@ export function PaymentProfile({
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-neutral-50">
       {/* Browser Wallet Detection Prompt */}
       {showBrowserWalletPrompt && !isOwnProfile && (
-        <motion.div
+        <div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           className="fixed top-4 right-4 bg-white rounded-lg shadow-lg border border-primary-200 p-4 z-50 max-w-sm"
@@ -126,11 +125,11 @@ export function PaymentProfile({
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <motion.div
+        <div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -329,7 +328,7 @@ export function PaymentProfile({
               </a>
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

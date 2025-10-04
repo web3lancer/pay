@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { FiShield, FiKey, FiSmartphone, FiDownload, FiCheck, FiX, FiLoader } from 'react-icons/fi'
-import QRCode from 'react-qr-code'
 
 interface TwoFactorSettingsProps {
   onClose?: () => void
@@ -391,9 +390,9 @@ export function TwoFactorSettings({ onClose }: TwoFactorSettingsProps) {
   return (
     <div className="max-w-md mx-auto">
       {/* Error/Success Messages */}
-      <AnimatePresence>
+      <>
         {error && (
-          <motion.div
+          <div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -403,11 +402,11 @@ export function TwoFactorSettings({ onClose }: TwoFactorSettingsProps) {
               <FiX className="h-4 w-4 text-red-500" />
               <p className="text-sm text-red-700">{error}</p>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {success && (
-          <motion.div
+          <div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -417,13 +416,13 @@ export function TwoFactorSettings({ onClose }: TwoFactorSettingsProps) {
               <FiCheck className="h-4 w-4 text-green-500" />
               <p className="text-sm text-green-700">{success}</p>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
 
       {/* Main Content */}
       <AnimatePresence mode="wait">
-        <motion.div
+        <div
           key={step}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -434,8 +433,8 @@ export function TwoFactorSettings({ onClose }: TwoFactorSettingsProps) {
           {step === 'setup' && renderSetup()}
           {step === 'recovery' && renderRecovery()}
           {step === 'disable' && renderDisable()}
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      </>
     </div>
   )
 }

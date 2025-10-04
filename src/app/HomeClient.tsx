@@ -37,7 +37,7 @@ export function HomeClient() {
   return (
     <AppShell>
       <div className="max-w-7xl mx-auto">
-        <motion.div
+        <div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -194,7 +194,7 @@ export function HomeClient() {
               }
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </AppShell>
   )

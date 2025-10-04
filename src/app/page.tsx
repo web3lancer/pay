@@ -111,7 +111,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 overflow-hidden">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
+        <div
           animate={{
             x: [0, 100, 0],
             y: [0, -100, 0],
@@ -124,7 +124,7 @@ export default function LandingPage() {
           }}
           className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-cyan-300/20 to-blue-300/20 rounded-full blur-xl"
         />
-        <motion.div
+        <div
           animate={{
             x: [0, -150, 0],
             y: [0, 100, 0],
@@ -137,7 +137,7 @@ export default function LandingPage() {
           }}
           className="absolute top-1/3 right-20 w-40 h-40 bg-gradient-to-r from-purple-300/20 to-pink-300/20 rounded-full blur-xl"
         />
-        <motion.div
+        <div
           animate={{
             x: [0, 200, 0],
             y: [0, -50, 0],
@@ -161,7 +161,7 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <motion.div 
+            <div 
               className="flex items-center space-x-3"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
@@ -174,7 +174,7 @@ export default function LandingPage() {
                   height={40}
                   className="rounded-xl shadow-lg"
                 />
-                <motion.div
+                <div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                   className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl opacity-20 blur-sm"
@@ -183,7 +183,7 @@ export default function LandingPage() {
               <span className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
                 LancerPay
               </span>
-            </motion.div>
+            </div>
             
             <div className="hidden md:flex items-center space-x-8">
               {['Features', 'Pricing', 'About', 'Rates'].map((item, index) => (
@@ -197,7 +197,7 @@ export default function LandingPage() {
                   transition={{ delay: index * 0.1 }}
                 >
                   {item}
-                  <motion.div
+                  <div
                     className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-600 to-blue-600 group-hover:w-full transition-all duration-300"
                   />
                 </motion.a>
@@ -206,7 +206,7 @@ export default function LandingPage() {
 
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
-                <motion.div
+                <div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 300 }}
@@ -217,10 +217,10 @@ export default function LandingPage() {
                   >
                     Dashboard
                   </Link>
-                </motion.div>
+                </div>
               ) : (
                 <>
-                  <motion.div
+                  <div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
@@ -231,8 +231,8 @@ export default function LandingPage() {
                     >
                       Sign In
                     </Link>
-                  </motion.div>
-                  <motion.div
+                  </div>
+                  <div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300, delay: 0.6 }}
@@ -243,7 +243,7 @@ export default function LandingPage() {
                     >
                       Get Started
                     </Link>
-                  </motion.div>
+                  </div>
                 </>
               )}
             </div>
@@ -255,12 +255,12 @@ export default function LandingPage() {
       <section className="relative pt-20 pb-32 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <motion.div
+            <div
               initial={{ opacity: 0, x: -100 }}
               animate={{ opacity: isVisible ? 1 : 0, x: isVisible ? 0 : -100 }}
               transition={{ duration: 1, ease: "easeOut" }}
             >
-              <motion.div
+              <div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
@@ -268,7 +268,7 @@ export default function LandingPage() {
               >
                 <FiZap className="w-4 h-4 text-cyan-600 mr-2" />
                 <span className="text-cyan-700 font-semibold text-sm">The Future of Digital Payments is Here</span>
-              </motion.div>
+              </div>
 
               <h1 className="text-6xl lg:text-7xl font-bold leading-tight mb-8">
                 <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -296,13 +296,13 @@ export default function LandingPage() {
                 </span>
               </motion.p>
               
-              <motion.div
+              <div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1, duration: 0.8 }}
                 className="flex flex-col sm:flex-row gap-6 mb-12"
               >
-                <motion.div
+                <div
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400 }}
@@ -311,7 +311,7 @@ export default function LandingPage() {
                     href={isAuthenticated ? "/home" : "/auth/login"}
                     className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden"
                   >
-                    <motion.div
+                    <div
                       className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     />
                     <span className="relative z-10 mr-2">
@@ -319,9 +319,9 @@ export default function LandingPage() {
                     </span>
                     <FiArrowRight className="relative z-10 group-hover:translate-x-1 transition-transform" />
                   </Link>
-                </motion.div>
+                </div>
 
-                <motion.div
+                <div
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400 }}
@@ -333,10 +333,10 @@ export default function LandingPage() {
                     <FiPlay className="mr-2 group-hover:scale-110 transition-transform" />
                     Try Demo
                   </Link>
-                </motion.div>
-              </motion.div>
+                </div>
+              </div>
 
-              <motion.div
+              <div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
@@ -347,7 +347,7 @@ export default function LandingPage() {
                   { icon: FiCheck, text: "Global coverage" },
                   { icon: FiCheck, text: "Instant transfers" }
                 ].map((item, index) => (
-                  <motion.div
+                  <div
                     key={index}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -356,13 +356,13 @@ export default function LandingPage() {
                   >
                     <item.icon className="w-4 h-4 text-emerald-500 mr-2" />
                     <span className="font-medium">{item.text}</span>
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
 
             {/* Interactive Demo Card */}
-            <motion.div
+            <div
               initial={{ opacity: 0, x: 100, rotateY: 45 }}
               animate={{ opacity: 1, x: 0, rotateY: 0 }}
               transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
@@ -370,7 +370,7 @@ export default function LandingPage() {
             >
               <div className="relative bg-gradient-to-br from-white to-slate-50 rounded-3xl p-8 shadow-2xl border border-white/20">
                 {/* Floating elements */}
-                <motion.div
+                <div
                   animate={{
                     y: [0, -10, 0],
                     rotate: [0, 5, 0]
@@ -382,7 +382,7 @@ export default function LandingPage() {
                   }}
                   className="absolute -top-6 -right-6 w-20 h-20 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl opacity-80 blur-sm"
                 />
-                <motion.div
+                <div
                   animate={{
                     y: [0, 10, 0],
                     rotate: [0, -5, 0]
@@ -399,18 +399,18 @@ export default function LandingPage() {
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6">
                     <span className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Send Payment</span>
-                    <motion.div
+                    <div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                     >
                       <FiSend className="w-6 h-6 text-cyan-600" />
-                    </motion.div>
+                    </div>
                   </div>
                   
                   <div className="space-y-6">
                     <div>
                       <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Amount</label>
-                      <motion.div
+                      <div
                         key={activeFeature}
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -418,7 +418,7 @@ export default function LandingPage() {
                         className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent"
                       >
                         ${(1250.00 + activeFeature * 127.50).toLocaleString()}
-                      </motion.div>
+                      </div>
                     </div>
                     
                     <div>
@@ -426,19 +426,19 @@ export default function LandingPage() {
                       <div className="text-lg text-slate-700 font-medium">john@example.com</div>
                     </div>
                     
-                    <motion.button
+                    <button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-cyan-500/30 transition-all duration-300"
                     >
                       Send Now
-                    </motion.button>
+                    </button>
                   </div>
                   
                   {/* Live indicators */}
                   <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200">
                     <div className="flex items-center space-x-2">
-                      <motion.div
+                      <div
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
                         className="w-2 h-2 bg-emerald-500 rounded-full"
@@ -458,21 +458,21 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section with Animation */}
       <section className="py-20 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
-        <motion.div
+        <div
           animate={{ x: ['0%', '100%', '0%'] }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
           className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent"
         />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <motion.div
+          <div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -482,11 +482,11 @@ export default function LandingPage() {
               Trusted by thousands worldwide
             </h2>
             <p className="text-xl text-slate-300">Real numbers from real users</p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <motion.div
+              <div
                 key={stat.label}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -494,22 +494,22 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05, y: -5 }}
                 className="text-center group"
               >
-                <motion.div
+                <div
                   className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl mb-4 group-hover:shadow-lg group-hover:shadow-cyan-500/30 transition-all duration-300"
                   whileHover={{ rotate: 10 }}
                 >
                   <stat.icon className="w-8 h-8 text-white" />
-                </motion.div>
-                <motion.div
+                </div>
+                <div
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
                   transition={{ delay: 0.5 + index * 0.1, type: "spring", stiffness: 200 }}
                   className="text-4xl font-bold text-white mb-2"
                 >
                   {stat.value}
-                </motion.div>
+                </div>
                 <div className="text-slate-300 font-medium">{stat.label}</div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -519,13 +519,13 @@ export default function LandingPage() {
       <section id="features" className="py-32 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-cyan-50"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <motion.div
+          <div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-center mb-20"
           >
-            <motion.div
+            <div
               initial={{ scale: 0 }}
               whileInView={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
@@ -533,7 +533,7 @@ export default function LandingPage() {
             >
               <FiTarget className="w-4 h-4 text-cyan-600 mr-2" />
               <span className="text-cyan-700 font-semibold text-sm">Powerful Features</span>
-            </motion.div>
+            </div>
             <h2 className="text-5xl font-bold mb-6">
               <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                 Everything you need for
@@ -547,11 +547,11 @@ export default function LandingPage() {
               Built with security, speed, and simplicity in mind. Start accepting and sending 
               cryptocurrency payments with our cutting-edge technology.
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {features.map((feature, index) => (
-              <motion.div
+              <div
                 key={feature.title}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -563,18 +563,18 @@ export default function LandingPage() {
                 }}
                 className="group relative"
               >
-                <motion.div
+                <div
                   className={`absolute inset-0 bg-gradient-to-r ${feature.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-all duration-300`}
                 />
                 
                 <div className="relative bg-white rounded-2xl p-8 shadow-lg border border-slate-200 hover:shadow-2xl hover:border-slate-300 transition-all duration-300">
-                  <motion.div
+                  <div
                     whileHover={{ rotate: 360, scale: 1.1 }}
                     transition={{ duration: 0.6 }}
                     className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:shadow-lg transition-all duration-300`}
                   >
                     <feature.icon className="w-8 h-8 text-white" />
-                  </motion.div>
+                  </div>
                   
                   <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-cyan-600 group-hover:to-blue-600 group-hover:bg-clip-text transition-all duration-300">
                     {feature.title}
@@ -582,19 +582,19 @@ export default function LandingPage() {
                   <p className="text-slate-600 leading-relaxed">{feature.description}</p>
                   
                   {/* Hover effect indicator */}
-                  <motion.div
+                  <div
                     initial={{ width: 0 }}
                     whileHover={{ width: "100%" }}
                     transition={{ duration: 0.3 }}
                     className={`h-1 bg-gradient-to-r ${feature.color} rounded-full mt-6`}
                   />
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
           {/* Interactive Feature Showcase */}
-          <motion.div
+          <div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -618,7 +618,7 @@ export default function LandingPage() {
                     { label: "Success rate", value: "99.97%", color: "text-blue-400" },
                     { label: "Network fees", value: "$0.02", color: "text-purple-400" }
                   ].map((metric, index) => (
-                    <motion.div
+                    <div
                       key={metric.label}
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
@@ -627,13 +627,13 @@ export default function LandingPage() {
                     >
                       <span className="text-slate-400">{metric.label}</span>
                       <span className={`font-bold text-xl ${metric.color}`}>{metric.value}</span>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </div>
               
               <div className="relative">
-                <motion.div
+                <div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                   className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-2xl blur-xl"
@@ -641,14 +641,14 @@ export default function LandingPage() {
                 <div className="relative bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700">
                   <div className="space-y-4">
                     {[1, 2, 3].map((_, index) => (
-                      <motion.div
+                      <div
                         key={index}
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.2 }}
                         className="flex items-center space-x-4 p-3 bg-slate-700/50 rounded-lg"
                       >
-                        <motion.div
+                        <div
                           animate={{ scale: [1, 1.2, 1] }}
                           transition={{ duration: 2, repeat: Infinity, delay: index * 0.5 }}
                           className="w-3 h-3 bg-green-400 rounded-full"
@@ -660,26 +660,26 @@ export default function LandingPage() {
                         <div className="text-green-400 font-mono text-sm">
                           +{(Math.random() * 1000).toFixed(2)} USDC
                         </div>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
       <section className="py-32 bg-gradient-to-br from-cyan-50 to-blue-50 relative overflow-hidden">
-        <motion.div
+        <div
           animate={{ rotate: 360 }}
           transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
           className="absolute top-20 right-20 w-40 h-40 bg-gradient-to-r from-cyan-300/20 to-blue-300/20 rounded-full blur-2xl"
         />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <motion.div
+          <div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -697,11 +697,11 @@ export default function LandingPage() {
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
               Join thousands of satisfied users who trust LancerPay for their crypto payments
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <motion.div
+              <div
                 key={testimonial.name}
                 initial={{ opacity: 0, y: 50, rotateY: 45 }}
                 whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
@@ -714,21 +714,21 @@ export default function LandingPage() {
                 className="group"
               >
                 <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200 hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
-                  <motion.div
+                  <div
                     className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   />
                   
                   <div className="relative z-10">
                     <div className="flex items-center space-x-1 mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <motion.div
+                        <div
                           key={i}
                           initial={{ scale: 0 }}
                           whileInView={{ scale: 1 }}
                           transition={{ delay: i * 0.1 + index * 0.1 }}
                         >
                           <FiStar className="w-5 h-5 text-yellow-400 fill-current" />
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
                     
@@ -737,7 +737,7 @@ export default function LandingPage() {
                     </p>
                     
                     <div className="flex items-center space-x-4">
-                      <motion.div
+                      <div
                         whileHover={{ scale: 1.1 }}
                         transition={{ type: "spring", stiffness: 300 }}
                       >
@@ -746,7 +746,7 @@ export default function LandingPage() {
                           alt={testimonial.name}
                           className="w-12 h-12 rounded-full object-cover ring-2 ring-cyan-500/20"
                         />
-                      </motion.div>
+                      </div>
                       <div>
                         <div className="font-bold text-slate-900">{testimonial.name}</div>
                         <div className="text-slate-500 text-sm">{testimonial.role}</div>
@@ -754,7 +754,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -763,7 +763,7 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="py-32 bg-gradient-to-br from-slate-900 via-cyan-900 to-blue-900 relative overflow-hidden">
         {/* Animated background elements */}
-        <motion.div
+        <div
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 180, 360]
@@ -775,7 +775,7 @@ export default function LandingPage() {
           }}
           className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl"
         />
-        <motion.div
+        <div
           animate={{
             scale: [1.2, 1, 1.2],
             rotate: [360, 180, 0]
@@ -789,12 +789,12 @@ export default function LandingPage() {
         />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
-          <motion.div
+          <div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <motion.div
+            <div
               initial={{ scale: 0 }}
               whileInView={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
@@ -802,7 +802,7 @@ export default function LandingPage() {
             >
               <FiHeart className="w-4 h-4 text-cyan-400 mr-2" />
               <span className="text-cyan-300 font-semibold text-sm">Join the Revolution</span>
-            </motion.div>
+            </div>
 
             <h2 className="text-6xl font-bold text-white mb-8 leading-tight">
               Ready to transform
@@ -816,13 +816,13 @@ export default function LandingPage() {
               and global cryptocurrency transactions.
             </p>
             
-            <motion.div
+            <div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-6 justify-center mb-16"
             >
-              <motion.div
+              <div
                 whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400 }}
@@ -831,22 +831,22 @@ export default function LandingPage() {
                   href={isAuthenticated ? "/home" : "/auth/login"}
                   className="group relative inline-flex items-center justify-center px-10 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden"
                 >
-                  <motion.div
+                  <div
                     className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   />
                   <span className="relative z-10 mr-3">
                     {isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
                   </span>
-                  <motion.div
+                  <div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
                     <FiArrowRight className="relative z-10 w-6 h-6" />
-                  </motion.div>
+                  </div>
                 </Link>
-              </motion.div>
+              </div>
 
-              <motion.div
+              <div
                 whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400 }}
@@ -858,11 +858,11 @@ export default function LandingPage() {
                   <FiEye className="mr-3 group-hover:scale-110 transition-transform" />
                   Watch Demo
                 </Link>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
 
             {/* Trust indicators */}
-            <motion.div
+            <div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
@@ -874,7 +874,7 @@ export default function LandingPage() {
                 "24/7 monitoring",
                 "Global compliance"
               ].map((feature, index) => (
-                <motion.div
+                <div
                   key={feature}
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
@@ -883,10 +883,10 @@ export default function LandingPage() {
                 >
                   <FiShield className="w-4 h-4 text-cyan-400" />
                   <span className="text-sm font-medium">{feature}</span>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -897,7 +897,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid md:grid-cols-5 gap-8 mb-16">
             <div className="md:col-span-2">
-              <motion.div
+              <div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 className="flex items-center space-x-3 mb-6"
@@ -910,7 +910,7 @@ export default function LandingPage() {
                     height={48}
                     className="rounded-xl"
                   />
-                  <motion.div
+                  <div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                     className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl opacity-20 blur-sm"
@@ -919,7 +919,7 @@ export default function LandingPage() {
                 <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                   LancerPay
                 </span>
-              </motion.div>
+              </div>
               <p className="text-slate-400 leading-relaxed mb-6 max-w-md">
                 The future of digital payments. Fast, secure, and global cryptocurrency 
                 transactions for the modern world.
@@ -1000,7 +1000,7 @@ export default function LandingPage() {
             ))}
           </div>
 
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center"
@@ -1008,25 +1008,25 @@ export default function LandingPage() {
             <p className="text-slate-400 mb-4 md:mb-0">
               © 2024 LancerPay. All rights reserved.
             </p>
-            <motion.div
+            <div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
               className="flex items-center space-x-2 text-slate-400"
             >
-              <motion.div
+              <div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
                 className="w-2 h-2 bg-green-400 rounded-full"
               />
               <span className="text-sm">All systems operational</span>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </footer>
 
       {/* Scroll to top button */}
-      <motion.button
+      <button
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.1 }}
@@ -1035,7 +1035,7 @@ export default function LandingPage() {
         className="fixed bottom-8 right-8 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 flex items-center justify-center z-50"
       >
         <FiChevronDown className="w-5 h-5 rotate-180" />
-      </motion.button>
+      </button>
     </div>
   )
 }

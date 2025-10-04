@@ -84,7 +84,7 @@ export function Dashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="flex items-center justify-center h-96">
-          <motion.div
+          <div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full"
@@ -98,7 +98,7 @@ export function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <motion.div 
+        <div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4"
@@ -111,33 +111,33 @@ export function Dashboard() {
           </div>
           
           <div className="flex items-center gap-3">
-            <motion.button
+            <button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleRefresh}
               disabled={isRefreshing}
               className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <motion.div
+              <div
                 animate={isRefreshing ? { rotate: 360 } : {}}
                 transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0, ease: "linear" }}
               >
                 <FiRefreshCw className="h-4 w-4" />
-              </motion.div>
+              </div>
               Refresh
-            </motion.button>
+            </button>
             
-            <motion.div whileHover={{ scale: 1.02 }}>
+            <div whileHover={{ scale: 1.02 }}>
               <Link href="/send" className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors">
                 <FiSend className="h-4 w-4" />
                 Send Money
               </Link>
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Portfolio Overview */}
-        <motion.div 
+        <div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl shadow-lg p-6 mb-8 overflow-hidden relative"
@@ -155,7 +155,7 @@ export function Dashboard() {
             </div>
             
             <AnimatePresence mode="wait">
-              <motion.div
+              <div
                 key={isBalanceVisible ? 'visible' : 'hidden'}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -165,8 +165,8 @@ export function Dashboard() {
                 <div className="text-4xl font-bold text-gray-900 mb-2">
                   {isBalanceVisible ? formatUsdValue(totalBalance) : '••••••'}
                 </div>
-              </motion.div>
-            </AnimatePresence>
+              </div>
+            </>
             
             <div className="flex items-center gap-2">
               <span className="text-gray-500 text-sm">
@@ -174,10 +174,10 @@ export function Dashboard() {
               </span>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Quick Actions */}
-        <motion.div 
+        <div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -189,7 +189,7 @@ export function Dashboard() {
             { icon: FiCreditCard, label: 'Cards', href: '/cards', color: 'bg-purple-500' },
             { icon: FiUsers, label: 'Wallets', href: '/wallets', color: 'bg-orange-500' }
           ].map((action, index) => (
-            <motion.div
+            <div
               key={action.label}
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
@@ -206,13 +206,13 @@ export function Dashboard() {
                 </div>
                 <span className="text-sm font-medium text-gray-900">{action.label}</span>
               </Link>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Transactions */}
-          <motion.div 
+          <div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
@@ -243,7 +243,7 @@ export function Dashboard() {
                   </div>
                 ) : (
                   transactions.slice(0, 5).map((transaction, index) => (
-                    <motion.div
+                    <div
                       key={transaction.transactionId}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -283,15 +283,15 @@ export function Dashboard() {
                           {transaction.status}
                         </span>
                       </div>
-                    </motion.div>
+                    </div>
                   ))
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Wallets & Payment Requests */}
-          <motion.div 
+          <div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
@@ -380,7 +380,7 @@ export function Dashboard() {
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

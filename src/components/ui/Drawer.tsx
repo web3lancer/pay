@@ -153,14 +153,14 @@ export function Drawer({
                     </div>
                   )}
                   {showCloseButton && (
-                    <motion.button
+                    <button
                       className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
                       onClick={onClose}
                       whileTap={{ scale: 0.9 }}
                       transition={{ duration: 0.2 }}
                     >
                       <FiX className="h-5 w-5" />
-                    </motion.button>
+                    </button>
                   )}
                 </div>
               )}

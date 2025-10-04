@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { FiCopy, FiCheck, FiDownload, FiShare2 } from 'react-icons/fi'
-import QRCode from 'react-qr-code'
 
 interface QRCodeGeneratorProps {
   username: string
@@ -134,7 +133,7 @@ export function QRCodeGenerator({
   }
 
   return (
-    <motion.div
+    <div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6"
@@ -223,6 +222,6 @@ export function QRCodeGenerator({
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }

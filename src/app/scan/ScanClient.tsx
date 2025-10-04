@@ -116,7 +116,7 @@ export function ScanClient() {
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <motion.div
+        <div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -195,7 +195,7 @@ export function ScanClient() {
 
           {/* Processing State */}
           {isProcessing && (
-            <motion.div
+            <div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="bg-white rounded-xl shadow-sm border border-neutral-200 p-8 text-center"
@@ -203,12 +203,12 @@ export function ScanClient() {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
               <h3 className="text-lg font-semibold text-neutral-900 mb-2">Processing QR Code</h3>
               <p className="text-neutral-600">Analyzing scanned data...</p>
-            </motion.div>
+            </div>
           )}
 
           {/* Scanned Result */}
           {scannedData && !isProcessing && (
-            <motion.div
+            <div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6"
@@ -305,9 +305,9 @@ export function ScanClient() {
                   </button>
                 )}
               </div>
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       </div>
 
       {/* QR Scanner Modal */}

@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <motion.div
+        <div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -131,7 +131,7 @@ export default function ForgotPasswordPage() {
               </>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

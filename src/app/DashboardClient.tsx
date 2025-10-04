@@ -189,7 +189,7 @@ export function DashboardClient() {
     return (
       <AppShell>
         <div className="flex items-center justify-center min-h-screen">
-          <motion.div
+          <div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full"
@@ -203,7 +203,7 @@ export function DashboardClient() {
     <AppShell>
       <div className="space-y-6 pb-20 md:pb-6">
         {/* Welcome Header */}
-        <motion.div
+        <div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex justify-between items-start"
@@ -216,7 +216,7 @@ export function DashboardClient() {
           </div>
           
           <div className="flex gap-2">
-            <motion.button
+            <button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleRefresh}
@@ -224,20 +224,20 @@ export function DashboardClient() {
               className="p-2 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
             >
               <FiRefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            </motion.button>
+            </button>
             
-            <motion.button
+            <button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="p-2 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
             >
               <FiBell className="h-4 w-4" />
-            </motion.button>
+            </button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Portfolio Overview */}
-        <motion.div
+        <div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -259,18 +259,18 @@ export function DashboardClient() {
                   ) : (
                     <h2 className="text-3xl font-bold">••••••</h2>
                   )}
-                  <motion.button
+                  <button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setBalanceVisible(!balanceVisible)}
                     className="text-primary-100 hover:text-white transition-colors"
                   >
                     {balanceVisible ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
-                  </motion.button>
+                  </button>
                 </div>
               </div>
               
-              <motion.div
+              <div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.3, type: "spring" }}
@@ -288,11 +288,11 @@ export function DashboardClient() {
                 <span className="text-sm font-medium">
                   {formatPercentage(portfolio.portfolioChange24h)}
                 </span>
-              </motion.div>
+              </div>
             </div>
 
             {balanceVisible && (
-              <motion.div
+              <div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -305,19 +305,19 @@ export function DashboardClient() {
                   {portfolio.totalBalanceChange24h >= 0 ? '+' : ''}
                   {formatCurrency(portfolio.totalBalanceChange24h)}
                 </span>
-              </motion.div>
+              </div>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Quick Actions */}
-        <motion.div
+        <div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4"
         >
-          <motion.button
+          <button
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => window.location.href = '/send'}
@@ -328,9 +328,9 @@ export function DashboardClient() {
             </div>
             <h3 className="font-semibold text-neutral-900">Send</h3>
             <p className="text-sm text-neutral-600">Transfer crypto</p>
-          </motion.button>
+          </button>
 
-          <motion.button
+          <button
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => window.location.href = '/scan'}
@@ -341,9 +341,9 @@ export function DashboardClient() {
             </div>
             <h3 className="font-semibold text-neutral-900">Scan</h3>
             <p className="text-sm text-neutral-600">QR payments</p>
-          </motion.button>
+          </button>
 
-          <motion.button
+          <button
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowQRGenerator(true)}
@@ -354,9 +354,9 @@ export function DashboardClient() {
             </div>
             <h3 className="font-semibold text-neutral-900">Receive</h3>
             <p className="text-sm text-neutral-600">Show QR code</p>
-          </motion.button>
+          </button>
 
-          <motion.button
+          <button
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => window.location.href = '/exchange'}
@@ -367,11 +367,11 @@ export function DashboardClient() {
             </div>
             <h3 className="font-semibold text-neutral-900">Swap</h3>
             <p className="text-sm text-neutral-600">Exchange crypto</p>
-          </motion.button>
-        </motion.div>
+          </button>
+        </div>
 
         {/* Wallet Balances */}
-        <motion.div
+        <div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -379,7 +379,7 @@ export function DashboardClient() {
         >
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-neutral-900">Your Assets</h2>
-            <motion.button
+            <button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.location.href = '/wallets'}
@@ -387,12 +387,12 @@ export function DashboardClient() {
             >
               <FiCreditCard className="h-4 w-4" />
               Manage Wallets
-            </motion.button>
+            </button>
           </div>
 
           <div className="space-y-4">
             {portfolio.wallets.map((wallet, index) => (
-              <motion.div
+              <div
                 key={wallet.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -427,15 +427,15 @@ export function DashboardClient() {
                     <span>{formatPercentage(wallet.change24h)}</span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Market Overview & Recent Activity Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Market Overview */}
-          <motion.div
+          <div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -462,7 +462,7 @@ export function DashboardClient() {
 
             <div className="space-y-4">
               {marketData.map((coin, index) => (
-                <motion.div
+                <div
                   key={coin.symbol}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -505,13 +505,13 @@ export function DashboardClient() {
                       <span>{formatPercentage(coin.change24h)}</span>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Recent Activity */}
-          <motion.div
+          <div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
@@ -519,19 +519,19 @@ export function DashboardClient() {
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-neutral-900">Recent Activity</h2>
-              <motion.button
+              <button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.href = '/transactions'}
                 className="text-primary-600 hover:text-primary-700 text-sm font-medium"
               >
                 View All
-              </motion.button>
+              </button>
             </div>
 
             <div className="space-y-4">
               {recentActivity.slice(0, 5).map((activity, index) => (
-                <motion.div
+                <div
                   key={activity.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -563,23 +563,23 @@ export function DashboardClient() {
                       {formatCurrency(activity.usdValue)}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* QR Generator Modal */}
-        <AnimatePresence>
+        <>
           {showQRGenerator && user && (
-            <motion.div
+            <div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
               onClick={() => setShowQRGenerator(false)}
             >
-              <motion.div
+              <div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
@@ -599,10 +599,10 @@ export function DashboardClient() {
                     Close
                   </button>
                 </div>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
     </AppShell>
   )

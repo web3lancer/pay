@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import { FiPlus, FiCopy, FiDownload, FiShare2, FiX, FiCheck } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
-import QRCode from 'react-qr-code'
 import { AppShell } from '@/components/layout/AppShell'
 
 // Mock data for payment history
@@ -68,7 +67,7 @@ export function HistoryClient() {
 
           <div className="space-y-4">
             {paymentHistory.map((request, index) => (
-              <motion.div 
+              <div 
                 key={request.id}
                 className={`p-4 border rounded-lg ${
                   request.status === 'completed' 
@@ -135,7 +134,7 @@ export function HistoryClient() {
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
 
             {paymentHistory.length === 0 && (

@@ -143,15 +143,15 @@ export function QRScanner({ isOpen, onClose, onScan, title = "Scan QR Code" }: Q
   if (!isOpen) return null
 
   return (
-    <AnimatePresence>
-      <motion.div
+    <>
+      <div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center z-50"
         onClick={onClose}
       >
-        <motion.div
+        <div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
@@ -200,7 +200,7 @@ export function QRScanner({ isOpen, onClose, onScan, title = "Scan QR Code" }: Q
                   
                   {/* Scanning Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <motion.div
+                    <div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                       className="w-48 h-48 border-2 border-primary-500 rounded-lg"
@@ -209,12 +209,12 @@ export function QRScanner({ isOpen, onClose, onScan, title = "Scan QR Code" }: Q
                       <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-primary-500"></div>
                       <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-primary-500"></div>
                       <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-primary-500"></div>
-                    </motion.div>
+                    </div>
                   </div>
 
                   {/* Scanning Animation */}
                   {isScanning && (
-                    <motion.div
+                    <div
                       initial={{ y: -100 }}
                       animate={{ y: 300 }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -268,8 +268,8 @@ export function QRScanner({ isOpen, onClose, onScan, title = "Scan QR Code" }: Q
 
           {/* Hidden canvas for image processing */}
           <canvas ref={canvasRef} className="hidden" />
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </div>
+    </>
   )
 }

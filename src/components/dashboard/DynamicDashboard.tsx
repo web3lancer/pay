@@ -147,14 +147,14 @@ export function DynamicDashboard() {
   }
 
   return (
-    <motion.div
+    <div
       initial="hidden"
       animate="visible"
       variants={containerVariants}
       className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50"
     >
       {/* Hero Section */}
-      <motion.div variants={itemVariants} className="px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+      <div variants={itemVariants} className="px-4 sm:px-6 lg:px-8 pt-8 pb-12">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <motion.h1 
@@ -176,7 +176,7 @@ export function DynamicDashboard() {
           </div>
 
           {/* Portfolio Overview */}
-          <motion.div 
+          <div 
             variants={itemVariants}
             className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8 border border-gray-100"
           >
@@ -204,7 +204,7 @@ export function DynamicDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <motion.div 
+              <div 
                 className="text-center md:text-left"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
@@ -226,12 +226,12 @@ export function DynamicDashboard() {
                     ({portfolio.changePercent >= 0 ? '+' : ''}{formatCurrency(portfolio.change24h)})
                   </span>
                 </div>
-              </motion.div>
+              </div>
 
               <div className="md:col-span-2">
                 <div className="grid grid-cols-2 gap-4">
                   {portfolio.assets.slice(0, 4).map((asset, index) => (
-                    <motion.div
+                    <div
                       key={asset.symbol}
                       className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors cursor-pointer"
                       whileHover={{ scale: 1.05 }}
@@ -247,15 +247,15 @@ export function DynamicDashboard() {
                       <p className="font-semibold text-gray-900">
                         {balanceVisible ? formatCurrency(asset.value) : '••••'}
                       </p>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Quick Actions */}
-          <motion.div variants={itemVariants} className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          <div variants={itemVariants} className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             {[
               { icon: FiSend, label: 'Send', color: 'blue', href: '/send' },
               { icon: FiDownload, label: 'Receive', color: 'green', href: '/receive' },
@@ -276,10 +276,10 @@ export function DynamicDashboard() {
                 <p className="font-medium text-gray-900">{action.label}</p>
               </motion.a>
             ))}
-          </motion.div>
+          </div>
 
           {/* Market Prices */}
-          <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-gray-900">Market Prices</h3>
@@ -287,7 +287,7 @@ export function DynamicDashboard() {
               </div>
               <div className="space-y-4">
                 {Object.entries(prices).map(([symbol, data], index) => (
-                  <motion.div
+                  <div
                     key={symbol}
                     className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                     initial={{ opacity: 0, x: -20 }}
@@ -318,7 +318,7 @@ export function DynamicDashboard() {
                         </span>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -351,9 +351,9 @@ export function DynamicDashboard() {
               </div>
               
               <div className="space-y-3">
-                <AnimatePresence>
+                <>
                   {filteredTransactions.map((tx, index) => (
-                    <motion.div
+                    <div
                       key={tx.id}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -397,9 +397,9 @@ export function DynamicDashboard() {
                           {tx.status}
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
-                </AnimatePresence>
+                </>
               </div>
               
               {filteredTransactions.length === 0 && (
@@ -408,9 +408,9 @@ export function DynamicDashboard() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }

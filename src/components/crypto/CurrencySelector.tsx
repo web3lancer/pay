@@ -47,7 +47,7 @@ export function CurrencySelector({
         </label>
       )}
 
-      <motion.button
+      <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
@@ -84,13 +84,13 @@ export function CurrencySelector({
             isOpen && "transform rotate-180"
           )}
         />
-      </motion.button>
+      </button>
 
-      <AnimatePresence>
+      <>
         {isOpen && (
           <>
             {/* Backdrop */}
-            <motion.div
+            <div
               className="fixed inset-0 z-40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -100,7 +100,7 @@ export function CurrencySelector({
             />
 
             {/* Dropdown */}
-            <motion.div
+            <div
               className={cn(
                 "absolute z-50 w-full min-w-[240px] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg",
                 dropdownPosition === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'
@@ -115,7 +115,7 @@ export function CurrencySelector({
             >
               <div className="max-h-60 overflow-y-auto p-1">
                 {currencies.map((currency) => (
-                  <motion.div
+                  <div
                     key={currency.id}
                     onClick={() => handleSelect(currency)}
                     className={cn(
@@ -150,13 +150,13 @@ export function CurrencySelector({
                         <p className="text-sm font-medium">{currency.balance.formatted}</p>
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           </>
         )}
-      </AnimatePresence>
+      </>
     </div>
   );
 }
