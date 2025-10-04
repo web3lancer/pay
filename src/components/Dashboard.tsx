@@ -157,16 +157,11 @@ export function Dashboard() {
             <AnimatePresence mode="wait">
               <div
                 key={isBalanceVisible ? 'visible' : 'hidden'}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
+              <div>
                 <div className="text-4xl font-bold text-gray-900 mb-2">
                   {isBalanceVisible ? formatUsdValue(totalBalance) : '••••••'}
                 </div>
               </div>
-            </>
             
             <div className="flex items-center gap-2">
               <span className="text-gray-500 text-sm">

@@ -418,23 +418,14 @@ export function TwoFactorSettings({ onClose }: TwoFactorSettingsProps) {
             </div>
           </div>
         )}
-      </>
 
       {/* Main Content */}
-      <AnimatePresence mode="wait">
-        <div
-          key={step}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.2 }}
-        >
+        <div key={step}>
           {step === 'overview' && renderOverview()}
           {step === 'setup' && renderSetup()}
           {step === 'recovery' && renderRecovery()}
           {step === 'disable' && renderDisable()}
         </div>
-      </>
     </div>
   )
 }

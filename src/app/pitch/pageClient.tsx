@@ -389,17 +389,11 @@ export function PitchClient() {
 
           {/* Content */}
           <div className="flex-1 px-8 pb-24">
-            <div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="h-full flex items-center"
-            >
+            <div className="h-full flex items-center">
               {slides[currentSlide].content}
             </div>
           </div>
         </div>
-      </>
 
       {/* Controls */}
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
