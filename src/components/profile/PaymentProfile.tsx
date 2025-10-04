@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { FiCopy, FiCheck, FiShare2, FiExternalLink, FiCamera, FiUser } from 'react-icons/fi'
 import QRCode from 'react-qr-code'
 import { formatCryptoAmount } from '@/lib/utils'

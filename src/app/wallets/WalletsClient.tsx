@@ -10,7 +10,6 @@ import { formatCurrency, formatCryptoAmount, shortenAddress } from '@/lib/utils'
 import EmptyState from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 
-// import { motion } from 'framer-motion'
 // import { FiSend, FiDownload, FiRepeat, FiMoreVertical, FiPlus } from 'react-icons/fi'
 
 

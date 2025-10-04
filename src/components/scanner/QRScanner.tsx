@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { FiX, FiUpload, FiZap } from 'react-icons/fi'
 
 interface QRScannerProps {

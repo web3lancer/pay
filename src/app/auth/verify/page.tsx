@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { FiCheck, FiX, FiLoader } from 'react-icons/fi'
 import Link from 'next/link'
 import { SearchParamsWrapper } from '@/components/SearchParamsWrapper'

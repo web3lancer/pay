@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { 
   FiPlay, FiPause, FiChevronLeft, FiChevronRight, FiZap, FiShield, 
   FiGlobe, FiTrendingUp, FiUsers, FiDollarSign, FiTarget, FiPocket,

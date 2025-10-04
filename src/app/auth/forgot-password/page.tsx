@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { FiMail, FiArrowLeft } from 'react-icons/fi'
 import { account } from '@/lib/appwrite'
 import Link from 'next/link'

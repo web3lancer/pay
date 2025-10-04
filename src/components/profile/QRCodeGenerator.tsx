@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { motion } from 'framer-motion'
 import { FiCopy, FiCheck, FiDownload, FiShare2 } from 'react-icons/fi'
 import QRCode from 'react-qr-code'
 

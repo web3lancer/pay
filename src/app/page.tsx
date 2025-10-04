@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
-import { motion, AnimatePresence } from 'framer-motion'
 import { 
   FiSend, FiDownload, FiCode, FiShield, FiGlobe, FiZap, 
   FiArrowRight, FiCheck, FiStar, FiUsers, FiTrendingUp,

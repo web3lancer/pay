@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { FiCamera, FiUpload, FiArrowLeft, FiUser, FiDollarSign } from 'react-icons/fi'
 import { QRScanner } from '@/components/scanner/QRScanner'
 import { AppShell } from '@/components/layout/AppShell'

@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { motion, AnimatePresence } from 'framer-motion'
 import { FiShield, FiKey, FiSmartphone, FiDownload, FiCheck, FiX, FiLoader } from 'react-icons/fi'
 import QRCode from 'react-qr-code'
 

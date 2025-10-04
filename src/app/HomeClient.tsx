@@ -1,7 +1,6 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { motion } from 'framer-motion'
 import { FiUser, FiMail, FiShield, FiLogOut } from 'react-icons/fi'
 import { AppShell } from '@/components/layout/AppShell'
 import { GuestSessionButton } from '@/components/auth/GuestSessionButton'

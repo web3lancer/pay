@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { FiChevronDown } from 'react-icons/fi'
 import { cn } from '@/lib/utils'
 

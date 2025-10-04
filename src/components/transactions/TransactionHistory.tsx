@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { FiArrowUp, FiArrowDown, FiRefreshCw, FiFilter, FiSearch, FiExternalLink } from 'react-icons/fi'
 import { formatCryptoAmount, formatCurrency, formatTimeAgo, formatAddress, getTransactionStatusColor, getTransactionStatusBg } from '@/lib/utils'
 

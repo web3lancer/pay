@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
 import { account } from '@/lib/appwrite'
 import Link from 'next/link'

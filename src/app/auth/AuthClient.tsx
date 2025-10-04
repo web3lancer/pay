@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, Suspense } from 'react'
-import { motion } from 'framer-motion'
 import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiLoader, FiShield, FiGithub } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
 import { useAuth } from '@/contexts/AuthContext'
