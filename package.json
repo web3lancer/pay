@@ -13,6 +13,7 @@
     "@aptos-labs/wallet-adapter-react": "^7.0.1",
     "appwrite": "^18.1.1",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.23.22",
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

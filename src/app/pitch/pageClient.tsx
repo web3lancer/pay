@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   FiPlay, FiPause, FiChevronLeft, FiChevronRight, FiZap, FiShield, 
   FiGlobe, FiTrendingUp, FiUsers, FiDollarSign, FiTarget, FiPocket,
@@ -357,7 +358,7 @@ export function PitchClient() {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <AnimatePresence mode="wait">
-        <div
+        <motion.div
           key={currentSlide}
           initial={{ opacity: 0, x: 100 }}
           animate={{ opacity: 1, x: 0 }}
@@ -393,7 +394,8 @@ export function PitchClient() {
               {slides[currentSlide].content}
             </div>
           </div>
-        </div>
+        </motion.div>
+      </AnimatePresence>
 
       {/* Controls */}
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">

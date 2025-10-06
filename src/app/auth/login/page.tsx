@@ -1,6 +1,6 @@
 'use client'
 
-import { AuthClient } from '../AuthClient'
+import { AuthClient } from '@/components/auth/AuthClient'
 
 import { useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
