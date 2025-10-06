@@ -2,6 +2,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { FiShield, FiKey, FiSmartphone, FiDownload, FiCheck, FiX, FiLoader } from 'react-icons/fi'
 
@@ -390,42 +391,41 @@ export function TwoFactorSettings({ onClose }: TwoFactorSettingsProps) {
   return (
     <div className="max-w-md mx-auto">
       {/* Error/Success Messages */}
-      <>
-        {error && (
-          <div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3"
-          >
-            <div className="flex items-center gap-2">
-              <FiX className="h-4 w-4 text-red-500" />
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3"
+        >
+          <div className="flex items-center gap-2">
+            <FiX className="h-4 w-4 text-red-500" />
+            <p className="text-sm text-red-700">{error}</p>
           </div>
-        )}
+        </motion.div>
+      )}
 
-        {success && (
-          <div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="mb-4 bg-green-50 border border-green-200 rounded-lg p-3"
-          >
-            <div className="flex items-center gap-2">
-              <FiCheck className="h-4 w-4 text-green-500" />
-              <p className="text-sm text-green-700">{success}</p>
-            </div>
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="mb-4 bg-green-50 border border-green-200 rounded-lg p-3"
+        >
+          <div className="flex items-center gap-2">
+            <FiCheck className="h-4 w-4 text-green-500" />
+            <p className="text-sm text-green-700">{success}</p>
           </div>
-        )}
+        </motion.div>
+      )}
 
       {/* Main Content */}
-        <div key={step}>
-          {step === 'overview' && renderOverview()}
-          {step === 'setup' && renderSetup()}
-          {step === 'recovery' && renderRecovery()}
-          {step === 'disable' && renderDisable()}
-        </div>
+      <div key={step}>
+        {step === 'overview' && renderOverview()}
+        {step === 'setup' && renderSetup()}
+        {step === 'recovery' && renderRecovery()}
+        {step === 'disable' && renderDisable()}
+      </div>
     </div>
   )
 }
