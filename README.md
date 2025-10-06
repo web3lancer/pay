@@ -14,11 +14,14 @@ Paylancer is here to fix cross-border payment delays, High transaction fees, Com
 
 ### Aptos
 
+[aptos contracts repo](https://github.com/web3lancer/contracts_aptos_lancerpay)
+
 Powering cross border payment infra on Move. 
 - Smart contracts built with Move language
 - Direct APT payments
 - Payment request system
 - See `docs/APTOS_INTEGRATION.md` for setup guide
+
 
 ## Features
 
