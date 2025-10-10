@@ -1,10 +1,15 @@
 import { getAptosClient, getModuleAddress, isAptosEnabled } from './client';
-import { InputTransactionData } from '@aptos-labs/wallet-adapter-react';
+
+// Type definition for transaction data (removed wallet adapter dependency)
+interface TransactionPayload {
+  function: string;
+  functionArguments: any[];
+}
 
 export async function sendPayment(
   recipient: string,
   amount: number,
-  signAndSubmitTransaction: (transaction: InputTransactionData) => Promise<any>
+  signAndSubmitTransaction: (transaction: { data: TransactionPayload }) => Promise<any>
 ) {
   if (!isAptosEnabled()) return null;
 
@@ -13,7 +18,7 @@ export async function sendPayment(
     throw new Error('Module address not configured');
   }
 
-  const transaction: InputTransactionData = {
+  const transaction = {
     data: {
       function: `${moduleAddress}::payment_system::send_payment`,
       functionArguments: [recipient, amount],
@@ -28,7 +33,7 @@ export async function createPaymentRequest(
   recipient: string,
   amount: number,
   tokenType: string,
-  signAndSubmitTransaction: (transaction: InputTransactionData) => Promise<any>
+  signAndSubmitTransaction: (transaction: { data: TransactionPayload }) => Promise<any>
 ) {
   if (!isAptosEnabled()) return null;
 
@@ -37,7 +42,7 @@ export async function createPaymentRequest(
     throw new Error('Module address not configured');
   }
 
-  const transaction: InputTransactionData = {
+  const transaction = {
     data: {
       function: `${moduleAddress}::payment_system::create_payment_request`,
       functionArguments: [recipient, amount, tokenType],
@@ -51,7 +56,7 @@ export async function createPaymentRequest(
 export async function fulfillPaymentRequest(
   requestOwner: string,
   requestId: number,
-  signAndSubmitTransaction: (transaction: InputTransactionData) => Promise<any>
+  signAndSubmitTransaction: (transaction: { data: TransactionPayload }) => Promise<any>
 ) {
   if (!isAptosEnabled()) return null;
 
@@ -60,7 +65,7 @@ export async function fulfillPaymentRequest(
     throw new Error('Module address not configured');
   }
 
-  const transaction: InputTransactionData = {
+  const transaction = {
     data: {
       function: `${moduleAddress}::payment_system::fulfill_payment_request`,
       functionArguments: [requestOwner, requestId],

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { 
   FiSend, FiDownload, FiCode, FiShield, FiGlobe, FiZap, 
