@@ -11,12 +11,15 @@ import {
   FiCreditCard, FiLock, FiRefreshCw, FiEye, FiHeart,
   FiBarChart, FiTarget, FiPlay, FiChevronDown
 } from 'react-icons/fi'
+import { Web3AuthModal } from '@/components/auth/Web3AuthModal'
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuth()
   const [email, setEmail] = useState('')
   const [activeFeature, setActiveFeature] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
 
   useEffect(() => {
     setIsVisible(true)
@@ -226,24 +229,30 @@ export default function LandingPage() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
                   >
-                    <Link
-                      href="/auth/login"
+                    <button
+                      onClick={() => {
+                        setAuthMode('login')
+                        setAuthModalOpen(true)
+                      }}
                       className="text-slate-600 hover:text-cyan-600 font-medium transition-colors"
                     >
                       Sign In
-                    </Link>
+                    </button>
                   </div>
                   <div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300, delay: 0.6 }}
                   >
-                    <Link
-                      href="/auth/signup"
+                    <button
+                      onClick={() => {
+                        setAuthMode('signup')
+                        setAuthModalOpen(true)
+                      }}
                       className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2.5 rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 font-semibold"
                     >
                       Get Started
-                    </Link>
+                    </button>
                   </div>
                 </>
               )}
@@ -308,9 +317,16 @@ export default function LandingPage() {
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400 }}
                 >
-                  <Link
-                    href={isAuthenticated ? "/home" : "/auth/login"}
-                    className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden"
+                  <button
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        window.location.href = '/home'
+                      } else {
+                        setAuthMode('login')
+                        setAuthModalOpen(true)
+                      }
+                    }}
+                    className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden w-full"
                   >
                     <div
                       className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -319,7 +335,7 @@ export default function LandingPage() {
                       {isAuthenticated ? 'Go to Dashboard' : 'Start Free Today'}
                     </span>
                     <FiArrowRight className="relative z-10 group-hover:translate-x-1 transition-transform" />
-                  </Link>
+                  </button>
                 </div>
 
                 <div
@@ -828,8 +844,15 @@ export default function LandingPage() {
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
-                <Link
-                  href={isAuthenticated ? "/home" : "/auth/login"}
+                <button
+                  onClick={() => {
+                    if (isAuthenticated) {
+                      window.location.href = '/home'
+                    } else {
+                      setAuthMode('login')
+                      setAuthModalOpen(true)
+                    }
+                  }}
                   className="group relative inline-flex items-center justify-center px-10 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden"
                 >
                   <div
@@ -844,7 +867,7 @@ export default function LandingPage() {
                   >
                     <FiArrowRight className="relative z-10 w-6 h-6" />
                   </div>
-                </Link>
+                </button>
               </div>
 
               <div
@@ -1037,6 +1060,13 @@ export default function LandingPage() {
       >
         <FiChevronDown className="w-5 h-5 rotate-180" />
       </button>
+
+      {/* Web3 Auth Modal */}
+      <Web3AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        mode={authMode}
+      />
     </div>
   )
 }

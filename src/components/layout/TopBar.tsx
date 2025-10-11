@@ -19,6 +19,7 @@ import {
   FiShield
 } from 'react-icons/fi'
 import { getUserProfileLink, canonizeUsername } from '@/lib/appwrite'
+import { Web3AuthModal } from '@/components/auth/Web3AuthModal'
 
 interface TopBarProps {
   onMenuClick: () => void
@@ -29,6 +30,8 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
   const { account, userProfile, logout, isLoading, isAuthenticated } = useAuth()
   const router = useRouter()
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
 
   const handleSignOut = async () => {
     try {
@@ -187,22 +190,28 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
 
                   {/* Authentication Options */}
                   <div className="py-1">
-                    <Link
-                      href="/auth/login"
-                      className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
-                      onClick={() => setProfileDropdownOpen(false)}
+                    <button
+                      onClick={() => {
+                        setProfileDropdownOpen(false)
+                        setAuthMode('login')
+                        setAuthModalOpen(true)
+                      }}
+                      className="flex w-full items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
                     >
                       <FiUser className="mr-3 h-4 w-4 text-neutral-500" />
                       Sign In
-                    </Link>
-                    <Link
-                      href="/auth/signup"
-                      className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
-                      onClick={() => setProfileDropdownOpen(false)}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setProfileDropdownOpen(false)
+                        setAuthMode('signup')
+                        setAuthModalOpen(true)
+                      }}
+                      className="flex w-full items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
                     >
                       <FiPlus className="mr-3 h-4 w-4 text-neutral-500" />
                       Sign Up
-                    </Link>
+                    </button>
                   </div>
                 </>
               )}
@@ -210,6 +219,13 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
           )}
         </div>
       </div>
+
+      {/* Web3 Auth Modal */}
+      <Web3AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        mode={authMode}
+      />
     </header>
   )
 }
