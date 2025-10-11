@@ -13,9 +13,10 @@ interface Web3AuthModalProps {
   isOpen: boolean
   onClose: () => void
   mode: 'login' | 'signup'
+  onSwitchMode?: (mode: 'login' | 'signup') => void
 }
 
-export function Web3AuthModal({ isOpen, onClose, mode }: Web3AuthModalProps) {
+export function Web3AuthModal({ isOpen, onClose, mode, onSwitchMode }: Web3AuthModalProps) {
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
@@ -177,8 +178,9 @@ export function Web3AuthModal({ isOpen, onClose, mode }: Web3AuthModalProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    handleClose()
-                    // Parent component will handle switching modes
+                    if (onSwitchMode) {
+                      onSwitchMode('signup')
+                    }
                   }}
                   className="text-cyan-600 hover:text-cyan-700 font-medium"
                   disabled={isSubmitting}
@@ -192,8 +194,9 @@ export function Web3AuthModal({ isOpen, onClose, mode }: Web3AuthModalProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    handleClose()
-                    // Parent component will handle switching modes
+                    if (onSwitchMode) {
+                      onSwitchMode('login')
+                    }
                   }}
                   className="text-cyan-600 hover:text-cyan-700 font-medium"
                   disabled={isSubmitting}

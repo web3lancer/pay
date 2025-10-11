@@ -1066,6 +1066,7 @@ export default function LandingPage() {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         mode={authMode}
+        onSwitchMode={(newMode) => setAuthMode(newMode)}
       />
     </div>
   )
