@@ -650,7 +650,7 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  
 
   const handleWalletAuth = async () => {
     if (!email || !email.includes('@')) {
@@ -854,4 +854,3 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       </div>
     </Modal>
   )
-}
