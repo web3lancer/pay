@@ -114,7 +114,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 overflow-hidden">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div
+        <motion.div
           animate={{
             x: [0, 100, 0],
             y: [0, -100, 0],
@@ -127,7 +127,7 @@ export default function LandingPage() {
           }}
           className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-cyan-300/20 to-blue-300/20 rounded-full blur-xl"
         />
-        <div
+        <motion.div
           animate={{
             x: [0, -150, 0],
             y: [0, 100, 0],
@@ -140,7 +140,7 @@ export default function LandingPage() {
           }}
           className="absolute top-1/3 right-20 w-40 h-40 bg-gradient-to-r from-purple-300/20 to-pink-300/20 rounded-full blur-xl"
         />
-        <div
+        <motion.div
           animate={{
             x: [0, 200, 0],
             y: [0, -50, 0],
@@ -177,7 +177,7 @@ export default function LandingPage() {
                   height={40}
                   className="rounded-xl shadow-lg"
                 />
-                <div
+                <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                   className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl opacity-20 blur-sm"
@@ -209,7 +209,7 @@ export default function LandingPage() {
 
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
-                <div
+                <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 300 }}
@@ -220,10 +220,10 @@ export default function LandingPage() {
                   >
                     Dashboard
                   </Link>
-                </div>
+                </motion.div>
               ) : (
                 <>
-                  <div
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
@@ -237,8 +237,8 @@ export default function LandingPage() {
                     >
                       Sign In
                     </button>
-                  </div>
-                  <div
+                  </motion.div>
+                  <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300, delay: 0.6 }}
@@ -252,7 +252,7 @@ export default function LandingPage() {
                     >
                       Get Started
                     </button>
-                  </div>
+                  </motion.div>
                 </>
               )}
             </div>
