@@ -277,7 +277,7 @@ export default function LandingPage() {
               >
                 <FiZap className="w-4 h-4 text-cyan-600 mr-2" />
                 <span className="text-cyan-700 font-semibold text-sm">The Future of Digital Payments is Here</span>
-              </div>
+              </motion.div>
 
               <h1 className="text-6xl lg:text-7xl font-bold leading-tight mb-8">
                 <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -349,8 +349,8 @@ export default function LandingPage() {
                     <FiPlay className="mr-2 group-hover:scale-110 transition-transform" />
                     Try Demo
                   </Link>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               <motion.div
                 initial={{ opacity: 0 }}
@@ -363,7 +363,7 @@ export default function LandingPage() {
                   { icon: FiCheck, text: "Global coverage" },
                   { icon: FiCheck, text: "Instant transfers" }
                 ].map((item, index) => (
-                  <div
+                  <motion.div
                     key={index}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -372,10 +372,10 @@ export default function LandingPage() {
                   >
                     <item.icon className="w-4 h-4 text-emerald-500 mr-2" />
                     <span className="font-medium">{item.text}</span>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Interactive Demo Card */}
             <motion.div
@@ -420,13 +420,13 @@ export default function LandingPage() {
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                     >
                       <FiSend className="w-6 h-6 text-cyan-600" />
-                    </div>
+                    </motion.div>
                   </div>
                   
                   <div className="space-y-6">
                     <div>
                       <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Amount</label>
-                      <div
+                      <motion.div
                         key={activeFeature}
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -434,7 +434,7 @@ export default function LandingPage() {
                         className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent"
                       >
                         ${(1250.00 + activeFeature * 127.50).toLocaleString()}
-                      </div>
+                      </motion.div>
                     </div>
                     
                     <div>
@@ -442,13 +442,13 @@ export default function LandingPage() {
                       <div className="text-lg text-slate-700 font-medium">john@example.com</div>
                     </div>
                     
-                    <button
+                    <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-cyan-500/30 transition-all duration-300"
                     >
                       Send Now
-                    </button>
+                    </motion.button>
                   </div>
                   
                   {/* Live indicators */}
@@ -474,7 +474,7 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -502,7 +502,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div
+              <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -510,12 +510,12 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05, y: -5 }}
                 className="text-center group"
               >
-                <div
+                <motion.div
                   className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl mb-4 group-hover:shadow-lg group-hover:shadow-cyan-500/30 transition-all duration-300"
                   whileHover={{ rotate: 10 }}
                 >
                   <stat.icon className="w-8 h-8 text-white" />
-                </div>
+                </motion.div>
                 <motion.div
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
@@ -523,9 +523,9 @@ export default function LandingPage() {
                   className="text-4xl font-bold text-white mb-2"
                 >
                   {stat.value}
-                </div>
+                </motion.div>
                 <div className="text-slate-300 font-medium">{stat.label}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -549,7 +549,7 @@ export default function LandingPage() {
             >
               <FiTarget className="w-4 h-4 text-cyan-600 mr-2" />
               <span className="text-cyan-700 font-semibold text-sm">Powerful Features</span>
-            </div>
+            </motion.div>
             <h2 className="text-5xl font-bold mb-6">
               <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                 Everything you need for
@@ -563,11 +563,11 @@ export default function LandingPage() {
               Built with security, speed, and simplicity in mind. Start accepting and sending 
               cryptocurrency payments with our cutting-edge technology.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {features.map((feature, index) => (
-              <div
+              <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -590,7 +590,7 @@ export default function LandingPage() {
                     className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:shadow-lg transition-all duration-300`}
                   >
                     <feature.icon className="w-8 h-8 text-white" />
-                  </div>
+                  </motion.div>
                   
                   <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-cyan-600 group-hover:to-blue-600 group-hover:bg-clip-text transition-all duration-300">
                     {feature.title}
@@ -604,10 +604,10 @@ export default function LandingPage() {
                     transition={{ duration: 0.3 }}
                     className={`h-1 bg-gradient-to-r ${feature.color} rounded-full mt-6`}
                   />
-                </motion.div>
+                </div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
 
           {/* Interactive Feature Showcase */}
           <motion.div
@@ -634,7 +634,7 @@ export default function LandingPage() {
                     { label: "Success rate", value: "99.97%", color: "text-blue-400" },
                     { label: "Network fees", value: "$0.02", color: "text-purple-400" }
                   ].map((metric, index) => (
-                    <div
+                    <motion.div
                       key={metric.label}
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
@@ -643,7 +643,7 @@ export default function LandingPage() {
                     >
                       <span className="text-slate-400">{metric.label}</span>
                       <span className={`font-bold text-xl ${metric.color}`}>{metric.value}</span>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
@@ -657,7 +657,7 @@ export default function LandingPage() {
                 <div className="relative bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700">
                   <div className="space-y-4">
                     {[1, 2, 3].map((_, index) => (
-                      <div
+                      <motion.div
                         key={index}
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileInView={{ opacity: 1, scale: 1 }}
@@ -676,13 +676,13 @@ export default function LandingPage() {
                         <div className="text-green-400 font-mono text-sm">
                           +{(Math.random() * 1000).toFixed(2)} USDC
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -713,11 +713,11 @@ export default function LandingPage() {
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
               Join thousands of satisfied users who trust LancerPay for their crypto payments
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div
+              <motion.div
                 key={testimonial.name}
                 initial={{ opacity: 0, y: 50, rotateY: 45 }}
                 whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
@@ -737,14 +737,14 @@ export default function LandingPage() {
                   <div className="relative z-10">
                     <div className="flex items-center space-x-1 mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <div
+                        <motion.div
                           key={i}
                           initial={{ scale: 0 }}
                           whileInView={{ scale: 1 }}
                           transition={{ delay: i * 0.1 + index * 0.1 }}
                         >
                           <FiStar className="w-5 h-5 text-yellow-400 fill-current" />
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                     
@@ -762,7 +762,7 @@ export default function LandingPage() {
                           alt={testimonial.name}
                           className="w-12 h-12 rounded-full object-cover ring-2 ring-cyan-500/20"
                         />
-                      </div>
+                      </motion.div>
                       <div>
                         <div className="font-bold text-slate-900">{testimonial.name}</div>
                         <div className="text-slate-500 text-sm">{testimonial.role}</div>
@@ -770,7 +770,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -818,7 +818,7 @@ export default function LandingPage() {
             >
               <FiHeart className="w-4 h-4 text-cyan-400 mr-2" />
               <span className="text-cyan-300 font-semibold text-sm">Join the Revolution</span>
-            </div>
+            </motion.div>
 
             <h2 className="text-6xl font-bold text-white mb-8 leading-tight">
               Ready to transform
@@ -865,9 +865,9 @@ export default function LandingPage() {
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
                     <FiArrowRight className="relative z-10 w-6 h-6" />
-                  </div>
+                  </motion.div>
                 </button>
-              </div>
+              </motion.div>
 
               <motion.div
                 whileHover={{ scale: 1.05, y: -5 }}
@@ -881,8 +881,8 @@ export default function LandingPage() {
                   <FiEye className="mr-3 group-hover:scale-110 transition-transform" />
                   Watch Demo
                 </Link>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Trust indicators */}
             <motion.div
@@ -897,7 +897,7 @@ export default function LandingPage() {
                 "24/7 monitoring",
                 "Global compliance"
               ].map((feature, index) => (
-                <div
+                <motion.div
                   key={feature}
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
@@ -906,10 +906,10 @@ export default function LandingPage() {
                 >
                   <FiShield className="w-4 h-4 text-cyan-400" />
                   <span className="text-sm font-medium">{feature}</span>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -942,7 +942,7 @@ export default function LandingPage() {
                 <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                   LancerPay
                 </span>
-              </div>
+              </motion.div>
               <p className="text-slate-400 leading-relaxed mb-6 max-w-md">
                 The future of digital payments. Fast, secure, and global cryptocurrency 
                 transactions for the modern world.
@@ -1043,13 +1043,13 @@ export default function LandingPage() {
                 className="w-2 h-2 bg-green-400 rounded-full"
               />
               <span className="text-sm">All systems operational</span>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </footer>
 
       {/* Scroll to top button */}
-      <button
+      <motion.button
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.1 }}
@@ -1058,7 +1058,7 @@ export default function LandingPage() {
         className="fixed bottom-8 right-8 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 flex items-center justify-center z-50"
       >
         <FiChevronDown className="w-5 h-5 rotate-180" />
-      </button>
+      </motion.button>
 
       {/* Web3 Auth Modal */}
       {/* Unified Auth Modal */}
@@ -1069,4 +1069,3 @@ export default function LandingPage() {
     </div>
   )
 }
-
