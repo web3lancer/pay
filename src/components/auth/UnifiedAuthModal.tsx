@@ -165,9 +165,9 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       const challengeArray = crypto.getRandomValues(new Uint8Array(32))
       const challenge = btoa(String.fromCharCode(...challengeArray))
 
-      // Determine RP ID and origin from environment or window
+      // Determine RP ID from environment or window
       const rpId = process.env.NEXT_PUBLIC_PASSKEY_RP_ID || window.location.hostname
-      const origin = process.env.NEXT_PUBLIC_PASSKEY_ORIGIN || window.location.origin
+      const rpName = process.env.NEXT_PUBLIC_PASSKEY_RP_NAME || 'LancerPay'
 
       let credential
       let isRegistration = false
@@ -176,34 +176,42 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       if (userExists) {
         try {
           credential = await startAuthentication({
-            challenge,
-            rpId,
+            optionsJSON: {
+              challenge,
+              rpId,
+              timeout: 60000,
+              userVerification: 'preferred',
+            }
           })
         } catch (authError: any) {
           // If authentication fails, try registration
           if (authError.name === 'NotAllowedError' || authError.message?.includes('No credentials')) {
-            toast.info('No passkey found. Creating a new one...')
+            toast('No passkey found. Creating a new one...', { icon: 'ℹ️' })
             isRegistration = true
             
             credential = await startRegistration({
-              challenge,
-              rp: {
-                name: process.env.NEXT_PUBLIC_PASSKEY_RP_NAME || 'LancerPay',
-                id: rpId,
-              },
-              user: {
-                id: email,
-                name: email,
-                displayName: email,
-              },
-              pubKeyCredParams: [
-                { alg: -7, type: 'public-key' },  // ES256
-                { alg: -257, type: 'public-key' } // RS256
-              ],
-              authenticatorSelection: {
-                userVerification: 'preferred',
-                residentKey: 'preferred',
-              },
+              optionsJSON: {
+                challenge,
+                rp: {
+                  name: rpName,
+                  id: rpId,
+                },
+                user: {
+                  id: email,
+                  name: email,
+                  displayName: email,
+                },
+                pubKeyCredParams: [
+                  { alg: -7, type: 'public-key' },  // ES256
+                  { alg: -257, type: 'public-key' } // RS256
+                ],
+                authenticatorSelection: {
+                  userVerification: 'preferred',
+                  residentKey: 'preferred',
+                },
+                timeout: 60000,
+                attestation: 'none',
+              }
             })
           } else {
             throw authError
@@ -213,24 +221,28 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
         // New user - register directly
         isRegistration = true
         credential = await startRegistration({
-          challenge,
-          rp: {
-            name: process.env.NEXT_PUBLIC_PASSKEY_RP_NAME || 'LancerPay',
-            id: rpId,
-          },
-          user: {
-            id: email,
-            name: email,
-            displayName: email,
-          },
-          pubKeyCredParams: [
-            { alg: -7, type: 'public-key' },  // ES256
-            { alg: -257, type: 'public-key' } // RS256
-          ],
-          authenticatorSelection: {
-            userVerification: 'preferred',
-            residentKey: 'preferred',
-          },
+          optionsJSON: {
+            challenge,
+            rp: {
+              name: rpName,
+              id: rpId,
+            },
+            user: {
+              id: email,
+              name: email,
+              displayName: email,
+            },
+            pubKeyCredParams: [
+              { alg: -7, type: 'public-key' },  // ES256
+              { alg: -257, type: 'public-key' } // RS256
+            ],
+            authenticatorSelection: {
+              userVerification: 'preferred',
+              residentKey: 'preferred',
+            },
+            timeout: 60000,
+            attestation: 'none',
+          }
         })
       }
 
@@ -252,8 +264,7 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
         functionId,
         JSON.stringify(payload),
         false,
-        endpoint,
-        'POST'
+        endpoint
       )
 
       const result = JSON.parse(execution.responseBody)
