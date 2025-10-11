@@ -3,12 +3,11 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { Web3AuthModal } from '@/components/auth/Web3AuthModal'
+import { UnifiedAuthModal } from '@/components/auth/UnifiedAuthModal'
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [authModalOpen, setAuthModalOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const { isAuthenticated } = useAuth()
 
   const menuItems = [
@@ -19,14 +18,7 @@ const Header: React.FC = () => {
     { name: 'Support', href: '#' }
   ]
 
-  const handleSignIn = () => {
-    setAuthMode('login')
-    setAuthModalOpen(true)
-    setIsMenuOpen(false)
-  }
-
-  const handleGetStarted = () => {
-    setAuthMode('signup')
+  const handleLogin = () => {
     setAuthModalOpen(true)
     setIsMenuOpen(false)
   }
@@ -68,20 +60,12 @@ const Header: React.FC = () => {
                   Dashboard
                 </Link>
               ) : (
-                <>
-                  <button 
-                    onClick={handleSignIn}
-                    className="px-6 py-2 text-cyan-400 border border-cyan-400 rounded-full hover:bg-cyan-400 hover:text-slate-900 transition-all hover:scale-105"
-                  >
-                    Sign In
-                  </button>
-                  <button 
-                    onClick={handleGetStarted}
-                    className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full font-medium shadow-lg hover:scale-105 hover:shadow-cyan-500/25 transition-all"
-                  >
-                    Get Started
-                  </button>
-                </>
+                <button 
+                  onClick={handleLogin}
+                  className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full font-medium shadow-lg hover:scale-105 hover:shadow-cyan-500/25 transition-all"
+                >
+                  Login
+                </button>
               )}
             </div>
 
@@ -111,7 +95,7 @@ const Header: React.FC = () => {
                 </a>
               ))}
               
-              <div className="pt-4 space-y-3">
+              <div className="pt-4">
                 {isAuthenticated ? (
                   <Link
                     href="/home"
@@ -120,20 +104,12 @@ const Header: React.FC = () => {
                     Dashboard
                   </Link>
                 ) : (
-                  <>
-                    <button 
-                      onClick={handleSignIn}
-                      className="w-full px-6 py-3 text-cyan-400 border border-cyan-400 rounded-full hover:bg-cyan-400 hover:text-slate-900 transition-all"
-                    >
-                      Sign In
-                    </button>
-                    <button 
-                      onClick={handleGetStarted}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full font-medium shadow-lg"
-                    >
-                      Get Started
-                    </button>
-                  </>
+                  <button 
+                    onClick={handleLogin}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full font-medium shadow-lg"
+                  >
+                    Login
+                  </button>
                 )}
               </div>
             </div>
@@ -141,12 +117,10 @@ const Header: React.FC = () => {
         </nav>
       </header>
 
-      {/* Web3 Auth Modal */}
-      <Web3AuthModal
+      {/* Unified Auth Modal */}
+      <UnifiedAuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        mode={authMode}
-        onSwitchMode={(newMode) => setAuthMode(newMode)}
       />
     </>
   )

@@ -11,7 +11,7 @@ import {
   FiCreditCard, FiLock, FiRefreshCw, FiEye, FiHeart,
   FiBarChart, FiTarget, FiPlay, FiChevronDown
 } from 'react-icons/fi'
-import { Web3AuthModal } from '@/components/auth/Web3AuthModal'
+import { UnifiedAuthModal } from '@/components/auth/UnifiedAuthModal'
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuth()
@@ -19,7 +19,6 @@ export default function LandingPage() {
   const [activeFeature, setActiveFeature] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const [authModalOpen, setAuthModalOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
 
   useEffect(() => {
     setIsVisible(true)
@@ -231,7 +230,7 @@ export default function LandingPage() {
                   >
                     <button
                       onClick={() => {
-                        setAuthMode('login')
+                        setAuthModalOpen(true)
                         setAuthModalOpen(true)
                       }}
                       className="text-slate-600 hover:text-cyan-600 font-medium transition-colors"
@@ -246,7 +245,7 @@ export default function LandingPage() {
                   >
                     <button
                       onClick={() => {
-                        setAuthMode('signup')
+                        setAuthModalOpen(true)
                         setAuthModalOpen(true)
                       }}
                       className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2.5 rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 font-semibold"
@@ -322,7 +321,7 @@ export default function LandingPage() {
                       if (isAuthenticated) {
                         window.location.href = '/home'
                       } else {
-                        setAuthMode('login')
+                        setAuthModalOpen(true)
                         setAuthModalOpen(true)
                       }
                     }}
@@ -849,7 +848,7 @@ export default function LandingPage() {
                     if (isAuthenticated) {
                       window.location.href = '/home'
                     } else {
-                      setAuthMode('login')
+                      setAuthModalOpen(true)
                       setAuthModalOpen(true)
                     }
                   }}
@@ -1062,11 +1061,10 @@ export default function LandingPage() {
       </button>
 
       {/* Web3 Auth Modal */}
-      <Web3AuthModal
+      {/* Unified Auth Modal */}
+      <UnifiedAuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        mode={authMode}
-        onSwitchMode={(newMode) => setAuthMode(newMode)}
       />
     </div>
   )
