@@ -3,6 +3,7 @@
 import React from 'react'
 import { usePathname } from 'next/navigation'
 import AppShell from '@/components/layout/AppShell'
+import { RouteGuard } from '@/components/RouteGuard'
 
 // Add more routes that should NOT use AppShell here
 function isMinimalRoute(pathname: string) {
@@ -15,10 +16,16 @@ function isMinimalRoute(pathname: string) {
 
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  
   if (isMinimalRoute(pathname)) {
     // Minimal layout for auth, home, and pitch pages
-    return <>{children}</>
+    return <RouteGuard>{children}</RouteGuard>
   }
-  // AppShell for main app
-  return <AppShell>{children}</AppShell>
+  
+  // AppShell for main app with route guard
+  return (
+    <RouteGuard>
+      <AppShell>{children}</AppShell>
+    </RouteGuard>
+  )
 }
