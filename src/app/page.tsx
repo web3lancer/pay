@@ -164,7 +164,7 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div 
+            <motion.div 
               className="flex items-center space-x-3"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
@@ -186,7 +186,7 @@ export default function LandingPage() {
               <span className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
                 LancerPay
               </span>
-            </div>
+            </motion.div>
             
             <div className="hidden md:flex items-center space-x-8">
               {['Features', 'Pricing', 'About', 'Rates'].map((item, index) => (
@@ -311,7 +311,7 @@ export default function LandingPage() {
                 transition={{ delay: 1, duration: 0.8 }}
                 className="flex flex-col sm:flex-row gap-6 mb-12"
               >
-                <div
+                <motion.div
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400 }}
@@ -335,9 +335,9 @@ export default function LandingPage() {
                     </span>
                     <FiArrowRight className="relative z-10 group-hover:translate-x-1 transition-transform" />
                   </button>
-                </div>
+                </motion.div>
 
-                <div
+                <motion.div
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400 }}
@@ -488,7 +488,7 @@ export default function LandingPage() {
         />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div
+          <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -498,7 +498,7 @@ export default function LandingPage() {
               Trusted by thousands worldwide
             </h2>
             <p className="text-xl text-slate-300">Real numbers from real users</p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -604,10 +604,10 @@ export default function LandingPage() {
                     transition={{ duration: 0.3 }}
                     className={`h-1 bg-gradient-to-r ${feature.color} rounded-full mt-6`}
                   />
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Interactive Feature Showcase */}
           <div

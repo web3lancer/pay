@@ -43,23 +43,7 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
   const [otpSent, setOtpSent] = useState(false)
   const router = useRouter()
 
-  // Debounced email check
-  useEffect(() => {
-    if (!email || !email.includes('@')) {
-      setAvailableMethods([])
-      setSelectedMethod(null)
-      setRecommendedMethod(null)
-      setOtpSent(false)
-      return
-    }
-
-    const timer = setTimeout(() => {
-      checkEmailAuthMethods(email)
-    }, 800) // 800ms debounce
-
-    return () => clearTimeout(timer)
-  }, [email, checkEmailAuthMethods])
-
+  // Define checkEmailAuthMethods before useEffect
   const checkEmailAuthMethods = useCallback(async (emailToCheck: string) => {
     if (!emailToCheck || !emailToCheck.includes('@')) return
 
@@ -91,6 +75,23 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       setIsCheckingEmail(false)
     }
   }, [])
+
+  // Debounced email check
+  useEffect(() => {
+    if (!email || !email.includes('@')) {
+      setAvailableMethods([])
+      setSelectedMethod(null)
+      setRecommendedMethod(null)
+      setOtpSent(false)
+      return
+    }
+
+    const timer = setTimeout(() => {
+      checkEmailAuthMethods(email)
+    }, 800) // 800ms debounce
+
+    return () => clearTimeout(timer)
+  }, [email, checkEmailAuthMethods])
 
   const handleOTPAuth = async () => {
     if (!email || !email.includes('@')) {
