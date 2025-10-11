@@ -52,6 +52,7 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       const response = await fetch(`/api/auth/methods?email=${encodeURIComponent(emailToCheck)}`)
       
       if (!response.ok) {
+        console.warn('Auth methods API failed, using fallback')
         throw new Error('Failed to check authentication methods')
       }
 
@@ -61,15 +62,12 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       setAvailableMethods(data.methods)
       setRecommendedMethod(data.recommendedMethod || null)
       
-      // If only one method available and it's OTP, auto-select it
-      if (data.methods.length === 1 && data.methods[0] === 'otp') {
-        setSelectedMethod('otp')
-      }
-      
     } catch (error) {
       console.error('Error checking email:', error)
-      // Fallback to OTP on error
-      setAvailableMethods(['otp'])
+      // Fallback: Offer all methods for new users
+      // This ensures users can always authenticate even if the API fails
+      setAvailableMethods(['passkey', 'wallet', 'otp'])
+      setRecommendedMethod('otp')
       setUserExists(false)
     } finally {
       setIsCheckingEmail(false)
@@ -90,8 +88,22 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       checkEmailAuthMethods(email)
     }, 800) // 800ms debounce
 
-    return () => clearTimeout(timer)
-  }, [email, checkEmailAuthMethods])
+    // Safety timeout to prevent indefinite loading
+    const safetyTimer = setTimeout(() => {
+      if (isCheckingEmail) {
+        console.warn('Auth check timed out, using fallback')
+        setIsCheckingEmail(false)
+        setAvailableMethods(['passkey', 'wallet', 'otp'])
+        setRecommendedMethod('otp')
+        setUserExists(false)
+      }
+    }, 5000) // 5 second timeout
+
+    return () => {
+      clearTimeout(timer)
+      clearTimeout(safetyTimer)
+    }
+  }, [email, checkEmailAuthMethods, isCheckingEmail])
 
   const handleOTPAuth = async () => {
     if (!email || !email.includes('@')) {

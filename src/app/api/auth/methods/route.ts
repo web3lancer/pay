@@ -19,11 +19,23 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Check if API key is configured
+    const apiKey = process.env.APPWRITE_API_KEY
+    if (!apiKey || apiKey.trim() === '') {
+      console.warn('APPWRITE_API_KEY is not configured, using fallback auth methods')
+      // Fallback: Allow all auth methods for new users
+      return NextResponse.json({
+        exists: false,
+        methods: ['passkey', 'wallet', 'otp'],
+        recommendedMethod: 'otp',
+      })
+    }
+
     // Initialize Appwrite client with API key (server-side only)
     const client = new Client()
       .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
       .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!)
-      .setKey(process.env.APPWRITE_API_KEY!)
+      .setKey(apiKey)
 
     const users = new Users(client)
 
@@ -32,10 +44,11 @@ export async function GET(request: NextRequest) {
       const userList = await users.list([`search("${email}")`])
       
       if (userList.total === 0) {
-        // User doesn't exist - show OTP option
+        // User doesn't exist - show all auth methods
         return NextResponse.json({
           exists: false,
-          methods: ['otp'],
+          methods: ['passkey', 'wallet', 'otp'],
+          recommendedMethod: 'otp',
         })
       }
 
@@ -55,10 +68,8 @@ export async function GET(request: NextRequest) {
         methods.push('wallet')
       }
       
-      // If user has no methods set up, fallback to OTP
-      if (methods.length === 0) {
-        methods.push('otp')
-      }
+      // Always allow OTP as a fallback
+      methods.push('otp')
 
       return NextResponse.json({
         exists: true,
@@ -67,10 +78,12 @@ export async function GET(request: NextRequest) {
       })
 
     } catch (error: any) {
+      console.error('User lookup error:', error)
       // If user not found or error, assume new user
       return NextResponse.json({
         exists: false,
-        methods: ['otp'],
+        methods: ['passkey', 'wallet', 'otp'],
+        recommendedMethod: 'otp',
       })
     }
 
