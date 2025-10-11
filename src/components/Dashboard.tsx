@@ -157,11 +157,11 @@ export function Dashboard() {
             <AnimatePresence mode="wait">
               <div
                 key={isBalanceVisible ? 'visible' : 'hidden'}
-              <div>
-                <div className="text-4xl font-bold text-gray-900 mb-2">
-                  {isBalanceVisible ? formatUsdValue(totalBalance) : '••••••'}
-                </div>
+                className="text-4xl font-bold text-gray-900 mb-2"
+              >
+                {isBalanceVisible ? formatUsdValue(totalBalance) : '••••••'}
               </div>
+            </AnimatePresence>
             
             <div className="flex items-center gap-2">
               <span className="text-gray-500 text-sm">
