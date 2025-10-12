@@ -319,8 +319,8 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Welcome!"
-      description="Sign in or create your account"
+      title="Connect to LancerPay"
+      description="Choose your preferred authentication method"
       size="md"
       closeOnOutsideClick={!isSubmitting}
     >
