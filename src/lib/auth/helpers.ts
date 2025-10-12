@@ -4,10 +4,12 @@
  */
 
 import { account, functions } from '@/lib/appwrite'
+import { startRegistration, startAuthentication } from '@simplewebauthn/browser'
 
 // ============================================
 // PASSKEY AUTHENTICATION (Two-Step Flow)
 // Follows ignore1/function_appwrite_passkey/USAGE.md
+// Uses SimpleWebAuthn for automatic ArrayBuffer conversions
 // ============================================
 
 export interface PasskeyAuthOptions {
@@ -22,47 +24,6 @@ export interface PasskeyAuthResult {
   }
   error?: string
   code?: 'no_passkey' | 'cancelled' | 'not_supported' | 'verification_failed' | 'server_error' | 'wallet_conflict'
-}
-
-// Helper: Convert base64url to ArrayBuffer
-function base64UrlToBuffer(base64url: string): ArrayBuffer {
-  const padding = '='.repeat((4 - (base64url.length % 4)) % 4)
-  const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/') + padding
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
-  }
-  return bytes.buffer
-}
-
-// Helper: Convert ArrayBuffer to base64url
-function bufferToBase64Url(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i])
-  }
-  const base64 = btoa(binary)
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-}
-
-// Helper: Convert PublicKeyCredential to JSON
-function publicKeyCredentialToJSON(pubKeyCred: any): any {
-  if (Array.isArray(pubKeyCred)) {
-    return pubKeyCred.map(publicKeyCredentialToJSON)
-  }
-  if (pubKeyCred instanceof ArrayBuffer) {
-    return bufferToBase64Url(pubKeyCred)
-  }
-  if (pubKeyCred && typeof pubKeyCred === 'object') {
-    const obj: any = {}
-    for (const key in pubKeyCred) {
-      obj[key] = publicKeyCredentialToJSON(pubKeyCred[key])
-    }
-    return obj
-  }
-  return pubKeyCred
 }
 
 // Helper: Call Appwrite function
@@ -93,6 +54,7 @@ async function callPasskeyFunction(path: string, body?: any) {
 /**
  * Register a new passkey
  * Two-step flow: options → verify
+ * Uses SimpleWebAuthn for automatic ArrayBuffer conversions
  */
 async function registerPasskey(email: string): Promise<PasskeyAuthResult> {
   try {
@@ -102,40 +64,19 @@ async function registerPasskey(email: string): Promise<PasskeyAuthResult> {
       userName: email.split('@')[0]
     })
 
-    // Step 2: Prepare options for browser
-    const publicKeyOptions: any = { ...options }
-    publicKeyOptions.challenge = base64UrlToBuffer(options.challenge)
-    publicKeyOptions.user.id = base64UrlToBuffer(options.user.id)
-    
-    if (publicKeyOptions.excludeCredentials) {
-      publicKeyOptions.excludeCredentials = 
-        publicKeyOptions.excludeCredentials.map((c: any) => ({
-          ...c,
-          id: base64UrlToBuffer(c.id)
-        }))
-    }
+    // Step 2: Create credential using SimpleWebAuthn
+    // Handles all ArrayBuffer conversions automatically!
+    const credential = await startRegistration(options)
 
-    // Step 3: Create credential with browser
-    const credential = await navigator.credentials.create({
-      publicKey: publicKeyOptions
-    }) as PublicKeyCredential
-    
-    if (!credential) {
-      throw new Error('Credential creation failed')
-    }
-
-    // Step 4: Convert to JSON
-    const credentialJSON = publicKeyCredentialToJSON(credential)
-
-    // Step 5: Verify with server
+    // Step 3: Verify with server
     const result = await callPasskeyFunction('/register/verify', {
       userId: email,
-      attestation: credentialJSON,
+      attestation: credential,
       challenge: options.challenge,
       challengeToken: options.challengeToken
     })
 
-    // Step 6: Create session
+    // Step 4: Create session
     if (result.token?.secret) {
       await account.createSession(result.token.userId, result.token.secret)
     }
@@ -172,6 +113,7 @@ async function registerPasskey(email: string): Promise<PasskeyAuthResult> {
 /**
  * Authenticate with existing passkey
  * Two-step flow: options → verify
+ * Uses SimpleWebAuthn for automatic ArrayBuffer conversions
  */
 async function authenticatePasskey(email: string): Promise<PasskeyAuthResult> {
   try {
@@ -180,39 +122,19 @@ async function authenticatePasskey(email: string): Promise<PasskeyAuthResult> {
       userId: email
     })
 
-    // Step 2: Prepare options for browser
-    const publicKeyOptions: any = { ...options }
-    publicKeyOptions.challenge = base64UrlToBuffer(options.challenge)
-    
-    if (publicKeyOptions.allowCredentials) {
-      publicKeyOptions.allowCredentials = 
-        publicKeyOptions.allowCredentials.map((c: any) => ({
-          ...c,
-          id: base64UrlToBuffer(c.id)
-        }))
-    }
+    // Step 2: Get assertion using SimpleWebAuthn
+    // Handles all ArrayBuffer conversions automatically!
+    const assertion = await startAuthentication(options)
 
-    // Step 3: Get assertion from browser
-    const assertion = await navigator.credentials.get({
-      publicKey: publicKeyOptions
-    }) as PublicKeyCredential
-    
-    if (!assertion) {
-      throw new Error('Authentication failed')
-    }
-
-    // Step 4: Convert to JSON
-    const assertionJSON = publicKeyCredentialToJSON(assertion)
-
-    // Step 5: Verify with server
+    // Step 3: Verify with server
     const result = await callPasskeyFunction('/auth/verify', {
       userId: email,
-      assertion: assertionJSON,
+      assertion: assertion,
       challenge: options.challenge,
       challengeToken: options.challengeToken
     })
 
-    // Step 6: Create session
+    // Step 4: Create session
     if (result.token?.secret) {
       await account.createSession(result.token.userId, result.token.secret)
     }
