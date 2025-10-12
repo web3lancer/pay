@@ -46,12 +46,40 @@ export function Web3AuthModal({ isOpen, onClose, mode, onSwitchMode }: Web3AuthM
       const result = await authenticateWithWallet({ email })
 
       if (!result.success) {
-        toast.error(result.error || 'Authentication failed')
+        // Provide detailed, user-friendly error messages based on error codes
+        switch (result.code) {
+          case 'metamask_not_installed':
+            toast.error('MetaMask not installed. Opening download page...', { duration: 4000 })
+            break
+          case 'no_account':
+            toast.error('No wallet account selected. Please select an account in MetaMask.')
+            break
+          case 'signature_rejected':
+            toast.error('Signature rejected. You must sign the message to authenticate.')
+            break
+          case 'passkey_conflict':
+            toast.error('⚠️ This email is linked to a passkey account. Please sign in with your passkey first, then link your wallet from settings.', { duration: 6000 })
+            break
+          case 'wallet_mismatch':
+            toast.error('⚠️ This email is already linked to a different wallet address. Please use the original wallet or a different email.', { duration: 6000 })
+            break
+          case 'account_exists':
+            toast.error('⚠️ This email already has an account. Please sign in with Email OTP or Passkey first.', { duration: 6000 })
+            break
+          case 'invalid_signature':
+            toast.error('Invalid signature. Please try again.')
+            break
+          default:
+            toast.error(result.error || 'Authentication failed')
+        }
         return
       }
 
       // Success!
-      toast.success(mode === 'login' ? 'Signed in successfully!' : 'Account created successfully!')
+      toast.success(
+        mode === 'login' ? '✅ Signed in successfully!' : '✅ Account created successfully!',
+        { icon: '🦊', duration: 4000 }
+      )
       
       // Close modal and refresh
       onClose()

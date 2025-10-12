@@ -54,7 +54,7 @@ export function Modal({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity" />
         </Transition.Child>
 
         {/* Modal */}
@@ -70,14 +70,14 @@ export function Modal({
           >
             <Dialog.Panel
               className={cn(
-                'w-full transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all',
+                'w-full transform overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-100 transition-all',
                 sizeClasses[size],
                 className
               )}
             >
               {/* Header */}
               {(title || showCloseButton) && (
-                <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5 bg-gradient-to-b from-gray-50 to-white">
                   {title && (
                     <div>
                       <Dialog.Title className="text-lg font-semibold text-gray-900">

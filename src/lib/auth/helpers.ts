@@ -23,6 +23,7 @@ export interface PasskeyAuthResult {
     secret: string
   }
   error?: string
+  code?: 'no_passkey' | 'cancelled' | 'not_supported' | 'verification_failed' | 'server_error'
 }
 
 /**
@@ -113,9 +114,18 @@ export async function authenticateWithPasskey(
     const result = JSON.parse(execution.responseBody)
 
     if (!result.success) {
+      let errorCode: PasskeyAuthResult['code'] = 'server_error'
+      
+      if (result.error?.includes('No passkeys')) {
+        errorCode = 'no_passkey'
+      } else if (result.error?.includes('verification failed')) {
+        errorCode = 'verification_failed'
+      }
+      
       return {
         success: false,
-        error: result.error || 'Authentication failed'
+        error: result.error || 'Authentication failed',
+        code: errorCode
       }
     }
 
@@ -131,18 +141,22 @@ export async function authenticateWithPasskey(
     console.error('Passkey authentication error:', error)
     
     let errorMessage = 'Passkey authentication failed'
+    let errorCode: PasskeyAuthResult['code'] = 'server_error'
     
     if (error.name === 'NotAllowedError') {
       errorMessage = 'Passkey authentication was cancelled'
+      errorCode = 'cancelled'
     } else if (error.name === 'NotSupportedError') {
       errorMessage = 'Passkeys are not supported on this device/browser'
+      errorCode = 'not_supported'
     } else if (error.message) {
       errorMessage = error.message
     }
 
     return {
       success: false,
-      error: errorMessage
+      error: errorMessage,
+      code: errorCode
     }
   }
 }
@@ -160,6 +174,7 @@ export interface WalletAuthResult {
   userId?: string
   secret?: string
   error?: string
+  code?: 'metamask_not_installed' | 'no_account' | 'signature_rejected' | 'passkey_conflict' | 'wallet_mismatch' | 'account_exists' | 'invalid_signature' | 'server_error'
 }
 
 /**
@@ -176,7 +191,8 @@ export async function authenticateWithWallet(
     if (!window.ethereum) {
       return {
         success: false,
-        error: 'MetaMask not installed. Please install MetaMask to continue.'
+        error: 'MetaMask not installed. Please install MetaMask to continue.',
+        code: 'metamask_not_installed'
       }
     }
 
@@ -188,7 +204,8 @@ export async function authenticateWithWallet(
     if (!accounts || accounts.length === 0) {
       return {
         success: false,
-        error: 'No wallet account selected'
+        error: 'No wallet account selected',
+        code: 'no_account'
       }
     }
 
@@ -210,7 +227,8 @@ export async function authenticateWithWallet(
     if (!functionId) {
       return {
         success: false,
-        error: 'Web3 authentication is not configured. Please contact support.'
+        error: 'Web3 authentication is not configured. Please contact support.',
+        code: 'server_error'
       }
     }
 
@@ -226,9 +244,25 @@ export async function authenticateWithWallet(
     const response = JSON.parse(execution.responseBody)
 
     if (execution.responseStatusCode !== 200) {
+      let errorCode: WalletAuthResult['code'] = 'server_error'
+      
+      // Map HTTP status codes to error codes
+      if (execution.responseStatusCode === 401) {
+        errorCode = 'invalid_signature'
+      } else if (execution.responseStatusCode === 403) {
+        if (response.error?.includes('passkey')) {
+          errorCode = 'passkey_conflict'
+        } else if (response.error?.includes('different wallet')) {
+          errorCode = 'wallet_mismatch'
+        } else if (response.error?.includes('Account already exists')) {
+          errorCode = 'account_exists'
+        }
+      }
+      
       return {
         success: false,
-        error: response.error || 'Authentication failed'
+        error: response.error || 'Authentication failed',
+        code: errorCode
       }
     }
 
@@ -245,16 +279,19 @@ export async function authenticateWithWallet(
     console.error('Web3 authentication error:', error)
     
     let errorMessage = 'Authentication failed'
+    let errorCode: WalletAuthResult['code'] = 'server_error'
     
     if (error.code === 4001) {
       errorMessage = 'You rejected the signature request'
+      errorCode = 'signature_rejected'
     } else if (error.message) {
       errorMessage = error.message
     }
 
     return {
       success: false,
-      error: errorMessage
+      error: errorMessage,
+      code: errorCode
     }
   }
 }
