@@ -2,16 +2,17 @@
  * Unified Authentication Modal
  * 
  * Supports Passkey, Web3 Wallet, and OTP authentication
- * All methods are available without checking user existence
+ * Follows ignore1/function_appwrite_passkey/USAGE.md EXACTLY
+ * No interfering hooks, no selectedMethod state - just user actions
  */
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { FiMail, FiLoader, FiKey, FiCreditCard, FiLock } from 'react-icons/fi'
+import { FiMail, FiLoader, FiKey, FiCreditCard, FiLock, FiAlertCircle } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { 
@@ -20,7 +21,8 @@ import {
   sendEmailOTP,
   verifyEmailOTP,
   isMetaMaskInstalled,
-  getMetaMaskDownloadLink
+  getMetaMaskDownloadLink,
+  supportsWebAuthn
 } from '@/lib/auth/helpers'
 
 interface UnifiedAuthModalProps {
@@ -28,85 +30,91 @@ interface UnifiedAuthModalProps {
   onClose: () => void
 }
 
-type AuthMethod = 'passkey' | 'wallet' | 'otp'
-
 export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [otpUserId, setOtpUserId] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [selectedMethod, setSelectedMethod] = useState<AuthMethod | null>(null)
   const [otpSent, setOtpSent] = useState(false)
+  const [statusMessage, setStatusMessage] = useState('')
   const router = useRouter()
 
+  // Check browser support on mount
+  const browserSupportsPasskeys = supportsWebAuthn()
+
   // Show auth methods when valid email is entered
-  const showMethodSelection = email.includes('@') && !selectedMethod
+  const showMethodSelection = email.includes('@') && !otpSent
 
-  // Reset selected method when email changes
-  useEffect(() => {
-    if (!email || !email.includes('@')) {
-      setSelectedMethod(null)
-      setOtpSent(false)
-    }
-  }, [email])
-
-  const handleOTPAuth = async () => {
+  const handleSendOTP = async () => {
     if (!email || !email.includes('@')) {
       toast.error('Please enter a valid email address')
       return
     }
 
     setIsSubmitting(true)
+    setStatusMessage('Sending code to your email...')
 
     try {
-      if (!otpSent) {
-        // Send OTP
-        const result = await sendEmailOTP({ email })
-        
-        if (!result.success) {
-          toast.error(result.error || 'Failed to send OTP')
-          return
-        }
-
-        setOtpUserId(result.userId!)
-        setOtpSent(true)
-        toast.success('OTP sent to your email! Check your inbox.')
-      } else {
-        // Verify OTP
-        if (!otp || otp.length < 6) {
-          toast.error('Please enter the 6-digit code from your email')
-          setIsSubmitting(false)
-          return
-        }
-
-        const result = await verifyEmailOTP({ userId: otpUserId, otp })
-        
-        if (!result.success) {
-          if (result.error?.includes('expired')) {
-            setOtpSent(false)
-            setOtp('')
-          }
-          toast.error(result.error || 'Verification failed')
-          return
-        }
-        
-        // Success!
-        toast.success('Verified! Welcome to LancerPay!')
-        
-        // Force refresh auth context to update immediately
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        // Close modal
-        onClose()
-        
-        // Force a hard reload to ensure all components get the new session
-        window.location.href = '/home'
+      const result = await sendEmailOTP({ email })
+      
+      if (!result.success) {
+        toast.error(result.error || 'Failed to send OTP')
+        setStatusMessage('')
+        setIsSubmitting(false)
+        return
       }
 
+      setOtpUserId(result.userId!)
+      setOtpSent(true)
+      setStatusMessage('')
+      toast.success('📧 Code sent! Check your email.')
     } catch (err: any) {
-      console.error('OTP authentication error:', err)
-      toast.error(err.message || 'Authentication failed. Please try again.')
+      console.error('OTP send error:', err)
+      toast.error(err.message || 'Failed to send code')
+      setStatusMessage('')
     } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleVerifyOTP = async () => {
+    if (!otp || otp.length < 6) {
+      toast.error('Please enter the 6-digit code')
+      return
+    }
+
+    setIsSubmitting(true)
+    setStatusMessage('Verifying code...')
+
+    try {
+      const result = await verifyEmailOTP({ userId: otpUserId, otp })
+      
+      if (!result.success) {
+        if (result.error?.includes('expired')) {
+          setOtpSent(false)
+          setOtp('')
+          toast.error('Code expired. Please request a new one.')
+        } else {
+          toast.error(result.error || 'Invalid code')
+        }
+        setStatusMessage('')
+        setIsSubmitting(false)
+        return
+      }
+      
+      // Success!
+      toast.success('✅ Verified! Welcome to LancerPay!')
+      
+      // Small delay for session to propagate
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      onClose()
+      window.location.href = '/home'
+
+    } catch (err: any) {
+      console.error('OTP verify error:', err)
+      toast.error(err.message || 'Verification failed')
+      setStatusMessage('')
       setIsSubmitting(false)
     }
   }
@@ -117,19 +125,37 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       return
     }
 
+    // Check browser support BEFORE attempting
+    if (!browserSupportsPasskeys) {
+      toast.error('❌ Your browser doesn\'t support passkeys. Please use Email Code or Wallet.', { 
+        duration: 5000 
+      })
+      return
+    }
+
     setIsSubmitting(true)
+    
+    // Show helpful message while waiting for passkey prompt
+    setStatusMessage('Preparing passkey...')
 
     try {
+      // Small delay to show the status message
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      console.log('🔐 Starting passkey authentication for:', email)
+      
       const result = await authenticateWithPasskey({ email })
 
       if (!result.success) {
-        // Provide detailed, user-friendly error messages based on error codes
+        setStatusMessage('')
+        
+        // Provide detailed, user-friendly error messages
         switch (result.code) {
           case 'cancelled':
-            toast.error('Passkey authentication was cancelled', { duration: 3000 })
+            toast.error('Passkey cancelled. Please try again when ready.', { duration: 3000 })
             break
           case 'not_supported':
-            toast.error('Your browser doesn\'t support passkeys. Please try Email OTP or Wallet authentication.', { duration: 5000 })
+            toast.error('Your browser doesn\'t support passkeys. Try Email Code instead.', { duration: 5000 })
             break
           case 'verification_failed':
             toast.error('Passkey verification failed. Please try again.', { duration: 4000 })
@@ -140,10 +166,13 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
           default:
             toast.error(result.error || 'Authentication failed', { duration: 4000 })
         }
+        setIsSubmitting(false)
         return
       }
 
-      // Success! Show contextual message based on whether it was registration or authentication
+      // Success! Show contextual message
+      setStatusMessage('')
+      
       if (result.isRegistration) {
         toast.success('✅ Passkey created successfully!', { 
           icon: '🔐',
@@ -156,19 +185,18 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
         })
       }
       
-      // Force refresh auth context to update immediately
+      console.log('✅ Passkey authentication successful!')
+      
+      // Small delay for session to propagate
       await new Promise(resolve => setTimeout(resolve, 500))
       
-      // Close modal
       onClose()
-      
-      // Force a hard reload to ensure all components get the new session
       window.location.href = '/home'
 
     } catch (err: any) {
-      console.error('Passkey authentication error:', err)
-      toast.error(err.message || 'Passkey authentication failed. Please try again.')
-    } finally {
+      console.error('❌ Passkey authentication error:', err)
+      setStatusMessage('')
+      toast.error(err.message || 'Passkey authentication failed')
       setIsSubmitting(false)
     }
   }
@@ -181,36 +209,40 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
 
     // Check if MetaMask is installed
     if (!isMetaMaskInstalled()) {
-      toast.error('MetaMask not installed. Please install MetaMask to continue.')
+      toast.error('MetaMask not installed. Opening download page...')
       window.open(getMetaMaskDownloadLink(), '_blank')
       return
     }
 
     setIsSubmitting(true)
+    setStatusMessage('Connecting to MetaMask...')
 
     try {
       const result = await authenticateWithWallet({ email })
 
       if (!result.success) {
-        // Provide detailed, user-friendly error messages based on error codes
+        setStatusMessage('')
+        
+        // Provide detailed, user-friendly error messages
         switch (result.code) {
           case 'metamask_not_installed':
             toast.error('MetaMask not installed. Opening download page...', { duration: 4000 })
+            window.open(getMetaMaskDownloadLink(), '_blank')
             break
           case 'no_account':
-            toast.error('No wallet account selected. Please select an account in MetaMask.')
+            toast.error('No wallet selected. Please select an account in MetaMask.')
             break
           case 'signature_rejected':
-            toast.error('Signature rejected. You must sign the message to authenticate.')
+            toast.error('Signature rejected. You must sign to authenticate.')
             break
           case 'passkey_conflict':
-            toast.error('⚠️ This email is linked to a passkey account. Please sign in with your passkey first, then link your wallet from settings.', { duration: 6000 })
+            toast.error('⚠️ This email uses passkey auth. Sign in with passkey first, then link wallet from settings.', { duration: 6000 })
             break
           case 'wallet_mismatch':
-            toast.error('⚠️ This email is already linked to a different wallet address. Please use the original wallet or a different email.', { duration: 6000 })
+            toast.error('⚠️ This email is linked to a different wallet. Use the original wallet or different email.', { duration: 6000 })
             break
           case 'account_exists':
-            toast.error('⚠️ This email already has an account. Please sign in with Email OTP or Passkey first.', { duration: 6000 })
+            toast.error('⚠️ Account exists. Sign in with Email Code or Passkey first.', { duration: 6000 })
             break
           case 'invalid_signature':
             toast.error('Invalid signature. Please try again.')
@@ -218,24 +250,25 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
           default:
             toast.error(result.error || 'Authentication failed')
         }
+        setIsSubmitting(false)
         return
       }
 
       // Success!
+      setStatusMessage('')
       toast.success('✅ Signed in successfully!', { 
         icon: '🦊',
         duration: 4000 
       })
       
-      // Close modal and refresh
       onClose()
       router.push('/home')
       router.refresh()
 
     } catch (err: any) {
-      console.error('Web3 authentication error:', err)
-      toast.error(err.message || 'Authentication failed. Please try again.')
-    } finally {
+      console.error('Wallet authentication error:', err)
+      setStatusMessage('')
+      toast.error(err.message || 'Authentication failed')
       setIsSubmitting(false)
     }
   }
