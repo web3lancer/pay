@@ -37,13 +37,13 @@ function isProtectedRoute(pathname: string): boolean {
 }
 
 export function RouteGuard({ children }: RouteGuardProps) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, loading } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const [showAuthModal, setShowAuthModal] = useState(false)
 
   useEffect(() => {
-    if (isLoading) return
+    if (loading) return
 
     const needsAuth = isProtectedRoute(pathname)
 
@@ -53,10 +53,10 @@ export function RouteGuard({ children }: RouteGuardProps) {
     } else {
       setShowAuthModal(false)
     }
-  }, [isAuthenticated, isLoading, pathname])
+  }, [isAuthenticated, loading, pathname])
 
   // Show loading state while checking auth
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

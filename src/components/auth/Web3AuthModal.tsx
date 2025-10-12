@@ -81,10 +81,14 @@ export function Web3AuthModal({ isOpen, onClose, mode, onSwitchMode }: Web3AuthM
         { icon: '🦊', duration: 4000 }
       )
       
-      // Close modal and refresh
+      // Force refresh auth context to update immediately
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Close modal
       onClose()
-      router.push('/home')
-      router.refresh()
+      
+      // Force a hard reload to ensure all components get the new session
+      window.location.href = '/home'
 
     } catch (err: any) {
       console.error('Web3 authentication error:', err)

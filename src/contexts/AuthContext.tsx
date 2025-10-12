@@ -35,31 +35,81 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null)
   const [loading, setLoading] = useState(true)
+  const [sessionChecked, setSessionChecked] = useState(false)
 
-  // Check authentication status on mount
+  // Check authentication status on mount and when window gains focus
   useEffect(() => {
     checkAuth()
-  }, [])
+    
+    // Re-check auth when window gains focus (user returns to tab)
+    const handleFocus = () => {
+      if (sessionChecked) {
+        checkAuth()
+      }
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [sessionChecked])
 
   const checkAuth = async () => {
     try {
+      // First check if there's an Appwrite session cookie
+      const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID
+      const hasCookie = document.cookie.includes(`a_session_${projectId}`)
+      
+      if (!hasCookie) {
+        // No session cookie, user is not authenticated
+        setUser(null)
+        setLoading(false)
+        setSessionChecked(true)
+        return
+      }
+      
+      // Session cookie exists, verify with Appwrite
       const userData = await getCurrentUser()
-      setUser(userData)
-    } catch (error) {
+      
+      if (userData) {
+        setUser(userData)
+      } else {
+        setUser(null)
+      }
+    } catch (error: any) {
       console.error('Auth check error:', error)
+      // If session is invalid, clear it
       setUser(null)
+      
+      // If error is 401, session is expired/invalid
+      if (error.code === 401 || error.type === 'user_unauthorized') {
+        console.log('Session expired or invalid, clearing...')
+      }
     } finally {
       setLoading(false)
+      setSessionChecked(true)
     }
   }
 
   const refreshUser = useCallback(async () => {
     try {
+      // Check session cookie first
+      const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID
+      const hasCookie = document.cookie.includes(`a_session_${projectId}`)
+      
+      if (!hasCookie) {
+        setUser(null)
+        return
+      }
+      
       const userData = await getCurrentUser()
       setUser(userData)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Refresh user error:', error)
       setUser(null)
+      
+      // If session is invalid, we've already cleared the user
+      if (error.code === 401 || error.type === 'user_unauthorized') {
+        console.log('Session invalid during refresh')
+      }
     }
   }, [])
 

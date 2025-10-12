@@ -94,10 +94,14 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
         // Success!
         toast.success('Verified! Welcome to LancerPay!')
         
-        // Close modal and redirect
+        // Force refresh auth context to update immediately
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Close modal
         onClose()
-        router.push('/home')
-        router.refresh()
+        
+        // Force a hard reload to ensure all components get the new session
+        window.location.href = '/home'
       }
 
     } catch (err: any) {

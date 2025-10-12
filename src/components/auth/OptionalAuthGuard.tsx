@@ -13,7 +13,7 @@ export function OptionalAuthGuard({
   children,
   enhancedFeaturesOnly = false
 }: OptionalAuthGuardProps) {
-  const { isLoading, isAuthenticated } = useAuth()
+  const { loading, isAuthenticated } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -23,13 +23,13 @@ export function OptionalAuthGuard({
 
   useEffect(() => {
     // If authenticated and on auth pages, redirect to home
-    if (!isLoading && isAuthenticated && isAuthPage) {
+    if (!loading && isAuthenticated && isAuthPage) {
       router.push('/')
     }
-  }, [isLoading, isAuthenticated, isAuthPage, router])
+  }, [loading, isAuthenticated, isAuthPage, router])
 
   // Show loading while checking auth (minimal loading for public pages)
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
