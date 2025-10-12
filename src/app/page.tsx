@@ -12,6 +12,7 @@ import {
   FiBarChart, FiTarget, FiPlay, FiChevronDown
 } from 'react-icons/fi'
 import { UnifiedAuthModal } from '@/components/auth/UnifiedAuthModal'
+import { PasskeyTestModal } from '@/components/auth/PasskeyTestModal'
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuth()
@@ -19,6 +20,9 @@ export default function LandingPage() {
   const [activeFeature, setActiveFeature] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  
+  // Toggle to switch between test modal and unified modal
+  const USE_TEST_MODAL = true // Set to false to use UnifiedAuthModal
 
   useEffect(() => {
     setIsVisible(true)
@@ -1041,12 +1045,18 @@ export default function LandingPage() {
         <FiChevronDown className="w-5 h-5 rotate-180" />
       </motion.button>
 
-      {/* Web3 Auth Modal */}
-      {/* Unified Auth Modal */}
-      <UnifiedAuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-      />
+      {/* Auth Modals - Toggle between test and unified */}
+      {USE_TEST_MODAL ? (
+        <PasskeyTestModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+        />
+      ) : (
+        <UnifiedAuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+        />
+      )}
     </div>
   )
 }
