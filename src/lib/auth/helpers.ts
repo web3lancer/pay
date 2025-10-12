@@ -102,28 +102,33 @@ export async function authenticateWithPasskey(
 
     // Step 3: If registration is needed (new user or fallback), do registration
     if (isRegistration) {
-      credential = await startRegistration({
-        challenge,
-        rp: {
-          name: rpName,
-          id: rpId,
-        },
-        user: {
-          id: email,
-          name: email,
-          displayName: email,
-        },
-        pubKeyCredParams: [
-          { alg: -7, type: 'public-key' },  // ES256
-          { alg: -257, type: 'public-key' } // RS256
-        ],
-        authenticatorSelection: {
-          userVerification: 'preferred',
-          residentKey: 'preferred',
-        },
-        timeout: 60000,
-        attestation: 'none',
-      })
+      try {
+        credential = await startRegistration({
+          challenge,
+          rp: {
+            name: rpName,
+            id: rpId,
+          },
+          user: {
+            id: email,
+            name: email,
+            displayName: email,
+          },
+          pubKeyCredParams: [
+            { alg: -7, type: 'public-key' },  // ES256
+            { alg: -257, type: 'public-key' } // RS256
+          ],
+          authenticatorSelection: {
+            userVerification: 'preferred',
+            residentKey: 'preferred',
+          },
+          timeout: 60000,
+          attestation: 'none',
+        })
+      } catch (regError: any) {
+        // If registration fails, throw the error up
+        throw regError
+      }
     }
 
     // Step 4: Call Appwrite function with appropriate endpoint

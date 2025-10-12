@@ -151,21 +151,19 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       }
 
       // Success! Show appropriate message
-      const isNewRegistration = !result.token // If we just created account
-      toast.success(
-        isNewRegistration 
-          ? '✅ Passkey created! You\'re signed in!' 
-          : '✅ Signed in with passkey!', 
-        { 
-          icon: '🔐',
-          duration: 4000 
-        }
-      )
+      toast.success('✅ Signed in with passkey!', { 
+        icon: '🔐',
+        duration: 4000 
+      })
       
-      // Close modal and redirect
+      // Force refresh auth context to update immediately
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Close modal
       onClose()
-      router.push('/home')
-      router.refresh()
+      
+      // Force a hard reload to ensure all components get the new session
+      window.location.href = '/home'
 
     } catch (err: any) {
       console.error('Passkey authentication error:', err)
