@@ -278,8 +278,8 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
     setOtp('')
     setOtpUserId('')
     setIsSubmitting(false)
-    setSelectedMethod(null)
     setOtpSent(false)
+    setStatusMessage('')
   }
 
   const handleClose = () => {
@@ -294,7 +294,7 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       isOpen={isOpen}
       onClose={handleClose}
       title="Connect to LancerPay"
-      description="Choose your preferred authentication method"
+      description="Enter your email and choose authentication method"
       size="md"
       closeOnOutsideClick={!isSubmitting}
     >
@@ -314,29 +314,64 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
           />
           {!showMethodSelection && !otpSent && (
             <p className="text-xs text-gray-500 mt-2">
-              Enter your email to continue
+              Enter your email to see authentication options
             </p>
           )}
         </div>
 
+        {/* Status Message */}
+        {statusMessage && (
+          <div className="flex items-center justify-center py-2">
+            <FiLoader className="h-5 w-5 animate-spin text-cyan-600 mr-2" />
+            <span className="text-sm text-gray-600">{statusMessage}</span>
+          </div>
+        )}
+
         {/* OTP Input (shown after OTP is sent) */}
-        {otpSent && selectedMethod === 'otp' && (
-          <div>
-            <Input
-              id="otp"
-              label="Verification Code"
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="Enter 6-digit code"
-              required
+        {otpSent && (
+          <div className="space-y-4">
+            <div>
+              <Input
+                id="otp"
+                label="Verification Code"
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="Enter 6-digit code"
+                required
+                disabled={isSubmitting}
+                maxLength={6}
+                endIcon={<FiLock className="h-5 w-5 text-neutral-400" />}
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Check your email for the verification code
+              </p>
+            </div>
+            
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+              onClick={handleVerifyOTP}
+              disabled={isSubmitting || !otp || otp.length < 6}
+              className="w-full"
+              icon={isSubmitting ? <FiLoader className="animate-spin h-5 w-5" /> : undefined}
+            >
+              {isSubmitting ? 'Verifying...' : 'Verify & Continue'}
+            </Button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOtpSent(false)
+                setOtp('')
+                setOtpUserId('')
+              }}
               disabled={isSubmitting}
-              maxLength={6}
-              endIcon={<FiLock className="h-5 w-5 text-neutral-400" />}
-            />
-            <p className="text-xs text-gray-500 mt-2">
-              Check your email for the verification code
-            </p>
+              className="text-sm text-cyan-600 hover:text-cyan-700 disabled:opacity-50"
+            >
+              ← Back to authentication methods
+            </button>
           </div>
         )}
 
@@ -344,25 +379,31 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
         {showMethodSelection && (
           <div className="space-y-3">
             <p className="text-sm font-medium text-gray-700">
-              Choose your authentication method:
+              Choose authentication method:
             </p>
             
-            {/* Passkey - Always Recommended */}
+            {/* Passkey - Recommended */}
             <div className="relative">
-              <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium z-10">
-                Recommended
-              </div>
+              {browserSupportsPasskeys && (
+                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium z-10">
+                  Recommended
+                </div>
+              )}
               <Button
                 type="button"
                 variant="outline"
                 size="md"
                 onClick={handlePasskeyAuth}
-                disabled={isSubmitting || !email}
+                disabled={isSubmitting || !email || !browserSupportsPasskeys}
                 className="w-full justify-start"
-                icon={<FiKey className="h-5 w-5" />}
+                icon={browserSupportsPasskeys ? <FiKey className="h-5 w-5" /> : <FiAlertCircle className="h-5 w-5 text-gray-400" />}
               >
-                <span className="flex-1 text-left">Passkey</span>
-                <span className="text-xs text-gray-500">Secure & Passwordless</span>
+                <span className="flex-1 text-left">
+                  {browserSupportsPasskeys ? 'Passkey' : 'Passkey (Not Supported)'}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {browserSupportsPasskeys ? 'Secure & Passwordless' : 'Use Chrome/Safari'}
+                </span>
               </Button>
             </div>
 
@@ -385,10 +426,7 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
               type="button"
               variant="outline"
               size="md"
-              onClick={() => {
-                setSelectedMethod('otp')
-                handleOTPAuth()
-              }}
+              onClick={handleSendOTP}
               disabled={isSubmitting || !email}
               className="w-full justify-start"
               icon={<FiMail className="h-5 w-5" />}
@@ -399,35 +437,14 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
           </div>
         )}
 
-        {/* OTP Continue Button (after code is sent) */}
-        {otpSent && selectedMethod === 'otp' && (
-          <Button
-            type="button"
-            variant="primary"
-            size="md"
-            onClick={handleOTPAuth}
-            disabled={isSubmitting || !otp || otp.length < 6}
-            className="w-full"
-            icon={isSubmitting ? <FiLoader className="animate-spin h-5 w-5" /> : undefined}
-          >
-            {isSubmitting ? 'Verifying...' : 'Verify & Continue'}
-          </Button>
-        )}
-
-        {/* Loading State */}
-        {isSubmitting && !otpSent && (
-          <div className="flex items-center justify-center py-4">
-            <FiLoader className="h-6 w-6 animate-spin text-cyan-600" />
-            <span className="ml-2 text-sm text-gray-600">Authenticating...</span>
+        {/* Security Note */}
+        {!otpSent && (
+          <div className="border-t border-gray-200 pt-4">
+            <p className="text-xs text-gray-500 text-center">
+              🔒 Your data is encrypted and secure. Industry-standard authentication.
+            </p>
           </div>
         )}
-
-        {/* Security Note */}
-        <div className="border-t border-gray-200 pt-4">
-          <p className="text-xs text-gray-500 text-center">
-            🔒 Your data is encrypted and secure. We use industry-standard authentication.
-          </p>
-        </div>
       </div>
     </Modal>
   )

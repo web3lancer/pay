@@ -31,6 +31,9 @@ export interface PasskeyAuthResult {
  * Unified "Continue with Passkey" flow
  * Follows the EXACT pattern from USAGE.md Example 5 (lines 595-694)
  * Single button that intelligently handles both registration and authentication
+ * 
+ * CRITICAL: This function must complete WITHOUT any external interference
+ * No hooks, no state resets, no interruptions during execution
  */
 export async function authenticateWithPasskey(
   options: PasskeyAuthOptions
@@ -39,6 +42,7 @@ export async function authenticateWithPasskey(
   const functionId = process.env.NEXT_PUBLIC_PASSKEY_FUNCTION_ID
 
   if (!functionId) {
+    console.error('❌ Passkey function ID not configured')
     return {
       success: false,
       error: 'Passkey function not configured. Please contact support.',
@@ -46,7 +50,19 @@ export async function authenticateWithPasskey(
     }
   }
 
+  // Check browser support FIRST (USAGE.md lines 167-186)
+  if (!supportsWebAuthn()) {
+    console.error('❌ Browser does not support WebAuthn')
+    return {
+      success: false,
+      error: 'Your browser does not support passkeys',
+      code: 'not_supported'
+    }
+  }
+
   try {
+    console.log('🔐 Step 1: Checking if user has existing passkeys for:', email)
+    
     // Step 1: Try to get auth options (check if user has passkeys)
     const authExec = await functions.createExecution(
       functionId,
@@ -57,17 +73,26 @@ export async function authenticateWithPasskey(
     )
     
     const authOptions = JSON.parse(authExec.responseBody)
+    console.log('📋 Got auth options:', { 
+      hasCredentials: authOptions.allowCredentials?.length > 0,
+      credentialCount: authOptions.allowCredentials?.length || 0
+    })
     
     // Step 2: Check if user has existing passkeys
     if (authOptions.allowCredentials?.length > 0) {
       // ============================================
       // AUTHENTICATION FLOW (User has passkeys)
       // ============================================
+      console.log('🔓 Step 2: User has passkeys, attempting authentication...')
       
       // Step 2a: Show browser passkey prompt for authentication
+      // ⚠️ THIS IS THE CRITICAL LINE - This shows the prompt!
+      console.log('👆 Step 2a: Calling startAuthentication() - passkey prompt will show now')
       const assertion = await startAuthentication(authOptions)
+      console.log('✅ User provided assertion')
       
       // Step 2b: Verify the assertion with server
+      console.log('📤 Step 2b: Verifying assertion with server...')
       const verifyExec = await functions.createExecution(
         functionId,
         JSON.stringify({
@@ -82,16 +107,23 @@ export async function authenticateWithPasskey(
       )
       
       const authResult = JSON.parse(verifyExec.responseBody)
+      console.log('📥 Verification result:', { 
+        hasToken: !!authResult.token,
+        success: !!authResult.token?.secret 
+      })
       
       // Step 2c: Create Appwrite session
       if (authResult.token?.secret) {
+        console.log('🎫 Step 2c: Creating Appwrite session...')
         await account.createSession(authResult.token.userId, authResult.token.secret)
+        console.log('✅ SUCCESS! User authenticated with passkey')
         return {
           success: true,
           token: authResult.token,
           isRegistration: false
         }
       } else {
+        console.error('❌ No token received from server')
         return {
           success: false,
           error: authResult.error || 'Authentication failed',
@@ -103,8 +135,10 @@ export async function authenticateWithPasskey(
       // ============================================
       // REGISTRATION FLOW (New user, no passkeys)
       // ============================================
+      console.log('📝 Step 3: No passkeys found, attempting registration...')
       
       // Step 3a: Get registration options
+      console.log('📋 Step 3a: Getting registration options...')
       const regExec = await functions.createExecution(
         functionId,
         JSON.stringify({ 
@@ -117,11 +151,16 @@ export async function authenticateWithPasskey(
       )
       
       const regOptions = JSON.parse(regExec.responseBody)
+      console.log('📋 Got registration options')
       
       // Step 3b: Show browser passkey prompt for registration
+      // ⚠️ THIS IS THE CRITICAL LINE - This shows the prompt!
+      console.log('👆 Step 3b: Calling startRegistration() - passkey prompt will show now')
       const credential = await startRegistration(regOptions)
+      console.log('✅ User created credential')
       
       // Step 3c: Verify the credential with server
+      console.log('📤 Step 3c: Verifying credential with server...')
       const verifyExec = await functions.createExecution(
         functionId,
         JSON.stringify({
@@ -136,16 +175,23 @@ export async function authenticateWithPasskey(
       )
       
       const regResult = JSON.parse(verifyExec.responseBody)
+      console.log('📥 Verification result:', { 
+        hasToken: !!regResult.token,
+        success: !!regResult.token?.secret 
+      })
       
       // Step 3d: Create Appwrite session
       if (regResult.token?.secret) {
+        console.log('🎫 Step 3d: Creating Appwrite session...')
         await account.createSession(regResult.token.userId, regResult.token.secret)
+        console.log('✅ SUCCESS! User registered and logged in with passkey')
         return {
           success: true,
           token: regResult.token,
           isRegistration: true
         }
       } else {
+        console.error('❌ No token received from server')
         return {
           success: false,
           error: regResult.error || 'Registration failed',
@@ -155,10 +201,16 @@ export async function authenticateWithPasskey(
     }
     
   } catch (error: any) {
-    console.error('Passkey error:', error)
+    console.error('❌ Passkey error:', error)
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code
+    })
     
-    // Handle specific WebAuthn errors
+    // Handle specific WebAuthn errors (USAGE.md lines 706-741)
     if (error.name === 'NotAllowedError') {
+      console.log('User cancelled or timeout')
       return {
         success: false,
         error: 'Passkey authentication was cancelled or timed out',
@@ -167,6 +219,7 @@ export async function authenticateWithPasskey(
     }
     
     if (error.name === 'NotSupportedError') {
+      console.log('WebAuthn not supported')
       return {
         success: false,
         error: 'Passkeys are not supported on this device or browser',
@@ -176,6 +229,7 @@ export async function authenticateWithPasskey(
     
     // Handle server errors
     if (error.message?.includes('wallet')) {
+      console.log('Wallet conflict error')
       return {
         success: false,
         error: error.message,
@@ -184,6 +238,7 @@ export async function authenticateWithPasskey(
     }
     
     if (error.message?.includes('Too many')) {
+      console.log('Rate limit error')
       return {
         success: false,
         error: 'Too many attempts. Please wait a moment and try again.',
@@ -192,6 +247,7 @@ export async function authenticateWithPasskey(
     }
     
     // Generic error
+    console.error('Unknown error during passkey flow')
     return {
       success: false,
       error: error.message || 'Passkey authentication failed. Please try again.',
