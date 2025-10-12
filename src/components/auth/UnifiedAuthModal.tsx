@@ -19,7 +19,6 @@ import {
   authenticateWithWallet,
   sendEmailOTP,
   verifyEmailOTP,
-  supportsWebAuthn,
   isMetaMaskInstalled,
   getMetaMaskDownloadLink
 } from '@/lib/auth/helpers'
@@ -118,12 +117,6 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       return
     }
 
-    // Check if WebAuthn is supported
-    if (!supportsWebAuthn()) {
-      toast.error('Passkeys are not supported on this device/browser')
-      return
-    }
-
     setIsSubmitting(true)
 
     try {
@@ -132,32 +125,36 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       if (!result.success) {
         // Provide detailed, user-friendly error messages based on error codes
         switch (result.code) {
-          case 'no_passkey':
-            toast.error('No passkey found. Creating a new one...', { duration: 3000 })
-            break
           case 'cancelled':
-            toast.error('Passkey authentication cancelled')
+            toast.error('Passkey authentication was cancelled', { duration: 3000 })
             break
           case 'not_supported':
-            toast.error('Your browser doesn\'t support passkeys. Please try Email OTP or Wallet authentication.')
+            toast.error('Your browser doesn\'t support passkeys. Please try Email OTP or Wallet authentication.', { duration: 5000 })
             break
           case 'verification_failed':
-            toast.error('Passkey verification failed. Please try again.')
+            toast.error('Passkey verification failed. Please try again.', { duration: 4000 })
             break
           case 'wallet_conflict':
             toast.error('🔒 ' + result.error, { duration: 6000 })
             break
           default:
-            toast.error(result.error || 'Authentication failed')
+            toast.error(result.error || 'Authentication failed', { duration: 4000 })
         }
         return
       }
 
-      // Success! Show appropriate message
-      toast.success('✅ Signed in with passkey!', { 
-        icon: '🔐',
-        duration: 4000 
-      })
+      // Success! Show contextual message based on whether it was registration or authentication
+      if (result.isRegistration) {
+        toast.success('✅ Passkey created successfully!', { 
+          icon: '🔐',
+          duration: 4000 
+        })
+      } else {
+        toast.success('✅ Signed in with passkey!', { 
+          icon: '🔐',
+          duration: 4000 
+        })
+      }
       
       // Force refresh auth context to update immediately
       await new Promise(resolve => setTimeout(resolve, 500))

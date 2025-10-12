@@ -8,7 +8,7 @@ import { startRegistration, startAuthentication } from '@simplewebauthn/browser'
 
 // ============================================
 // PASSKEY AUTHENTICATION (Two-Step Flow)
-// Follows ignore1/function_appwrite_passkey/USAGE.md
+// Follows ignore1/function_appwrite_passkey/USAGE.md EXACTLY
 // Uses SimpleWebAuthn for automatic ArrayBuffer conversions
 // ============================================
 
@@ -24,203 +24,177 @@ export interface PasskeyAuthResult {
   }
   error?: string
   code?: 'no_passkey' | 'cancelled' | 'not_supported' | 'verification_failed' | 'server_error' | 'wallet_conflict'
-}
-
-// Helper: Call Appwrite function
-async function callPasskeyFunction(path: string, body?: any) {
-  const functionId = process.env.NEXT_PUBLIC_PASSKEY_FUNCTION_ID
-  
-  if (!functionId) {
-    throw new Error('Passkey function ID not configured')
-  }
-
-  const execution = await functions.createExecution(
-    functionId,
-    body ? JSON.stringify(body) : '',
-    false,
-    path,
-    'POST'
-  )
-  
-  const result = JSON.parse(execution.responseBody)
-  
-  if (execution.responseStatusCode >= 400) {
-    throw new Error(result.error || 'Function execution failed')
-  }
-  
-  return result
-}
-
-/**
- * Register a new passkey
- * Two-step flow: options → verify
- * Uses SimpleWebAuthn for automatic ArrayBuffer conversions
- */
-async function registerPasskey(email: string): Promise<PasskeyAuthResult> {
-  try {
-    // Step 1: Get registration options with server-generated challenge
-    const options = await callPasskeyFunction('/register/options', {
-      userId: email,
-      userName: email.split('@')[0]
-    })
-
-    // Step 2: Create credential using SimpleWebAuthn
-    // Handles all ArrayBuffer conversions automatically!
-    const credential = await startRegistration(options)
-
-    // Step 3: Verify with server
-    const result = await callPasskeyFunction('/register/verify', {
-      userId: email,
-      attestation: credential,
-      challenge: options.challenge,
-      challengeToken: options.challengeToken
-    })
-
-    // Step 4: Create session
-    if (result.token?.secret) {
-      await account.createSession(result.token.userId, result.token.secret)
-    }
-
-    return {
-      success: true,
-      token: result.token
-    }
-  } catch (error: any) {
-    console.error('Passkey registration error:', error)
-    
-    let errorCode: PasskeyAuthResult['code'] = 'server_error'
-    let errorMessage = error.message || 'Registration failed'
-    
-    if (error.name === 'NotAllowedError') {
-      errorCode = 'cancelled'
-      errorMessage = 'Registration was cancelled'
-    } else if (error.name === 'NotSupportedError') {
-      errorCode = 'not_supported'
-      errorMessage = 'Passkeys are not supported on this device/browser'
-    } else if (error.message?.includes('wallet')) {
-      errorCode = 'wallet_conflict'
-      errorMessage = error.message
-    }
-    
-    return {
-      success: false,
-      error: errorMessage,
-      code: errorCode
-    }
-  }
-}
-
-/**
- * Authenticate with existing passkey
- * Two-step flow: options → verify
- * Uses SimpleWebAuthn for automatic ArrayBuffer conversions
- */
-async function authenticatePasskey(email: string): Promise<PasskeyAuthResult> {
-  try {
-    // Step 1: Get authentication options with server-generated challenge
-    const options = await callPasskeyFunction('/auth/options', {
-      userId: email
-    })
-
-    // Step 2: Get assertion using SimpleWebAuthn
-    // Handles all ArrayBuffer conversions automatically!
-    const assertion = await startAuthentication(options)
-
-    // Step 3: Verify with server
-    const result = await callPasskeyFunction('/auth/verify', {
-      userId: email,
-      assertion: assertion,
-      challenge: options.challenge,
-      challengeToken: options.challengeToken
-    })
-
-    // Step 4: Create session
-    if (result.token?.secret) {
-      await account.createSession(result.token.userId, result.token.secret)
-    }
-
-    return {
-      success: true,
-      token: result.token
-    }
-  } catch (error: any) {
-    console.error('Passkey authentication error:', error)
-    
-    let errorCode: PasskeyAuthResult['code'] = 'server_error'
-    let errorMessage = error.message || 'Authentication failed'
-    
-    if (error.name === 'NotAllowedError') {
-      errorCode = 'cancelled'
-      errorMessage = 'Authentication was cancelled'
-    } else if (error.name === 'NotSupportedError') {
-      errorCode = 'not_supported'
-      errorMessage = 'Passkeys are not supported on this device/browser'
-    } else if (error.message?.includes('wallet')) {
-      errorCode = 'wallet_conflict'
-      errorMessage = error.message
-    } else if (error.message?.includes('No passkeys') || error.message?.includes('not found')) {
-      errorCode = 'no_passkey'
-      errorMessage = 'No passkeys found for this account'
-    }
-    
-    return {
-      success: false,
-      error: errorMessage,
-      code: errorCode
-    }
-  }
+  isRegistration?: boolean // Track if this was a registration or authentication
 }
 
 /**
  * Unified "Continue with Passkey" flow
- * Intelligently handles both registration and authentication
- * Follows ignore1/function_appwrite_passkey/USAGE.md
+ * Follows the EXACT pattern from USAGE.md Example 5 (lines 595-694)
+ * Single button that intelligently handles both registration and authentication
  */
 export async function authenticateWithPasskey(
   options: PasskeyAuthOptions
 ): Promise<PasskeyAuthResult> {
   const { email } = options
+  const functionId = process.env.NEXT_PUBLIC_PASSKEY_FUNCTION_ID
+
+  if (!functionId) {
+    return {
+      success: false,
+      error: 'Passkey function not configured. Please contact support.',
+      code: 'server_error'
+    }
+  }
 
   try {
-    // Try to get auth options first to check if user has passkeys
-    let authOptions
-    try {
-      authOptions = await callPasskeyFunction('/auth/options', { 
-        userId: email 
-      })
-    } catch (err: any) {
-      // Handle rate limit or wallet gate
-      if (err.message?.includes('Too many') || 
-          err.message?.includes('wallet')) {
-        return { 
-          success: false, 
-          error: err.message,
-          code: err.message?.includes('wallet') ? 'wallet_conflict' : 'server_error'
-        }
-      }
-      authOptions = null
-    }
-
-    // If user has credentials, try authentication
-    if (authOptions && authOptions.allowCredentials?.length > 0) {
-      try {
-        const authResult = await authenticatePasskey(email)
-        if (authResult.success) {
-          return authResult
-        }
-      } catch {
-        // Fall through to registration
-      }
-    }
-
-    // Registration flow
-    return await registerPasskey(email)
-  } catch (error: any) {
-    console.error('Passkey flow error:', error)
+    // Step 1: Try to get auth options (check if user has passkeys)
+    const authExec = await functions.createExecution(
+      functionId,
+      JSON.stringify({ userId: email }),
+      false,
+      '/auth/options',
+      'POST'
+    )
     
-    return { 
-      success: false, 
-      error: error.message || 'Passkey authentication failed',
+    const authOptions = JSON.parse(authExec.responseBody)
+    
+    // Step 2: Check if user has existing passkeys
+    if (authOptions.allowCredentials?.length > 0) {
+      // ============================================
+      // AUTHENTICATION FLOW (User has passkeys)
+      // ============================================
+      
+      // Step 2a: Show browser passkey prompt for authentication
+      const assertion = await startAuthentication(authOptions)
+      
+      // Step 2b: Verify the assertion with server
+      const verifyExec = await functions.createExecution(
+        functionId,
+        JSON.stringify({
+          userId: email,
+          assertion,
+          challenge: authOptions.challenge,
+          challengeToken: authOptions.challengeToken
+        }),
+        false,
+        '/auth/verify',
+        'POST'
+      )
+      
+      const authResult = JSON.parse(verifyExec.responseBody)
+      
+      // Step 2c: Create Appwrite session
+      if (authResult.token?.secret) {
+        await account.createSession(authResult.token.userId, authResult.token.secret)
+        return {
+          success: true,
+          token: authResult.token,
+          isRegistration: false
+        }
+      } else {
+        return {
+          success: false,
+          error: authResult.error || 'Authentication failed',
+          code: 'verification_failed'
+        }
+      }
+      
+    } else {
+      // ============================================
+      // REGISTRATION FLOW (New user, no passkeys)
+      // ============================================
+      
+      // Step 3a: Get registration options
+      const regExec = await functions.createExecution(
+        functionId,
+        JSON.stringify({ 
+          userId: email, 
+          userName: email.split('@')[0] 
+        }),
+        false,
+        '/register/options',
+        'POST'
+      )
+      
+      const regOptions = JSON.parse(regExec.responseBody)
+      
+      // Step 3b: Show browser passkey prompt for registration
+      const credential = await startRegistration(regOptions)
+      
+      // Step 3c: Verify the credential with server
+      const verifyExec = await functions.createExecution(
+        functionId,
+        JSON.stringify({
+          userId: email,
+          attestation: credential,
+          challenge: regOptions.challenge,
+          challengeToken: regOptions.challengeToken
+        }),
+        false,
+        '/register/verify',
+        'POST'
+      )
+      
+      const regResult = JSON.parse(verifyExec.responseBody)
+      
+      // Step 3d: Create Appwrite session
+      if (regResult.token?.secret) {
+        await account.createSession(regResult.token.userId, regResult.token.secret)
+        return {
+          success: true,
+          token: regResult.token,
+          isRegistration: true
+        }
+      } else {
+        return {
+          success: false,
+          error: regResult.error || 'Registration failed',
+          code: 'verification_failed'
+        }
+      }
+    }
+    
+  } catch (error: any) {
+    console.error('Passkey error:', error)
+    
+    // Handle specific WebAuthn errors
+    if (error.name === 'NotAllowedError') {
+      return {
+        success: false,
+        error: 'Passkey authentication was cancelled or timed out',
+        code: 'cancelled'
+      }
+    }
+    
+    if (error.name === 'NotSupportedError') {
+      return {
+        success: false,
+        error: 'Passkeys are not supported on this device or browser',
+        code: 'not_supported'
+      }
+    }
+    
+    // Handle server errors
+    if (error.message?.includes('wallet')) {
+      return {
+        success: false,
+        error: error.message,
+        code: 'wallet_conflict'
+      }
+    }
+    
+    if (error.message?.includes('Too many')) {
+      return {
+        success: false,
+        error: 'Too many attempts. Please wait a moment and try again.',
+        code: 'server_error'
+      }
+    }
+    
+    // Generic error
+    return {
+      success: false,
+      error: error.message || 'Passkey authentication failed. Please try again.',
       code: 'server_error'
     }
   }
