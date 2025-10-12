@@ -81,8 +81,6 @@ export async function authenticateWithPasskey(
         credential = await startAuthentication({
           challenge,
           rpId,
-          timeout: 60000,
-          userVerification: 'preferred',
         })
       } catch (authError: any) {
         // If user cancels or has issues, check if we should fallback to registration
@@ -122,8 +120,6 @@ export async function authenticateWithPasskey(
             userVerification: 'preferred',
             residentKey: 'preferred',
           },
-          timeout: 60000,
-          attestation: 'none',
         })
       } catch (regError: any) {
         // If registration fails, throw the error up
