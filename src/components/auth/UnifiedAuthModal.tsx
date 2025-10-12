@@ -11,11 +11,18 @@ import React, { useState, useEffect } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { account, functions } from '@/lib/appwrite'
 import { FiMail, FiLoader, FiKey, FiCreditCard, FiLock } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { startRegistration, startAuthentication } from '@simplewebauthn/browser'
+import { 
+  authenticateWithPasskey, 
+  authenticateWithWallet,
+  sendEmailOTP,
+  verifyEmailOTP,
+  supportsWebAuthn,
+  isMetaMaskInstalled,
+  getMetaMaskDownloadLink
+} from '@/lib/auth/helpers'
 
 interface UnifiedAuthModalProps {
   isOpen: boolean
@@ -55,8 +62,14 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
     try {
       if (!otpSent) {
         // Send OTP
-        const token = await account.createEmailToken(email, email)
-        setOtpUserId(token.userId)
+        const result = await sendEmailOTP({ email })
+        
+        if (!result.success) {
+          toast.error(result.error || 'Failed to send OTP')
+          return
+        }
+
+        setOtpUserId(result.userId!)
         setOtpSent(true)
         toast.success('OTP sent to your email! Check your inbox.')
       } else {
@@ -67,7 +80,16 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
           return
         }
 
-        await account.createSession(otpUserId, otp)
+        const result = await verifyEmailOTP({ userId: otpUserId, otp })
+        
+        if (!result.success) {
+          if (result.error?.includes('expired')) {
+            setOtpSent(false)
+            setOtp('')
+          }
+          toast.error(result.error || 'Verification failed')
+          return
+        }
         
         // Success!
         toast.success('Verified! Welcome to LancerPay!')
@@ -80,12 +102,7 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
 
     } catch (err: any) {
       console.error('OTP authentication error:', err)
-      
-      if (err.message?.includes('Invalid')) {
-        toast.error('Invalid code. Please check and try again.')
-      } else {
-        toast.error(err.message || 'Authentication failed. Please try again.')
-      }
+      toast.error(err.message || 'Authentication failed. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -97,97 +114,24 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       return
     }
 
+    // Check if WebAuthn is supported
+    if (!supportsWebAuthn()) {
+      toast.error('Passkeys are not supported on this device/browser')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
-      // Generate random challenge
-      const challengeArray = crypto.getRandomValues(new Uint8Array(32))
-      const challenge = btoa(String.fromCharCode(...challengeArray))
+      const result = await authenticateWithPasskey({ email })
 
-      // Determine RP ID from environment or window
-      const rpId = process.env.NEXT_PUBLIC_PASSKEY_RP_ID || window.location.hostname
-      const rpName = process.env.NEXT_PUBLIC_PASSKEY_RP_NAME || 'LancerPay'
-
-      let credential
-      let isRegistration = false
-
-      // Try authentication first, fallback to registration if needed
-      try {
-        credential = await startAuthentication({
-          optionsJSON: {
-            challenge,
-            rpId,
-            timeout: 60000,
-            userVerification: 'preferred',
-          }
-        })
-      } catch (authError: any) {
-        // If authentication fails, try registration
-        if (authError.name === 'NotAllowedError' || authError.message?.includes('No credentials')) {
-          toast('No passkey found. Creating a new one...', { icon: 'ℹ️' })
-          isRegistration = true
-          
-          credential = await startRegistration({
-            optionsJSON: {
-              challenge,
-              rp: {
-                name: rpName,
-                id: rpId,
-              },
-              user: {
-                id: email,
-                name: email,
-                displayName: email,
-              },
-              pubKeyCredParams: [
-                { alg: -7, type: 'public-key' },  // ES256
-                { alg: -257, type: 'public-key' } // RS256
-              ],
-              authenticatorSelection: {
-                userVerification: 'preferred',
-                residentKey: 'preferred',
-              },
-              timeout: 60000,
-              attestation: 'none',
-            }
-          })
-        } else {
-          throw authError
-        }
-      }
-
-      // Get function ID from environment
-      const functionId = process.env.NEXT_PUBLIC_PASSKEY_FUNCTION_ID
-      if (!functionId) {
-        toast.error('Passkey authentication is not configured. Please contact support.')
-        console.error('NEXT_PUBLIC_PASSKEY_FUNCTION_ID is not set')
+      if (!result.success) {
+        toast.error(result.error || 'Authentication failed')
         return
       }
 
-      // Call appropriate endpoint
-      const endpoint = isRegistration ? '/register' : '/authenticate'
-      const payload = isRegistration
-        ? { email, credentialData: credential, challenge }
-        : { email, assertion: credential, challenge }
-
-      const execution = await functions.createExecution(
-        functionId,
-        JSON.stringify(payload),
-        false,
-        endpoint
-      )
-
-      const result = JSON.parse(execution.responseBody)
-
-      if (!result.success) {
-        throw new Error(result.error || 'Authentication failed')
-      }
-
-      // Create Appwrite session with the token
-      await account.createSession(result.token.userId, result.token.secret)
-
       // Success!
-      toast.success(isRegistration ? 'Passkey created and signed in!' : 'Signed in with passkey!')
+      toast.success('Signed in with passkey!')
       
       // Close modal and redirect
       onClose()
@@ -196,14 +140,7 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
 
     } catch (err: any) {
       console.error('Passkey authentication error:', err)
-      
-      if (err.name === 'NotAllowedError') {
-        toast.error('Passkey authentication was cancelled')
-      } else if (err.name === 'NotSupportedError') {
-        toast.error('Passkeys are not supported on this device/browser')
-      } else {
-        toast.error(err.message || 'Passkey authentication failed. Please try again.')
-      }
+      toast.error(err.message || 'Passkey authentication failed. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -215,65 +152,22 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       return
     }
 
+    // Check if MetaMask is installed
+    if (!isMetaMaskInstalled()) {
+      toast.error('MetaMask not installed. Please install MetaMask to continue.')
+      window.open(getMetaMaskDownloadLink(), '_blank')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
-      // Check if MetaMask is installed
-      if (!window.ethereum) {
-        toast.error('MetaMask not installed. Please install MetaMask to continue.')
-        window.open('https://metamask.io/download/', '_blank')
-        setIsSubmitting(false)
+      const result = await authenticateWithWallet({ email })
+
+      if (!result.success) {
+        toast.error(result.error || 'Authentication failed')
         return
       }
-
-      // Connect wallet
-      const accounts = await window.ethereum.request({ 
-        method: 'eth_requestAccounts' 
-      })
-      
-      if (!accounts || accounts.length === 0) {
-        toast.error('No wallet account selected')
-        setIsSubmitting(false)
-        return
-      }
-
-      const address = accounts[0]
-
-      // Generate authentication message
-      const timestamp = Date.now()
-      const message = `auth-${timestamp}`
-      const fullMessage = `Sign this message to authenticate: ${message}`
-
-      // Request signature from wallet
-      const signature = await window.ethereum.request({
-        method: 'personal_sign',
-        params: [fullMessage, address]
-      })
-
-      // Check if function ID is configured
-      const functionId = process.env.NEXT_PUBLIC_WEB3_AUTH_FUNCTION_ID
-      if (!functionId) {
-        toast.error('Web3 authentication is not configured. Please contact support.')
-        console.error('NEXT_PUBLIC_WEB3_AUTH_FUNCTION_ID is not set')
-        setIsSubmitting(false)
-        return
-      }
-
-      // Call Appwrite Function (it auto-detects signup vs login)
-      const execution = await functions.createExecution(
-        functionId,
-        JSON.stringify({ email, address, signature, message }),
-        false
-      )
-
-      const response = JSON.parse(execution.responseBody)
-
-      if (execution.responseStatusCode !== 200) {
-        throw new Error(response.error || 'Authentication failed')
-      }
-
-      // Create Appwrite session
-      await account.createSession(response.userId, response.secret)
 
       // Success!
       toast.success('Signed in successfully!')
@@ -285,15 +179,7 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
 
     } catch (err: any) {
       console.error('Web3 authentication error:', err)
-      
-      // Handle specific error cases
-      if (err.code === 4001) {
-        toast.error('You rejected the signature request')
-      } else if (err.message?.includes('MetaMask')) {
-        toast.error(err.message)
-      } else {
-        toast.error(err.message || 'Authentication failed. Please try again.')
-      }
+      toast.error(err.message || 'Authentication failed. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

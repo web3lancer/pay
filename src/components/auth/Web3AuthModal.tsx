@@ -4,10 +4,14 @@ import React, { useState } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { account, functions } from '@/lib/appwrite'
 import { FiMail, FiLoader } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { 
+  authenticateWithWallet, 
+  isMetaMaskInstalled, 
+  getMetaMaskDownloadLink 
+} from '@/lib/auth/helpers'
 
 interface Web3AuthModalProps {
   isOpen: boolean
@@ -29,62 +33,22 @@ export function Web3AuthModal({ isOpen, onClose, mode, onSwitchMode }: Web3AuthM
       return
     }
 
+    // Check if MetaMask is installed
+    if (!isMetaMaskInstalled()) {
+      toast.error('MetaMask not installed. Please install MetaMask to continue.')
+      window.open(getMetaMaskDownloadLink(), '_blank')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
-      // Check if MetaMask is installed
-      if (!window.ethereum) {
-        toast.error('MetaMask not installed. Please install MetaMask to continue.')
-        window.open('https://metamask.io/download/', '_blank')
+      const result = await authenticateWithWallet({ email })
+
+      if (!result.success) {
+        toast.error(result.error || 'Authentication failed')
         return
       }
-
-      // Connect wallet
-      const accounts = await window.ethereum.request({ 
-        method: 'eth_requestAccounts' 
-      })
-      
-      if (!accounts || accounts.length === 0) {
-        toast.error('No wallet account selected')
-        return
-      }
-
-      const address = accounts[0]
-
-      // Generate authentication message
-      const timestamp = Date.now()
-      const message = `auth-${timestamp}`
-      const fullMessage = `Sign this message to authenticate: ${message}`
-
-      // Request signature from wallet
-      const signature = await window.ethereum.request({
-        method: 'personal_sign',
-        params: [fullMessage, address]
-      })
-
-      // Check if function ID is configured
-      const functionId = process.env.NEXT_PUBLIC_WEB3_AUTH_FUNCTION_ID
-      if (!functionId) {
-        toast.error('Web3 authentication is not configured. Please contact support.')
-        console.error('NEXT_PUBLIC_WEB3_AUTH_FUNCTION_ID is not set')
-        return
-      }
-
-      // Call Appwrite Function
-      const execution = await functions.createExecution(
-        functionId,
-        JSON.stringify({ email, address, signature, message }),
-        false
-      )
-
-      const response = JSON.parse(execution.responseBody)
-
-      if (execution.responseStatusCode !== 200) {
-        throw new Error(response.error || 'Authentication failed')
-      }
-
-      // Create Appwrite session
-      await account.createSession(response.userId, response.secret)
 
       // Success!
       toast.success(mode === 'login' ? 'Signed in successfully!' : 'Account created successfully!')
@@ -96,15 +60,7 @@ export function Web3AuthModal({ isOpen, onClose, mode, onSwitchMode }: Web3AuthM
 
     } catch (err: any) {
       console.error('Web3 authentication error:', err)
-      
-      // Handle specific error cases
-      if (err.code === 4001) {
-        toast.error('You rejected the signature request')
-      } else if (err.message?.includes('MetaMask')) {
-        toast.error(err.message)
-      } else {
-        toast.error(err.message || 'Authentication failed. Please try again.')
-      }
+      toast.error(err.message || 'Authentication failed. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

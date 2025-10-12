@@ -2,44 +2,33 @@
 import type { NextRequest } from 'next/server';
 
 /**
- * Checks if the user is authenticated.
- * !!! YOU MUST IMPLEMENT THIS FUNCTION based on your auth system !!!
+ * Checks if the user is authenticated by looking for Appwrite session cookies.
  * @param request The NextRequest object.
  * @returns True if the user is authenticated, false otherwise.
  */
 export function isAuthenticated(request: NextRequest): boolean {
-  // Replace this with your actual authentication logic.
-  // Example: Check for a session cookie or validate a token.
-  // Consider using a library like `jose` for JWT verification if applicable.
-  const authToken = request.cookies.get('auth-token')?.value;
-  if (authToken) {
-    // Here you might want to verify the token (e.g., check expiration, signature)
-    // For simplicity, we're just checking for presence.
-    return true;
+  // Check for Appwrite session cookie
+  // Appwrite uses the format: a_session_{projectId}
+  const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+  if (!projectId) {
+    console.error('NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set');
+    return false;
   }
-  return false;
+
+  const sessionCookie = request.cookies.get(`a_session_${projectId}`)?.value;
+  return !!sessionCookie;
 }
 
 /**
  * Fetches the user's roles.
- * !!! YOU MUST IMPLEMENT THIS FUNCTION if using role-based access !!!
+ * For now, returns basic user role. Can be extended to fetch from Appwrite.
  * @param request The NextRequest object.
  * @returns A promise that resolves to an array of user roles (strings).
  */
 export async function getUserRoles(request: NextRequest): Promise<string[]> {
-  // Replace this with your actual role-fetching logic.
-  // Example: Decode roles from a JWT, fetch from a database, or call an auth service.
-  const authToken = request.cookies.get('auth-token')?.value;
-  if (authToken) {
-    // Example: If roles are part of a JWT payload (this is highly simplified)
-    try {
-      // const decodedToken = await verifyJwt(authToken); // Using a hypothetical verifyJwt function
-      // return decodedToken.roles || [];
-      return ['user']; // Placeholder
-    } catch (error) {
-      console.error("[Auth] Error decoding token for roles:", error);
-      return [];
-    }
+  // For now, return basic user role if authenticated
+  if (isAuthenticated(request)) {
+    return ['user'];
   }
   return [];
 }
