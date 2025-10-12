@@ -36,17 +36,23 @@ export async function authenticateWithPasskey(
 ): Promise<PasskeyAuthResult> {
   const { email, rpId: customRpId, rpName: customRpName } = options
 
+  console.log('🔐 [authenticateWithPasskey] Starting for email:', email)
+
   try {
     // Generate random challenge
     const challengeArray = crypto.getRandomValues(new Uint8Array(32))
     const challenge = btoa(String.fromCharCode(...challengeArray))
+    console.log('🔐 [authenticateWithPasskey] Challenge generated:', challenge.substring(0, 20) + '...')
 
     // Get configuration from environment
     const rpId = customRpId || process.env.NEXT_PUBLIC_PASSKEY_RP_ID || window.location.hostname
     const rpName = customRpName || process.env.NEXT_PUBLIC_PASSKEY_RP_NAME || 'LancerPay'
     const functionId = process.env.NEXT_PUBLIC_PASSKEY_FUNCTION_ID
 
+    console.log('🔐 [authenticateWithPasskey] Config:', { rpId, rpName, functionId })
+
     if (!functionId) {
+      console.error('🔐 [authenticateWithPasskey] No function ID configured!')
       return {
         success: false,
         error: 'Passkey authentication is not configured. Please contact support.',
@@ -55,6 +61,7 @@ export async function authenticateWithPasskey(
     }
 
     // Step 1: Check if user has any passkeys registered
+    console.log('🔐 [authenticateWithPasskey] Checking for existing passkeys...')
     let hasPasskeys = false
     try {
       const checkExecution = await functions.createExecution(
@@ -66,23 +73,30 @@ export async function authenticateWithPasskey(
       )
       const checkResult = JSON.parse(checkExecution.responseBody)
       hasPasskeys = checkResult.passkeys && checkResult.passkeys.length > 0
+      console.log('🔐 [authenticateWithPasskey] Has passkeys:', hasPasskeys, 'Count:', checkResult.passkeys?.length || 0)
     } catch (error) {
       // If check fails, assume no passkeys (will attempt registration)
+      console.log('🔐 [authenticateWithPasskey] Passkey check failed, assuming no passkeys')
       hasPasskeys = false
     }
 
     let credential
     let isRegistration = !hasPasskeys
 
+    console.log('🔐 [authenticateWithPasskey] isRegistration:', isRegistration)
+
     // Step 2: Either authenticate (if has passkeys) or register (if new user)
     if (hasPasskeys) {
       // User has passkeys - authenticate
+      console.log('🔐 [authenticateWithPasskey] User has passkeys, calling startAuthentication...')
       try {
         credential = await startAuthentication({
           challenge,
           rpId,
         })
+        console.log('🔐 [authenticateWithPasskey] startAuthentication successful')
       } catch (authError: any) {
+        console.log('🔐 [authenticateWithPasskey] startAuthentication error:', authError.name, authError.message)
         // If user cancels or has issues, check if we should fallback to registration
         if (authError.name === 'NotAllowedError') {
           // User cancelled - throw this up
@@ -90,6 +104,7 @@ export async function authenticateWithPasskey(
         } else if (authError.message?.includes('No credentials') || 
                    authError.message?.includes('not found')) {
           // No credentials found, fallback to registration
+          console.log('🔐 [authenticateWithPasskey] No credentials found, falling back to registration')
           isRegistration = true
         } else {
           // Other errors - throw them up
@@ -100,6 +115,7 @@ export async function authenticateWithPasskey(
 
     // Step 3: If registration is needed (new user or fallback), do registration
     if (isRegistration) {
+      console.log('🔐 [authenticateWithPasskey] Calling startRegistration...')
       try {
         credential = await startRegistration({
           challenge,
@@ -121,7 +137,9 @@ export async function authenticateWithPasskey(
             residentKey: 'preferred',
           },
         })
+        console.log('🔐 [authenticateWithPasskey] startRegistration successful')
       } catch (regError: any) {
+        console.log('🔐 [authenticateWithPasskey] startRegistration error:', regError.name, regError.message)
         // If registration fails, throw the error up
         throw regError
       }
@@ -133,6 +151,8 @@ export async function authenticateWithPasskey(
       ? { email, credentialData: credential, challenge }
       : { email, assertion: credential, challenge }
 
+    console.log('🔐 [authenticateWithPasskey] Calling function:', endpoint, 'with payload keys:', Object.keys(payload))
+
     const execution = await functions.createExecution(
       functionId,
       JSON.stringify(payload),
@@ -141,7 +161,9 @@ export async function authenticateWithPasskey(
       'POST'
     )
 
+    console.log('🔐 [authenticateWithPasskey] Function response status:', execution.responseStatusCode)
     const result = JSON.parse(execution.responseBody)
+    console.log('🔐 [authenticateWithPasskey] Function result:', result)
 
     if (!result.success) {
       let errorCode: PasskeyAuthResult['code'] = 'server_error'
@@ -160,7 +182,9 @@ export async function authenticateWithPasskey(
     }
 
     // Step 5: Create Appwrite session with the token
+    console.log('🔐 [authenticateWithPasskey] Creating session with token...')
     await account.createSession(result.token.userId, result.token.secret)
+    console.log('🔐 [authenticateWithPasskey] Session created successfully!')
 
     return {
       success: true,

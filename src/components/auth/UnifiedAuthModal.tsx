@@ -113,6 +113,8 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
   }
 
   const handlePasskeyAuth = async () => {
+    console.log('🔐 Passkey auth button clicked, email:', email)
+    
     if (!email || !email.includes('@')) {
       toast.error('Please enter a valid email address')
       return
@@ -124,10 +126,13 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       return
     }
 
+    console.log('🔐 Starting passkey authentication...')
     setIsSubmitting(true)
 
     try {
+      console.log('🔐 Calling authenticateWithPasskey...')
       const result = await authenticateWithPasskey({ email })
+      console.log('🔐 Passkey result:', result)
 
       if (!result.success) {
         // Provide detailed, user-friendly error messages based on error codes
@@ -323,7 +328,10 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
                 type="button"
                 variant="outline"
                 size="md"
-                onClick={handlePasskeyAuth}
+                onClick={() => {
+                  console.log('🔐 Button clicked! Email:', email, 'Submitting:', isSubmitting)
+                  handlePasskeyAuth()
+                }}
                 disabled={isSubmitting || !email}
                 className="w-full justify-start"
                 icon={<FiKey className="h-5 w-5" />}
