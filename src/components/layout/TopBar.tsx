@@ -19,7 +19,7 @@ import {
   FiShield
 } from 'react-icons/fi'
 import { getUserProfileLink, canonizeUsername } from '@/lib/appwrite'
-import { Web3AuthModal } from '@/components/auth/Web3AuthModal'
+import { UnifiedAuthModal } from '@/components/auth/UnifiedAuthModal'
 
 interface TopBarProps {
   onMenuClick: () => void
@@ -31,7 +31,6 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
   const router = useRouter()
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [authModalOpen, setAuthModalOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
 
   const handleSignOut = async () => {
     try {
@@ -184,33 +183,21 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                 <>
                   {/* Unauthenticated User Header */}
                   <div className="px-4 py-3 border-b border-neutral-200">
-                    <p className="text-sm font-medium text-neutral-900">Welcome to Web3Lancer Pay</p>
-                    <p className="text-xs text-neutral-500">Sign in to access your account</p>
+                    <p className="text-sm font-medium text-neutral-900">Welcome to LancerPay</p>
+                    <p className="text-xs text-neutral-500">Connect to access your account</p>
                   </div>
 
-                  {/* Authentication Options */}
+                  {/* Authentication Option */}
                   <div className="py-1">
                     <button
                       onClick={() => {
                         setProfileDropdownOpen(false)
-                        setAuthMode('login')
                         setAuthModalOpen(true)
                       }}
-                      className="flex w-full items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
+                      className="flex w-full items-center px-4 py-2 text-sm text-cyan-600 hover:bg-neutral-100 font-medium"
                     >
-                      <FiUser className="mr-3 h-4 w-4 text-neutral-500" />
-                      Sign In
-                    </button>
-                    <button
-                      onClick={() => {
-                        setProfileDropdownOpen(false)
-                        setAuthMode('signup')
-                        setAuthModalOpen(true)
-                      }}
-                      className="flex w-full items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
-                    >
-                      <FiPlus className="mr-3 h-4 w-4 text-neutral-500" />
-                      Sign Up
+                      <FiUser className="mr-3 h-4 w-4" />
+                      Connect
                     </button>
                   </div>
                 </>
@@ -220,11 +207,10 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
         </div>
       </div>
 
-      {/* Web3 Auth Modal */}
-      <Web3AuthModal
+      {/* Unified Auth Modal */}
+      <UnifiedAuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        mode={authMode}
       />
     </header>
   )

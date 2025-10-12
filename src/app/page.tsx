@@ -224,33 +224,15 @@ export default function LandingPage() {
               ) : (
                 <>
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <button
-                      onClick={() => {
-                        setAuthModalOpen(true)
-                        setAuthModalOpen(true)
-                      }}
-                      className="text-slate-600 hover:text-cyan-600 font-medium transition-colors"
-                    >
-                      Sign In
-                    </button>
-                  </motion.div>
-                  <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300, delay: 0.6 }}
                   >
                     <button
-                      onClick={() => {
-                        setAuthModalOpen(true)
-                        setAuthModalOpen(true)
-                      }}
+                      onClick={() => setAuthModalOpen(true)}
                       className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2.5 rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 font-semibold"
                     >
-                      Get Started
+                      Connect
                     </button>
                   </motion.div>
                 </>
@@ -849,7 +831,6 @@ export default function LandingPage() {
                       window.location.href = '/home'
                     } else {
                       setAuthModalOpen(true)
-                      setAuthModalOpen(true)
                     }
                   }}
                   className="group relative inline-flex items-center justify-center px-10 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden"
@@ -858,7 +839,7 @@ export default function LandingPage() {
                     className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   />
                   <span className="relative z-10 mr-3">
-                    {isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
+                    {isAuthenticated ? 'Go to Dashboard' : 'Connect'}
                   </span>
                   <motion.div
                     animate={{ x: [0, 5, 0] }}

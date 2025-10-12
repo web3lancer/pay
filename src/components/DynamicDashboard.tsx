@@ -69,7 +69,7 @@ const DynamicDashboard: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full font-semibold text-lg flex items-center gap-3 shadow-2xl hover:scale-105 transition-transform">
-                Get Started <span>→</span>
+                Connect <span>→</span>
               </button>
               
               <button className="px-8 py-4 border-2 border-white/30 rounded-full font-semibold text-lg flex items-center gap-3 backdrop-blur-sm hover:scale-105 transition-transform">
