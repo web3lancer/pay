@@ -2,12 +2,12 @@
  * Unified Authentication Modal
  * 
  * Supports Passkey, Web3 Wallet, and OTP authentication
- * Intelligently detects which methods to show based on user's email and preferences
+ * All methods are available without checking user existence
  */
 
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -24,86 +24,25 @@ interface UnifiedAuthModalProps {
 
 type AuthMethod = 'passkey' | 'wallet' | 'otp'
 
-interface AuthMethodsResponse {
-  exists: boolean
-  methods: AuthMethod[]
-  recommendedMethod?: AuthMethod
-}
-
 export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [otpUserId, setOtpUserId] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isCheckingEmail, setIsCheckingEmail] = useState(false)
-  const [availableMethods, setAvailableMethods] = useState<AuthMethod[]>([])
-  const [recommendedMethod, setRecommendedMethod] = useState<AuthMethod | null>(null)
   const [selectedMethod, setSelectedMethod] = useState<AuthMethod | null>(null)
-  const [userExists, setUserExists] = useState(false)
   const [otpSent, setOtpSent] = useState(false)
   const router = useRouter()
 
-  // Define checkEmailAuthMethods before useEffect
-  const checkEmailAuthMethods = useCallback(async (emailToCheck: string) => {
-    if (!emailToCheck || !emailToCheck.includes('@')) return
+  // Show auth methods when valid email is entered
+  const showMethodSelection = email.includes('@') && !selectedMethod
 
-    setIsCheckingEmail(true)
-    try {
-      const response = await fetch(`/api/auth/methods?email=${encodeURIComponent(emailToCheck)}`)
-      
-      if (!response.ok) {
-        console.warn('Auth methods API failed, using fallback')
-        throw new Error('Failed to check authentication methods')
-      }
-
-      const data: AuthMethodsResponse = await response.json()
-      
-      setUserExists(data.exists)
-      setAvailableMethods(data.methods)
-      setRecommendedMethod(data.recommendedMethod || null)
-      
-    } catch (error) {
-      console.error('Error checking email:', error)
-      // Fallback: Offer all methods for new users
-      // This ensures users can always authenticate even if the API fails
-      setAvailableMethods(['passkey', 'wallet', 'otp'])
-      setRecommendedMethod('otp')
-      setUserExists(false)
-    } finally {
-      setIsCheckingEmail(false)
-    }
-  }, [])
-
-  // Debounced email check
+  // Reset selected method when email changes
   useEffect(() => {
     if (!email || !email.includes('@')) {
-      setAvailableMethods([])
       setSelectedMethod(null)
-      setRecommendedMethod(null)
       setOtpSent(false)
-      return
     }
-
-    const timer = setTimeout(() => {
-      checkEmailAuthMethods(email)
-    }, 800) // 800ms debounce
-
-    // Safety timeout to prevent indefinite loading
-    const safetyTimer = setTimeout(() => {
-      if (isCheckingEmail) {
-        console.warn('Auth check timed out, using fallback')
-        setIsCheckingEmail(false)
-        setAvailableMethods(['passkey', 'wallet', 'otp'])
-        setRecommendedMethod('otp')
-        setUserExists(false)
-      }
-    }, 5000) // 5 second timeout
-
-    return () => {
-      clearTimeout(timer)
-      clearTimeout(safetyTimer)
-    }
-  }, [email, checkEmailAuthMethods, isCheckingEmail])
+  }, [email])
 
   const handleOTPAuth = async () => {
     if (!email || !email.includes('@')) {
@@ -172,78 +111,49 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       let credential
       let isRegistration = false
 
-      // Try authentication first if user exists
-      if (userExists) {
-        try {
-          credential = await startAuthentication({
-            optionsJSON: {
-              challenge,
-              rpId,
-              timeout: 60000,
-              userVerification: 'preferred',
-            }
-          })
-        } catch (authError: any) {
-          // If authentication fails, try registration
-          if (authError.name === 'NotAllowedError' || authError.message?.includes('No credentials')) {
-            toast('No passkey found. Creating a new one...', { icon: 'ℹ️' })
-            isRegistration = true
-            
-            credential = await startRegistration({
-              optionsJSON: {
-                challenge,
-                rp: {
-                  name: rpName,
-                  id: rpId,
-                },
-                user: {
-                  id: email,
-                  name: email,
-                  displayName: email,
-                },
-                pubKeyCredParams: [
-                  { alg: -7, type: 'public-key' },  // ES256
-                  { alg: -257, type: 'public-key' } // RS256
-                ],
-                authenticatorSelection: {
-                  userVerification: 'preferred',
-                  residentKey: 'preferred',
-                },
-                timeout: 60000,
-                attestation: 'none',
-              }
-            })
-          } else {
-            throw authError
-          }
-        }
-      } else {
-        // New user - register directly
-        isRegistration = true
-        credential = await startRegistration({
+      // Try authentication first, fallback to registration if needed
+      try {
+        credential = await startAuthentication({
           optionsJSON: {
             challenge,
-            rp: {
-              name: rpName,
-              id: rpId,
-            },
-            user: {
-              id: email,
-              name: email,
-              displayName: email,
-            },
-            pubKeyCredParams: [
-              { alg: -7, type: 'public-key' },  // ES256
-              { alg: -257, type: 'public-key' } // RS256
-            ],
-            authenticatorSelection: {
-              userVerification: 'preferred',
-              residentKey: 'preferred',
-            },
+            rpId,
             timeout: 60000,
-            attestation: 'none',
+            userVerification: 'preferred',
           }
         })
+      } catch (authError: any) {
+        // If authentication fails, try registration
+        if (authError.name === 'NotAllowedError' || authError.message?.includes('No credentials')) {
+          toast('No passkey found. Creating a new one...', { icon: 'ℹ️' })
+          isRegistration = true
+          
+          credential = await startRegistration({
+            optionsJSON: {
+              challenge,
+              rp: {
+                name: rpName,
+                id: rpId,
+              },
+              user: {
+                id: email,
+                name: email,
+                displayName: email,
+              },
+              pubKeyCredParams: [
+                { alg: -7, type: 'public-key' },  // ES256
+                { alg: -257, type: 'public-key' } // RS256
+              ],
+              authenticatorSelection: {
+                userVerification: 'preferred',
+                residentKey: 'preferred',
+              },
+              timeout: 60000,
+              attestation: 'none',
+            }
+          })
+        } else {
+          throw authError
+        }
       }
 
       // Get function ID from environment
@@ -394,11 +304,8 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
     setOtp('')
     setOtpUserId('')
     setIsSubmitting(false)
-    setAvailableMethods([])
     setSelectedMethod(null)
-    setRecommendedMethod(null)
     setOtpSent(false)
-    setUserExists(false)
   }
 
   const handleClose = () => {
@@ -408,14 +315,12 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
     }
   }
 
-  const showMethodSelection = availableMethods.length > 0 && !selectedMethod && !isCheckingEmail
-
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={userExists ? "Welcome Back!" : "Get Started"}
-      description={userExists ? "Sign in to your account" : "Create your secure account"}
+      title="Welcome!"
+      description="Sign in or create your account"
       size="md"
       closeOnOutsideClick={!isSubmitting}
     >
@@ -431,17 +336,11 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
             placeholder="your@email.com"
             required
             disabled={isSubmitting || otpSent}
-            endIcon={
-              isCheckingEmail ? (
-                <FiLoader className="h-5 w-5 text-neutral-400 animate-spin" />
-              ) : (
-                <FiMail className="h-5 w-5 text-neutral-400" />
-              )
-            }
+            endIcon={<FiMail className="h-5 w-5 text-neutral-400" />}
           />
           {!showMethodSelection && !otpSent && (
             <p className="text-xs text-gray-500 mt-2">
-              {isCheckingEmail ? 'Checking authentication methods...' : 'We\'ll detect your authentication method automatically'}
+              Enter your email to continue
             </p>
           )}
         </div>
@@ -471,65 +370,58 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
         {showMethodSelection && (
           <div className="space-y-3">
             <p className="text-sm font-medium text-gray-700">
-              {userExists ? 'Continue with:' : 'Get started with:'}
+              Choose your authentication method:
             </p>
             
-            {availableMethods.includes('passkey') && (
-              <div className="relative">
-                {recommendedMethod === 'passkey' && (
-                  <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium z-10">
-                    Recommended
-                  </div>
-                )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="md"
-                  onClick={handlePasskeyAuth}
-                  disabled={isSubmitting || !email}
-                  className="w-full justify-start"
-                  icon={<FiKey className="h-5 w-5" />}
-                >
-                  <span className="flex-1 text-left">Passkey</span>
-                  <span className="text-xs text-gray-500">Secure & Passwordless</span>
-                </Button>
+            {/* Passkey - Always Recommended */}
+            <div className="relative">
+              <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium z-10">
+                Recommended
               </div>
-            )}
-
-            {availableMethods.includes('wallet') && (
               <Button
                 type="button"
                 variant="outline"
                 size="md"
-                onClick={handleWalletAuth}
+                onClick={handlePasskeyAuth}
                 disabled={isSubmitting || !email}
                 className="w-full justify-start"
-                icon={<FiCreditCard className="h-5 w-5" />}
+                icon={<FiKey className="h-5 w-5" />}
               >
-                <span className="flex-1 text-left">Crypto Wallet</span>
-                <span className="text-xs text-gray-500">MetaMask & Web3</span>
+                <span className="flex-1 text-left">Passkey</span>
+                <span className="text-xs text-gray-500">Secure & Passwordless</span>
               </Button>
-            )}
+            </div>
 
-            {availableMethods.includes('otp') && (
-              <Button
-                type="button"
-                variant="outline"
-                size="md"
-                onClick={() => {
-                  setSelectedMethod('otp')
-                  handleOTPAuth()
-                }}
-                disabled={isSubmitting || !email}
-                className="w-full justify-start"
-                icon={<FiMail className="h-5 w-5" />}
-              >
-                <span className="flex-1 text-left">Email Code</span>
-                <span className="text-xs text-gray-500">
-                  {userExists ? 'Verify via email' : 'Start with email'}
-                </span>
-              </Button>
-            )}
+            {/* Wallet */}
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={handleWalletAuth}
+              disabled={isSubmitting || !email}
+              className="w-full justify-start"
+              icon={<FiCreditCard className="h-5 w-5" />}
+            >
+              <span className="flex-1 text-left">Crypto Wallet</span>
+              <span className="text-xs text-gray-500">MetaMask & Web3</span>
+            </Button>
+
+            {/* OTP */}
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={() => {
+                setSelectedMethod('otp')
+                handleOTPAuth()
+              }}
+              disabled={isSubmitting || !email}
+              className="w-full justify-start"
+              icon={<FiMail className="h-5 w-5" />}
+            >
+              <span className="flex-1 text-left">Email Code</span>
+              <span className="text-xs text-gray-500">Verify via email</span>
+            </Button>
           </div>
         )}
 
