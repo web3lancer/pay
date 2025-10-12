@@ -144,6 +144,9 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
           case 'verification_failed':
             toast.error('Passkey verification failed. Please try again.')
             break
+          case 'wallet_conflict':
+            toast.error('🔒 ' + result.error, { duration: 6000 })
+            break
           default:
             toast.error(result.error || 'Authentication failed')
         }
