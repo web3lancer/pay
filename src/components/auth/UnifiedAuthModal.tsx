@@ -146,11 +146,17 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
         return
       }
 
-      // Success!
-      toast.success('✅ Signed in with passkey!', { 
-        icon: '🔐',
-        duration: 4000 
-      })
+      // Success! Show appropriate message
+      const isNewRegistration = !result.token // If we just created account
+      toast.success(
+        isNewRegistration 
+          ? '✅ Passkey created! You\'re signed in!' 
+          : '✅ Signed in with passkey!', 
+        { 
+          icon: '🔐',
+          duration: 4000 
+        }
+      )
       
       // Close modal and redirect
       onClose()

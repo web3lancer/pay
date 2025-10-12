@@ -28,6 +28,7 @@ export interface PasskeyAuthResult {
 
 /**
  * Authenticate or register with passkey
+ * Intelligently handles both registration and authentication in one flow
  * Follows ignore1/function_appwrite_passkey/QUICKSTART.md
  */
 export async function authenticateWithPasskey(
@@ -48,56 +49,84 @@ export async function authenticateWithPasskey(
     if (!functionId) {
       return {
         success: false,
-        error: 'Passkey authentication is not configured. Please contact support.'
+        error: 'Passkey authentication is not configured. Please contact support.',
+        code: 'server_error'
       }
+    }
+
+    // Step 1: Check if user has any passkeys registered
+    let hasPasskeys = false
+    try {
+      const checkExecution = await functions.createExecution(
+        functionId,
+        JSON.stringify({ email }),
+        false,
+        '/passkeys',
+        'POST'
+      )
+      const checkResult = JSON.parse(checkExecution.responseBody)
+      hasPasskeys = checkResult.passkeys && checkResult.passkeys.length > 0
+    } catch (error) {
+      // If check fails, assume no passkeys (will attempt registration)
+      hasPasskeys = false
     }
 
     let credential
-    let isRegistration = false
+    let isRegistration = !hasPasskeys
 
-    // Try authentication first
-    try {
-      credential = await startAuthentication({
-        challenge,
-        rpId,
-        timeout: 60000,
-        userVerification: 'preferred',
-      })
-    } catch (authError: any) {
-      // If authentication fails, try registration
-      if (authError.name === 'NotAllowedError' || 
-          authError.message?.includes('No credentials') ||
-          authError.message?.includes('not found')) {
-        isRegistration = true
-        
-        credential = await startRegistration({
+    // Step 2: Either authenticate (if has passkeys) or register (if new user)
+    if (hasPasskeys) {
+      // User has passkeys - authenticate
+      try {
+        credential = await startAuthentication({
           challenge,
-          rp: {
-            name: rpName,
-            id: rpId,
-          },
-          user: {
-            id: email,
-            name: email,
-            displayName: email,
-          },
-          pubKeyCredParams: [
-            { alg: -7, type: 'public-key' },  // ES256
-            { alg: -257, type: 'public-key' } // RS256
-          ],
-          authenticatorSelection: {
-            userVerification: 'preferred',
-            residentKey: 'preferred',
-          },
+          rpId,
           timeout: 60000,
-          attestation: 'none',
+          userVerification: 'preferred',
         })
-      } else {
-        throw authError
+      } catch (authError: any) {
+        // If user cancels or has issues, check if we should fallback to registration
+        if (authError.name === 'NotAllowedError') {
+          // User cancelled - throw this up
+          throw authError
+        } else if (authError.message?.includes('No credentials') || 
+                   authError.message?.includes('not found')) {
+          // No credentials found, fallback to registration
+          isRegistration = true
+        } else {
+          // Other errors - throw them up
+          throw authError
+        }
       }
     }
 
-    // Call Appwrite function with appropriate endpoint
+    // Step 3: If registration is needed (new user or fallback), do registration
+    if (isRegistration) {
+      credential = await startRegistration({
+        challenge,
+        rp: {
+          name: rpName,
+          id: rpId,
+        },
+        user: {
+          id: email,
+          name: email,
+          displayName: email,
+        },
+        pubKeyCredParams: [
+          { alg: -7, type: 'public-key' },  // ES256
+          { alg: -257, type: 'public-key' } // RS256
+        ],
+        authenticatorSelection: {
+          userVerification: 'preferred',
+          residentKey: 'preferred',
+        },
+        timeout: 60000,
+        attestation: 'none',
+      })
+    }
+
+    // Step 4: Call Appwrite function with appropriate endpoint
     const endpoint = isRegistration ? '/register' : '/authenticate'
     const payload = isRegistration
       ? { email, credentialData: credential, challenge }
@@ -129,7 +158,7 @@ export async function authenticateWithPasskey(
       }
     }
 
-    // Create Appwrite session with the token
+    // Step 5: Create Appwrite session with the token
     await account.createSession(result.token.userId, result.token.secret)
 
     return {
