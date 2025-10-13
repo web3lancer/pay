@@ -30,6 +30,7 @@ export interface PasskeyAuthResult {
 /**
  * Unified "Continue with Passkey" flow
  * Intelligently handles both registration and authentication
+ * Automatically detects if user has passkeys and chooses the right flow
  */
 export async function authenticateWithPasskey(
   options: PasskeyAuthOptions
@@ -49,44 +50,28 @@ export async function authenticateWithPasskey(
   try {
     const passkeyAuth = new SimplePasskeyAuth();
     
-    // First, try to authenticate (if user has passkey)
-    console.log('🔐 Attempting passkey authentication for:', email);
-    const authResult = await passkeyAuth.authenticate(email);
+    // Use the unified method that automatically handles both registration and authentication
+    console.log('🔐 Attempting unified passkey authentication for:', email);
+    const result = await passkeyAuth.authenticateOrRegister(email);
     
-    if (authResult.success) {
+    if (result.success) {
       console.log('✅ Passkey authentication successful');
+      if (result.isRegistration) {
+        console.log('📝 New passkey registered');
+      } else {
+        console.log('🔓 Authenticated with existing passkey');
+      }
       return {
         success: true,
-        token: authResult.token,
-        isRegistration: false
+        token: result.token,
+        isRegistration: result.isRegistration
       };
     }
     
-    // If authentication fails because no passkey exists, try registration
-    if (authResult.error?.includes('No passkeys found')) {
-      console.log('📝 No passkey found, attempting registration...');
-      const regResult = await passkeyAuth.register(email);
-      
-      if (regResult.success) {
-        console.log('✅ Passkey registration successful');
-        return {
-          success: true,
-          token: regResult.token,
-          isRegistration: true
-        };
-      }
-      
-      return {
-        success: false,
-        error: regResult.error || 'Registration failed',
-        code: 'verification_failed'
-      };
-    }
-    
-    // Other authentication errors
+    // Handle errors
     return {
       success: false,
-      error: authResult.error || 'Authentication failed',
+      error: result.error || 'Passkey authentication failed',
       code: 'verification_failed'
     };
     
