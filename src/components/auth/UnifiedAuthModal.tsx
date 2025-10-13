@@ -16,7 +16,8 @@ import { FiMail, FiLoader, FiKey, FiCreditCard, FiLock, FiAlertCircle } from 're
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { 
-  authenticateWithPasskey, 
+  authenticateWithPasskey,
+  registerPasskey,
   authenticateWithWallet,
   sendEmailOTP,
   verifyEmailOTP,
@@ -119,6 +120,81 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
     }
   }
 
+  const handlePasskeyRegister = async () => {
+    if (!email || !email.includes('@')) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+
+    // Check browser support BEFORE attempting
+    if (!browserSupportsPasskeys) {
+      toast.error('❌ Your browser doesn\'t support passkeys. Please use Email Code or Wallet.', { 
+        duration: 5000 
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    setStatusMessage('Creating your passkey...')
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      console.log('📝 Registering passkey for:', email)
+      
+      const result = await registerPasskey({ email })
+
+      if (!result.success) {
+        setStatusMessage('')
+        
+        // Provide detailed, user-friendly error messages
+        switch (result.code) {
+          case 'cancelled':
+            toast.error('Passkey creation cancelled. Please try again when ready.', { duration: 3000 })
+            break
+          case 'not_supported':
+            toast.error('Your browser doesn\'t support passkeys. Try Email Code instead.', { duration: 5000 })
+            break
+          case 'wallet_conflict':
+            toast.error('🔒 ' + result.error, { duration: 6000 })
+            break
+          case 'verification_failed':
+            if (result.error?.includes('already exists')) {
+              toast.error('A passkey already exists. Try signing in instead.', { duration: 4000 })
+            } else {
+              toast.error(result.error || 'Registration failed', { duration: 4000 })
+            }
+            break
+          default:
+            toast.error(result.error || 'Registration failed', { duration: 4000 })
+        }
+        setIsSubmitting(false)
+        return
+      }
+
+      // Success!
+      setStatusMessage('')
+      toast.success('✅ Passkey created successfully!', { 
+        icon: '🔐',
+        duration: 4000 
+      })
+      
+      console.log('✅ Passkey registration successful!')
+      
+      // Small delay for session to propagate
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      onClose()
+      window.location.href = '/home'
+
+    } catch (err: any) {
+      console.error('❌ Passkey registration error:', err)
+      setStatusMessage('')
+      toast.error(err.message || 'Passkey registration failed')
+      setIsSubmitting(false)
+    }
+  }
+
   const handlePasskeyAuth = async () => {
     if (!email || !email.includes('@')) {
       toast.error('Please enter a valid email address')
@@ -134,15 +210,12 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
     }
 
     setIsSubmitting(true)
-    
-    // Show helpful message while waiting for passkey prompt
-    setStatusMessage('Preparing passkey...')
+    setStatusMessage('Signing in with passkey...')
 
     try {
-      // Small delay to show the status message
       await new Promise(resolve => setTimeout(resolve, 300))
       
-      console.log('🔐 Starting passkey authentication for:', email)
+      console.log('🔐 Authenticating passkey for:', email)
       
       const result = await authenticateWithPasskey({ email })
 
@@ -157,11 +230,14 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
           case 'not_supported':
             toast.error('Your browser doesn\'t support passkeys. Try Email Code instead.', { duration: 5000 })
             break
-          case 'verification_failed':
-            toast.error('Passkey verification failed. Please try again.', { duration: 4000 })
+          case 'no_passkey':
+            toast.error('No passkey found. Please register a passkey first.', { duration: 4000 })
             break
           case 'wallet_conflict':
             toast.error('🔒 ' + result.error, { duration: 6000 })
+            break
+          case 'verification_failed':
+            toast.error(result.error || 'Authentication failed', { duration: 4000 })
             break
           default:
             toast.error(result.error || 'Authentication failed', { duration: 4000 })
@@ -170,20 +246,12 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
         return
       }
 
-      // Success! Show contextual message
+      // Success!
       setStatusMessage('')
-      
-      if (result.isRegistration) {
-        toast.success('✅ Passkey created successfully!', { 
-          icon: '🔐',
-          duration: 4000 
-        })
-      } else {
-        toast.success('✅ Signed in with passkey!', { 
-          icon: '🔐',
-          duration: 4000 
-        })
-      }
+      toast.success('✅ Signed in with passkey!', { 
+        icon: '🔐',
+        duration: 4000 
+      })
       
       console.log('✅ Passkey authentication successful!')
       
@@ -382,29 +450,54 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
               Choose authentication method:
             </p>
             
-            {/* Passkey - Recommended */}
-            <div className="relative">
-              {browserSupportsPasskeys && (
-                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium z-10">
-                  Recommended
+            {/* Passkey Options - Register OR Sign In */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-600 mb-2">
+                {browserSupportsPasskeys ? '🔐 Passkey Authentication' : '⚠️ Passkeys Not Supported'}
+              </p>
+              
+              {browserSupportsPasskeys ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Register Passkey */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePasskeyRegister}
+                    disabled={isSubmitting || !email}
+                    className="w-full flex-col items-start h-auto py-3"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <FiKey className="h-4 w-4" />
+                      <span className="font-medium">Register</span>
+                    </div>
+                    <span className="text-xs text-gray-500">Create new passkey</span>
+                  </Button>
+
+                  {/* Sign In with Passkey */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePasskeyAuth}
+                    disabled={isSubmitting || !email}
+                    className="w-full flex-col items-start h-auto py-3"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <FiLock className="h-4 w-4" />
+                      <span className="font-medium">Sign In</span>
+                    </div>
+                    <span className="text-xs text-gray-500">Use existing passkey</span>
+                  </Button>
+                </div>
+              ) : (
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <FiAlertCircle className="h-4 w-4" />
+                    <span>Passkeys require Chrome, Safari, or Edge</span>
+                  </div>
                 </div>
               )}
-              <Button
-                type="button"
-                variant="outline"
-                size="md"
-                onClick={handlePasskeyAuth}
-                disabled={isSubmitting || !email || !browserSupportsPasskeys}
-                className="w-full justify-start"
-                icon={browserSupportsPasskeys ? <FiKey className="h-5 w-5" /> : <FiAlertCircle className="h-5 w-5 text-gray-400" />}
-              >
-                <span className="flex-1 text-left">
-                  {browserSupportsPasskeys ? 'Passkey' : 'Passkey (Not Supported)'}
-                </span>
-                <span className="text-xs text-gray-500">
-                  {browserSupportsPasskeys ? 'Secure & Passwordless' : 'Use Chrome/Safari'}
-                </span>
-              </Button>
             </div>
 
             {/* Wallet */}
