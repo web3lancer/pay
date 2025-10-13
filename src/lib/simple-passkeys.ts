@@ -1,14 +1,4 @@
-import { Client, Account } from 'appwrite';
-
-const client = new Client();
-if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) {
-  client.setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT);
-}
-if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID) {
-  client.setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID);
-}
-
-const account = new Account(client);
+import { account } from './appwrite-client';
 
 // Simple utility functions for WebAuthn
 function bufferToBase64Url(buffer: ArrayBuffer): string {
@@ -54,42 +44,6 @@ export class SimplePasskeyAuth {
     // No function URL needed - using Next.js API routes
   }
 
-  /**
-   * Unified passkey authentication - intelligently handles both registration and authentication
-   * Checks if user has passkeys first, then either authenticates or registers accordingly
-   */
-  async authenticateOrRegister(email: string): Promise<{ success: boolean; token?: any; error?: string; isRegistration?: boolean }> {
-    if (!('credentials' in navigator)) {
-      return { success: false, error: 'WebAuthn is not supported in this browser' };
-    }
-
-    try {
-      // Step 1: Check if user has existing passkeys
-      console.log('🔍 Checking if user has existing passkeys...');
-      const checkResponse = await fetch('/api/passkey/check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-
-      const checkResult = await checkResponse.json();
-      
-      if (checkResult.hasPasskeys) {
-        // User has passkeys - authenticate
-        console.log('✓ User has passkeys, attempting authentication...');
-        const authResult = await this.authenticate(email);
-        return { ...authResult, isRegistration: false };
-      } else {
-        // User has no passkeys - register
-        console.log('✗ User has no passkeys, attempting registration...');
-        const regResult = await this.register(email);
-        return { ...regResult, isRegistration: true };
-      }
-    } catch (error) {
-      return { success: false, error: (error as Error).message };
-    }
-  }
-
   async register(email: string): Promise<{ success: boolean; token?: any; error?: string }> {
     if (!('credentials' in navigator)) {
       return { success: false, error: 'WebAuthn is not supported in this browser' };
@@ -127,7 +81,10 @@ export class SimplePasskeyAuth {
 
       // Exchange token for session
       if (result.token?.secret) {
-        await account.createSession(result.token.userId, result.token.secret);
+        await account.createSession({
+          userId: result.token.userId,
+          secret: result.token.secret
+        });
       }
 
       return { success: true, token: result.token };
@@ -173,7 +130,10 @@ export class SimplePasskeyAuth {
 
       // Exchange token for session
       if (result.token?.secret) {
-        await account.createSession(result.token.userId, result.token.secret);
+        await account.createSession({
+          userId: result.token.userId,
+          secret: result.token.secret
+        });
       }
 
       return { success: true, token: result.token };
@@ -183,7 +143,7 @@ export class SimplePasskeyAuth {
   }
 
   private async generateRegistrationOptions(email: string): Promise<any> {
-    const rpName = process.env.NEXT_PUBLIC_RP_NAME || 'Web3 Pay';
+    const rpName = process.env.NEXT_PUBLIC_RP_NAME || 'Appwrite Passkey';
     const rpID = process.env.NEXT_PUBLIC_RP_ID || 'localhost';
     
     // Create deterministic user ID from email

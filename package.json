@@ -13,7 +13,7 @@
     "@headlessui/react": "^2.2.9",
     "@simplewebauthn/browser": "^13.2.2",
     "@simplewebauthn/server": "^13.2.2",
-    "appwrite": "^18.1.1",
+    "appwrite": "^20.1.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.22",
     "next": "15.3.3",

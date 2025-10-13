@@ -1,6 +1,6 @@
 /**
  * Authentication Helper Utilities
- * Using SimplePasskeyAuth for direct API route-based passkey authentication
+ * Using SimplePasskeyAuth with separate register/authenticate methods (POC pattern)
  */
 
 import { account, functions } from '@/lib/appwrite'
@@ -10,6 +10,7 @@ import { SimplePasskeyAuth } from '@/lib/simple-passkeys'
 // PASSKEY AUTHENTICATION
 // Uses SimplePasskeyAuth class with Next.js API routes
 // No Appwrite Functions required
+// Separate methods for registration and authentication
 // ============================================
 
 export interface PasskeyAuthOptions {
@@ -24,13 +25,77 @@ export interface PasskeyAuthResult {
   }
   error?: string
   code?: 'no_passkey' | 'cancelled' | 'not_supported' | 'verification_failed' | 'server_error' | 'wallet_conflict'
-  isRegistration?: boolean
 }
 
 /**
- * Unified "Continue with Passkey" flow
- * Intelligently handles both registration and authentication
- * Automatically detects if user has passkeys and chooses the right flow
+ * Register a new passkey for the user
+ */
+export async function registerPasskey(
+  options: PasskeyAuthOptions
+): Promise<PasskeyAuthResult> {
+  const { email } = options
+
+  // Check browser support FIRST
+  if (!supportsWebAuthn()) {
+    console.error('❌ Browser does not support WebAuthn')
+    return {
+      success: false,
+      error: 'Your browser does not support passkeys',
+      code: 'not_supported'
+    }
+  }
+
+  try {
+    const passkeyAuth = new SimplePasskeyAuth();
+    
+    console.log('📝 Registering passkey for:', email);
+    const result = await passkeyAuth.register(email);
+    
+    if (result.success) {
+      console.log('✅ Passkey registration successful');
+      return {
+        success: true,
+        token: result.token
+      };
+    }
+    
+    return {
+      success: false,
+      error: result.error || 'Registration failed',
+      code: 'verification_failed'
+    };
+    
+  } catch (error: any) {
+    console.error('❌ Passkey registration error:', error);
+    
+    // Handle specific WebAuthn errors
+    if (error.name === 'NotAllowedError') {
+      return {
+        success: false,
+        error: 'Passkey registration was cancelled or timed out',
+        code: 'cancelled'
+      };
+    }
+    
+    if (error.name === 'NotSupportedError') {
+      return {
+        success: false,
+        error: 'Passkeys are not supported on this device or browser',
+        code: 'not_supported'
+      };
+    }
+    
+    // Generic error
+    return {
+      success: false,
+      error: error.message || 'Passkey registration failed. Please try again.',
+      code: 'server_error'
+    };
+  }
+}
+
+/**
+ * Authenticate with an existing passkey
  */
 export async function authenticateWithPasskey(
   options: PasskeyAuthOptions
@@ -50,33 +115,25 @@ export async function authenticateWithPasskey(
   try {
     const passkeyAuth = new SimplePasskeyAuth();
     
-    // Use the unified method that automatically handles both registration and authentication
-    console.log('🔐 Attempting unified passkey authentication for:', email);
-    const result = await passkeyAuth.authenticateOrRegister(email);
+    console.log('🔐 Authenticating passkey for:', email);
+    const result = await passkeyAuth.authenticate(email);
     
     if (result.success) {
       console.log('✅ Passkey authentication successful');
-      if (result.isRegistration) {
-        console.log('📝 New passkey registered');
-      } else {
-        console.log('🔓 Authenticated with existing passkey');
-      }
       return {
         success: true,
-        token: result.token,
-        isRegistration: result.isRegistration
+        token: result.token
       };
     }
     
-    // Handle errors
     return {
       success: false,
-      error: result.error || 'Passkey authentication failed',
+      error: result.error || 'Authentication failed',
       code: 'verification_failed'
     };
     
   } catch (error: any) {
-    console.error('❌ Passkey error:', error);
+    console.error('❌ Passkey authentication error:', error);
     
     // Handle specific WebAuthn errors
     if (error.name === 'NotAllowedError') {

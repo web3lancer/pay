@@ -1,5 +1,7 @@
 import { Client, Users, ID, Query } from 'node-appwrite';
+import crypto from 'crypto';
 import * as SimpleWebAuthnServer from '@simplewebauthn/server';
+import * as SimpleWebAuthnServerHelpers from '@simplewebauthn/server/helpers';
 
 const client = new Client();
 const serverEndpoint = process.env.APPWRITE_ENDPOINT || process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
