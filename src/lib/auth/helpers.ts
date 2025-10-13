@@ -40,7 +40,7 @@ export async function registerPasskey(
     console.error('❌ Browser does not support WebAuthn')
     return {
       success: false,
-      error: 'Your browser does not support passkeys',
+      error: 'Your browser does not support passkeys. Please use Chrome, Safari, or Edge.',
       code: 'not_supported'
     }
   }
@@ -59,6 +59,23 @@ export async function registerPasskey(
       };
     }
     
+    // Handle specific error messages from server
+    if (result.error?.includes('wallet')) {
+      return {
+        success: false,
+        error: 'This account is already connected with a Web3 wallet. Please use wallet authentication instead.',
+        code: 'wallet_conflict'
+      };
+    }
+    
+    if (result.error?.includes('Too many')) {
+      return {
+        success: false,
+        error: 'Too many attempts. Please wait a moment and try again.',
+        code: 'server_error'
+      };
+    }
+    
     return {
       success: false,
       error: result.error || 'Registration failed',
@@ -72,7 +89,7 @@ export async function registerPasskey(
     if (error.name === 'NotAllowedError') {
       return {
         success: false,
-        error: 'Passkey registration was cancelled or timed out',
+        error: 'Passkey creation was cancelled. Please try again.',
         code: 'cancelled'
       };
     }
@@ -82,6 +99,14 @@ export async function registerPasskey(
         success: false,
         error: 'Passkeys are not supported on this device or browser',
         code: 'not_supported'
+      };
+    }
+    
+    if (error.name === 'InvalidStateError') {
+      return {
+        success: false,
+        error: 'A passkey already exists for this device. Try signing in instead.',
+        code: 'verification_failed'
       };
     }
     
@@ -107,7 +132,7 @@ export async function authenticateWithPasskey(
     console.error('❌ Browser does not support WebAuthn')
     return {
       success: false,
-      error: 'Your browser does not support passkeys',
+      error: 'Your browser does not support passkeys. Please use Chrome, Safari, or Edge.',
       code: 'not_supported'
     }
   }
@@ -126,6 +151,39 @@ export async function authenticateWithPasskey(
       };
     }
     
+    // Handle specific error messages from server
+    if (result.error?.includes('No passkeys found')) {
+      return {
+        success: false,
+        error: 'No passkey found for this account. Please register a passkey first.',
+        code: 'no_passkey'
+      };
+    }
+    
+    if (result.error?.includes('wallet')) {
+      return {
+        success: false,
+        error: 'This account is already connected with a Web3 wallet. Please use wallet authentication instead.',
+        code: 'wallet_conflict'
+      };
+    }
+    
+    if (result.error?.includes('Too many')) {
+      return {
+        success: false,
+        error: 'Too many attempts. Please wait a moment and try again.',
+        code: 'server_error'
+      };
+    }
+    
+    if (result.error?.includes('Unknown credential')) {
+      return {
+        success: false,
+        error: 'This passkey is not recognized. Please try a different passkey or register a new one.',
+        code: 'verification_failed'
+      };
+    }
+    
     return {
       success: false,
       error: result.error || 'Authentication failed',
@@ -139,7 +197,7 @@ export async function authenticateWithPasskey(
     if (error.name === 'NotAllowedError') {
       return {
         success: false,
-        error: 'Passkey authentication was cancelled or timed out',
+        error: 'Passkey authentication was cancelled. Please try again.',
         code: 'cancelled'
       };
     }
@@ -149,6 +207,14 @@ export async function authenticateWithPasskey(
         success: false,
         error: 'Passkeys are not supported on this device or browser',
         code: 'not_supported'
+      };
+    }
+    
+    if (error.name === 'InvalidStateError') {
+      return {
+        success: false,
+        error: 'No valid passkey found. Please ensure you have registered a passkey for this account.',
+        code: 'no_passkey'
       };
     }
     
