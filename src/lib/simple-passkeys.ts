@@ -64,78 +64,28 @@ export class SimplePasskeyAuth {
     }
 
     try {
-      // Step 1: Check if user has existing passkeys by calling the server
-      // Generate authentication options to see if credentials exist
-      const options = await this.generateAuthenticationOptions(email);
-      
-      // Try to call the auth API to check if user has passkeys
-      const checkResponse = await fetch('/api/passkey/auth', {
+      // Step 1: Check if user has existing passkeys
+      console.log('🔍 Checking if user has existing passkeys...');
+      const checkResponse = await fetch('/api/passkey/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          assertion: null, // No assertion yet, just checking
-          challenge: options.challenge
-        })
+        body: JSON.stringify({ email })
       });
 
-      // If we get a specific error about no passkeys, go to registration
-      if (!checkResponse.ok) {
-        const checkResult = await checkResponse.json();
-        if (checkResult.error?.includes('No passkeys found') || 
-            checkResult.error?.includes('Unknown credential')) {
-          console.log('No existing passkey found, starting registration flow...');
-          return await this.register(email);
-        }
-      }
-
-      // Step 2: User has passkeys, proceed with authentication
-      console.log('Existing passkeys found, starting authentication flow...');
+      const checkResult = await checkResponse.json();
       
-      // Get assertion from browser
-      const assertion = await navigator.credentials.get({ publicKey: options });
-      if (!assertion) {
-        return { success: false, error: 'Authentication failed' };
+      if (checkResult.hasPasskeys) {
+        // User has passkeys - authenticate
+        console.log('✓ User has passkeys, attempting authentication...');
+        const authResult = await this.authenticate(email);
+        return { ...authResult, isRegistration: false };
+      } else {
+        // User has no passkeys - register
+        console.log('✗ User has no passkeys, attempting registration...');
+        const regResult = await this.register(email);
+        return { ...regResult, isRegistration: true };
       }
-
-      // Convert to JSON
-      const assertionJSON = publicKeyCredentialToJSON(assertion);
-
-      // Send to Next.js API route for verification
-      const response = await fetch('/api/passkey/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          assertion: assertionJSON,
-          challenge: options.challenge
-        })
-      });
-
-      const result = await response.json();
-      
-      if (!response.ok) {
-        return { success: false, error: result.error || 'Authentication failed' };
-      }
-
-      // Exchange token for session
-      if (result.token?.secret) {
-        await account.createSession(result.token.userId, result.token.secret);
-      }
-
-      return { success: true, token: result.token, isRegistration: false };
-    } catch (error: any) {
-      // If user cancelled or no credentials available, try registration
-      if (error.name === 'NotAllowedError' || error.name === 'InvalidStateError') {
-        console.log('No valid credentials or user cancelled, trying registration...');
-        try {
-          const regResult = await this.register(email);
-          return { ...regResult, isRegistration: true };
-        } catch (regError) {
-          return { success: false, error: (regError as Error).message };
-        }
-      }
-      
+    } catch (error) {
       return { success: false, error: (error as Error).message };
     }
   }
