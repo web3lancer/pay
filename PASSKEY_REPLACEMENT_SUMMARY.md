@@ -7,7 +7,7 @@ Successfully replaced the Appwrite Function-based passkey implementation with a 
 The previous passkey implementation used Appwrite Functions, which caused issues due to the server being a function. The POC in `ignore1/appwrite-passkey` works perfectly using Next.js API routes instead.
 
 ## Solution
-Implemented the exact pattern from the POC, replacing Appwrite Functions with Next.js API routes.
+Implemented the exact pattern from the POC, replacing Appwrite Functions with Next.js API routes, and added intelligent authentication/registration detection.
 
 ## Changes Made
 
@@ -32,6 +32,7 @@ Implemented the exact pattern from the POC, replacing Appwrite Functions with Ne
 - Client-side passkey handling
 - Uses native WebAuthn API directly (no @simplewebauthn/browser)
 - Methods:
+  - `authenticateOrRegister()` - **INTELLIGENT unified method that checks for existing passkeys first**
   - `register()` - Register passkey flow
   - `authenticate()` - Authenticate passkey flow
   - Includes base64url conversion utilities
@@ -48,6 +49,12 @@ Implemented the exact pattern from the POC, replacing Appwrite Functions with Ne
 - Receives assertion from browser
 - Calls `PasskeyServer.authenticatePasskey()`
 - Returns session token
+
+#### `/src/app/api/passkey/check/route.ts`
+- **NEW**: Check if user has existing passkeys
+- Called BEFORE attempting authentication or registration
+- Enables intelligent decision making
+- Returns `{ hasPasskeys: boolean, count: number }`
 
 ### 3. Files Modified
 
@@ -91,21 +98,35 @@ Alternative variable names supported:
 
 ## How It Works
 
-### Registration Flow
-1. User enters email and clicks passkey button
-2. `SimplePasskeyAuth.register()` generates registration options
-3. Browser shows passkey creation prompt
-4. Credential is sent to `/api/passkey/register`
-5. Server verifies and stores in user prefs
-6. Session token is returned and used to create Appwrite session
+### Intelligent Flow (Single Button)
+1. User enters email and clicks "Continue with Passkey"
+2. System calls `/api/passkey/check` to check if user has existing passkeys
+3. Server checks user preferences for stored credentials
+4. Returns `{ hasPasskeys: true/false }`
 
-### Authentication Flow
-1. User enters email and clicks passkey button
-2. `SimplePasskeyAuth.authenticate()` generates auth options
-3. Browser shows passkey selection prompt
-4. Assertion is sent to `/api/passkey/auth`
-5. Server verifies against stored credential
-6. Session token is returned and used to create Appwrite session
+**If hasPasskeys = TRUE (Authentication Flow):**
+5. `authenticate()` is called
+6. Browser shows "Sign in with passkey" prompt
+7. User approves (Touch ID, Face ID, PIN, etc.)
+8. Assertion sent to `/api/passkey/auth`
+9. Server verifies signature against stored public key
+10. Session token returned and Appwrite session created
+11. User is logged in ✓
+
+**If hasPasskeys = FALSE (Registration Flow):**
+5. `register()` is called
+6. Browser shows "Create a passkey" prompt
+7. User approves (Touch ID, Face ID, PIN, etc.)
+8. Credential sent to `/api/passkey/register`
+9. Server verifies and stores credential in user preferences
+10. Session token returned and Appwrite session created
+11. User is logged in ✓
+
+### Why This Works
+- **No guessing**: System checks server-side before calling browser API
+- **No failed prompts**: User never sees "no credentials" errors
+- **Seamless UX**: Single button intelligently handles both cases
+- **Server-side state**: Passkey existence determined by server, not client
 
 ## Key Differences from Previous Implementation
 
