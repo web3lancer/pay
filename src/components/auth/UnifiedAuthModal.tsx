@@ -18,6 +18,7 @@ import toast from 'react-hot-toast'
 import { 
   authenticateWithPasskey,
   registerPasskey,
+  continueWithPasskey,
   authenticateWithWallet,
   sendEmailOTP,
   verifyEmailOTP,
@@ -116,6 +117,77 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
       console.error('OTP verify error:', err)
       toast.error(err.message || 'Verification failed')
       setStatusMessage('')
+      setIsSubmitting(false)
+    }
+  }
+
+  const handlePasskeyContinue = async () => {
+    if (!email || !email.includes('@')) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+
+    // Check browser support BEFORE attempting
+    if (!browserSupportsPasskeys) {
+      toast.error('❌ Your browser doesn\'t support passkeys. Please use Email Code or Wallet.', { 
+        duration: 5000 
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    setStatusMessage('Processing passkey...')
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      console.log('🔐 Continue with passkey for:', email)
+      
+      const result = await continueWithPasskey({ email })
+
+      if (!result.success) {
+        setStatusMessage('')
+        
+        // Provide detailed, user-friendly error messages
+        switch (result.code) {
+          case 'cancelled':
+            toast.error('Passkey cancelled. Please try again when ready.', { duration: 3000 })
+            break
+          case 'not_supported':
+            toast.error('Your browser doesn\'t support passkeys. Try Email Code instead.', { duration: 5000 })
+            break
+          case 'wallet_conflict':
+            toast.error('🔒 ' + result.error, { duration: 6000 })
+            break
+          case 'verification_failed':
+            toast.error(result.error || 'Passkey failed', { duration: 4000 })
+            break
+          default:
+            toast.error(result.error || 'Authentication failed', { duration: 4000 })
+        }
+        setIsSubmitting(false)
+        return
+      }
+
+      // Success!
+      setStatusMessage('')
+      toast.success('✅ Success with passkey!', { 
+        icon: '🔐',
+        duration: 4000 
+      })
+      
+      console.log('✅ Passkey flow successful!')
+      
+      // Small delay for session to propagate
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      onClose()
+      window.location.href = '/home'
+
+    } catch (err: any) {
+      console.error('❌ Passkey error:', err)
+      setStatusMessage('')
+      toast.error(err.message || 'Passkey failed')
       setIsSubmitting(false)
     }
   }
@@ -450,46 +522,58 @@ export function UnifiedAuthModal({ isOpen, onClose }: UnifiedAuthModalProps) {
               Choose authentication method:
             </p>
             
-            {/* Passkey Options - Register OR Sign In */}
+            {/* Passkey - Single Intelligent Button (POC Pattern) */}
             <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-600 mb-2">
-                {browserSupportsPasskeys ? '🔐 Passkey Authentication' : '⚠️ Passkeys Not Supported'}
-              </p>
-              
               {browserSupportsPasskeys ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Register Passkey */}
+                <>
+                  {/* Single "Continue with Passkey" Button */}
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
-                    onClick={handlePasskeyRegister}
+                    size="md"
+                    onClick={handlePasskeyContinue}
                     disabled={isSubmitting || !email}
-                    className="w-full flex-col items-start h-auto py-3"
+                    className="w-full justify-start relative"
+                    icon={<FiKey className="h-5 w-5" />}
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      <FiKey className="h-4 w-4" />
-                      <span className="font-medium">Register</span>
+                    <span className="flex-1 text-left">Continue with Passkey</span>
+                    <span className="text-xs text-gray-500">Secure & Passwordless</span>
+                    <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      Recommended
                     </div>
-                    <span className="text-xs text-gray-500">Create new passkey</span>
                   </Button>
-
-                  {/* Sign In with Passkey */}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handlePasskeyAuth}
-                    disabled={isSubmitting || !email}
-                    className="w-full flex-col items-start h-auto py-3"
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <FiLock className="h-4 w-4" />
-                      <span className="font-medium">Sign In</span>
-                    </div>
-                    <span className="text-xs text-gray-500">Use existing passkey</span>
-                  </Button>
-                </div>
+                  
+                  {/* Optional: Expandable section for explicit Register/Sign In */}
+                  {false && ( // Set to true to show advanced options
+                    <details className="text-xs">
+                      <summary className="cursor-pointer text-gray-500 hover:text-gray-700">
+                        Advanced: Separate Register/Sign In
+                      </summary>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handlePasskeyRegister}
+                          disabled={isSubmitting || !email}
+                          className="w-full"
+                        >
+                          Register
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handlePasskeyAuth}
+                          disabled={isSubmitting || !email}
+                          className="w-full"
+                        >
+                          Sign In
+                        </Button>
+                      </div>
+                    </details>
+                  )}
+                </>
               ) : (
                 <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 text-sm text-gray-600">

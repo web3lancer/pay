@@ -28,6 +28,95 @@ export interface PasskeyAuthResult {
 }
 
 /**
+ * Unified "Continue with Passkey" flow
+ * Intelligently handles both registration and authentication in a single call
+ * Based on POC's continueWithPasskey() implementation
+ */
+export async function continueWithPasskey(
+  options: PasskeyAuthOptions
+): Promise<PasskeyAuthResult> {
+  const { email } = options
+
+  // Check browser support FIRST
+  if (!supportsWebAuthn()) {
+    console.error('❌ Browser does not support WebAuthn')
+    return {
+      success: false,
+      error: 'Your browser does not support passkeys. Please use Chrome, Safari, or Edge.',
+      code: 'not_supported'
+    }
+  }
+
+  try {
+    const passkeyAuth = new SimplePasskeyAuth();
+    
+    console.log('🔐 Continue with passkey for:', email);
+    const result = await passkeyAuth.continueWithPasskey(email);
+    
+    if (result.success) {
+      if (result.isRegistration) {
+        console.log('✅ Passkey registered and logged in!');
+      } else {
+        console.log('✅ Passkey authenticated!');
+      }
+      return {
+        success: true,
+        token: result.token
+      };
+    }
+    
+    // Handle specific error messages
+    if (result.error?.includes('wallet')) {
+      return {
+        success: false,
+        error: 'This account is already connected with a Web3 wallet. Please use wallet authentication instead.',
+        code: 'wallet_conflict'
+      };
+    }
+    
+    if (result.error?.includes('Too many')) {
+      return {
+        success: false,
+        error: result.error,
+        code: 'server_error'
+      };
+    }
+    
+    return {
+      success: false,
+      error: result.error || 'Authentication failed',
+      code: 'verification_failed'
+    };
+    
+  } catch (error: any) {
+    console.error('❌ Passkey error:', error);
+    
+    // Handle specific WebAuthn errors
+    if (error.name === 'NotAllowedError') {
+      return {
+        success: false,
+        error: 'Passkey was cancelled. Please try again.',
+        code: 'cancelled'
+      };
+    }
+    
+    if (error.name === 'NotSupportedError') {
+      return {
+        success: false,
+        error: 'Passkeys are not supported on this device or browser',
+        code: 'not_supported'
+      };
+    }
+    
+    return {
+      success: false,
+      error: error.message || 'Passkey authentication failed. Please try again.',
+      code: 'server_error'
+    };
+  }
+}
+
+/**
  * Register a new passkey for the user
  */
 export async function registerPasskey(

@@ -44,6 +44,100 @@ export class SimplePasskeyAuth {
     // No function URL needed - using Next.js API routes
   }
 
+  /**
+   * Unified "Continue with Passkey" flow
+   * Intelligently tries sign-in first, falls back to registration
+   * Based on POC's continueWithPasskey() from /login/page.tsx
+   */
+  async continueWithPasskey(email: string): Promise<{ success: boolean; token?: any; error?: string; isRegistration?: boolean }> {
+    if (!('credentials' in navigator)) {
+      return { success: false, error: 'WebAuthn is not supported in this browser' };
+    }
+
+    try {
+      // 1) Probe sign-in capability by getting auth options
+      const optRes = await fetch('/api/passkey/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          assertion: null, // Probe only
+          challenge: 'probe'
+        })
+      });
+
+      // Handle rate limiting
+      if (optRes.status === 429) {
+        const retryAfter = optRes.headers.get('Retry-After') || '';
+        return { 
+          success: false, 
+          error: `Too many attempts. Retry after ${retryAfter || 'a moment'}.` 
+        };
+      }
+
+      // Handle wallet conflict
+      if (optRes.status === 403) {
+        const body = await optRes.json().catch(() => ({}));
+        return { 
+          success: false, 
+          error: body?.error || 'Account already connected with wallet' 
+        };
+      }
+
+      let doRegister = false;
+
+      // Check if user has passkeys by attempting to get auth options
+      if (optRes.ok) {
+        const authResult = await optRes.json();
+        // If server returned "No passkeys found", we need to register
+        if (authResult.error?.includes('No passkeys found')) {
+          doRegister = true;
+        }
+      } else {
+        // Any other error, try registration
+        doRegister = true;
+      }
+
+      if (!doRegister) {
+        // 2) Sign-in path - user has passkeys
+        try {
+          const authResult = await this.authenticate(email);
+          if (authResult.success) {
+            return { ...authResult, isRegistration: false };
+          }
+          // If authentication failed with specific errors, try registration
+          if (authResult.error?.includes('Unknown credential') || 
+              authResult.error?.includes('No passkeys found')) {
+            doRegister = true;
+          } else {
+            return authResult;
+          }
+        } catch (e: any) {
+          // User canceled or browser error → try registration
+          if (e.name === 'NotAllowedError' || e.name === 'InvalidStateError') {
+            doRegister = true;
+          } else {
+            throw e;
+          }
+        }
+      }
+
+      // 3) Registration path
+      if (doRegister) {
+        const regResult = await this.register(email);
+        if (regResult.success) {
+          return { ...regResult, isRegistration: true };
+        }
+        return regResult;
+      }
+
+      return { success: false, error: 'Unexpected flow state' };
+
+    } catch (error) {
+      return { success: false, error: (error as Error).message };
+    }
+  }
+
   async register(email: string): Promise<{ success: boolean; token?: any; error?: string }> {
     if (!('credentials' in navigator)) {
       return { success: false, error: 'WebAuthn is not supported in this browser' };
