@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { PageLayout } from '@/components/layout/PageLayout'
 import CardList from '@/components/cards/CardList'
 import CardCreateForm from '@/components/cards/CardCreateForm'
 import { useCardContext } from '@/contexts/CardContext'
@@ -31,7 +32,7 @@ export default function CardsClient() {
   }
 
   return (
-    <div>
+    <PageLayout>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold">Virtual Cards</h1>
         <Button
@@ -52,6 +53,6 @@ export default function CardsClient() {
         onDelete={handleDelete}
         actionLoading={actionLoading}
       />
-    </div>
+    </PageLayout>
   )
 }

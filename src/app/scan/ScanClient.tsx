@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { FiCamera, FiUpload, FiArrowLeft, FiUser, FiDollarSign } from 'react-icons/fi'
 import { QRScanner } from '@/components/scanner/QRScanner'
-import { AppShell } from '@/components/layout/AppShell'
+import { PageLayout } from '@/components/layout/PageLayout'
 
 interface ScannedData {
   type: 'address' | 'payment_request' | 'profile' | 'unknown'
@@ -114,8 +114,7 @@ export function ScanClient() {
   }
 
   return (
-    <AppShell>
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <PageLayout>
         <div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -317,6 +316,6 @@ export function ScanClient() {
         onScan={handleScan}
         title="Scan Payment QR Code"
       />
-    </AppShell>
+    </PageLayout>
   )
 }
