@@ -6,6 +6,7 @@ import { WalletProvider } from '@/contexts/WalletContext'
 import { TransactionProvider } from '@/contexts/TransactionContext'
 import { PaymentRequestProvider } from '@/contexts/PaymentRequestContext'
 import { ExchangeRateProvider } from '@/contexts/ExchangeRateContext'
+import { SidebarProvider } from '@/contexts/SidebarContext'
 import { AptosProvider } from '@/integrations/aptos/provider'
 import LayoutClient from './layoutClient'
 
@@ -28,9 +29,11 @@ export default function RootLayout({
               <WalletProvider>
                 <TransactionProvider>
                   <PaymentRequestProvider>
-                    <Providers>
-                      <LayoutClient>{children}</LayoutClient>
-                    </Providers>
+                    <SidebarProvider>
+                      <Providers>
+                        <LayoutClient>{children}</LayoutClient>
+                      </Providers>
+                    </SidebarProvider>
                   </PaymentRequestProvider>
                 </TransactionProvider>
               </WalletProvider>
