@@ -10,7 +10,7 @@ import {
   FiUser,
 } from 'react-icons/fi';
 
-import { AppShell } from '@/components/layout/AppShell';
+import { PageLayout } from '@/components/layout/PageLayout';
 import TwoFactorSettings from '@/components/security/TwoFactorSettings';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -292,8 +292,7 @@ export default function SettingsPage() {
   );
 
   return (
-    <AppShell>
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
+    <PageLayout>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900">Settings</h1>
           <p className="text-neutral-600 mt-2">
@@ -345,7 +344,6 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-      </div>
-    </AppShell>
+    </PageLayout>
   )
 }

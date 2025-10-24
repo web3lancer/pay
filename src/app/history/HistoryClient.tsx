@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
+import { PageLayout } from '@/components/layout/PageLayout'
 import { FiPlus, FiCopy, FiDownload, FiShare2, FiX, FiCheck } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
-import { AppShell } from '@/components/layout/AppShell'
 
 // Mock data for payment history
 const paymentHistory = [
@@ -53,8 +53,7 @@ export function HistoryClient() {
   }
 
   return (
-    <AppShell>
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
+    <PageLayout>
         {/* Page Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-neutral-900">Payment History</h1>
@@ -144,7 +143,6 @@ export function HistoryClient() {
             )}
           </div>
         </div>
-      </div>
-    </AppShell>
+    </PageLayout>
   )
 }
