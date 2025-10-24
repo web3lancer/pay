@@ -2,15 +2,14 @@
  * Route Protection Component
  * 
  * Protects routes that require authentication
- * Shows auth modal if user is not authenticated
+ * Redirects to external auth service if user is not authenticated
  */
 
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { UnifiedAuthModal } from './auth/UnifiedAuthModal'
 import { FiLoader } from 'react-icons/fi'
 
 interface RouteGuardProps {
@@ -37,10 +36,9 @@ function isProtectedRoute(pathname: string): boolean {
 }
 
 export function RouteGuard({ children }: RouteGuardProps) {
-  const { isAuthenticated, loading } = useAuth()
-  const router = useRouter()
+  const { isAuthenticated, loading, redirectToAuth } = useAuth()
   const pathname = usePathname()
-  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [redirecting, setRedirecting] = useState(false)
 
   useEffect(() => {
     if (loading) return
@@ -48,12 +46,10 @@ export function RouteGuard({ children }: RouteGuardProps) {
     const needsAuth = isProtectedRoute(pathname)
 
     if (needsAuth && !isAuthenticated) {
-      // Show auth modal instead of redirecting
-      setShowAuthModal(true)
-    } else {
-      setShowAuthModal(false)
+      setRedirecting(true)
+      redirectToAuth()
     }
-  }, [isAuthenticated, loading, pathname])
+  }, [isAuthenticated, loading, pathname, redirectToAuth])
 
   // Show loading state while checking auth
   if (loading) {
@@ -67,42 +63,30 @@ export function RouteGuard({ children }: RouteGuardProps) {
     )
   }
 
+  // Show redirecting state
+  if (redirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <FiLoader className="h-8 w-8 animate-spin text-cyan-600 mx-auto" />
+          <p className="mt-4 text-gray-600">Redirecting to authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
   // Show children if authenticated or not protected
   if (isAuthenticated || !isProtectedRoute(pathname)) {
     return <>{children}</>
   }
 
-  // Show auth modal for protected routes
+  // Fallback: show loading (should redirect via useEffect)
   return (
-    <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md px-6">
-          <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">W3</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Authentication Required
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Please sign in to access this page
-          </p>
-          <button
-            onClick={() => setShowAuthModal(true)}
-            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full font-medium shadow-lg hover:scale-105 transition-all"
-          >
-            Sign In
-          </button>
-        </div>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <FiLoader className="h-8 w-8 animate-spin text-cyan-600 mx-auto" />
+        <p className="mt-4 text-gray-600">Authenticating...</p>
       </div>
-
-      <UnifiedAuthModal
-        isOpen={showAuthModal}
-        onClose={() => {
-          setShowAuthModal(false)
-          // Redirect to home page if user closes modal without auth
-          router.push('/')
-        }}
-      />
-    </>
+    </div>
   )
 }
