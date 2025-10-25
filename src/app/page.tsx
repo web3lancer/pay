@@ -11,14 +11,12 @@ import {
   FiCreditCard, FiLock, FiRefreshCw, FiEye, FiHeart,
   FiBarChart, FiTarget, FiPlay, FiChevronDown
 } from 'react-icons/fi'
-import { UnifiedAuthModal } from '@/components/auth/UnifiedAuthModal'
 
 export default function LandingPage() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, redirectToAuth } = useAuth()
   const [email, setEmail] = useState('')
   const [activeFeature, setActiveFeature] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
-  const [authModalOpen, setAuthModalOpen] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
@@ -229,7 +227,7 @@ export default function LandingPage() {
                     transition={{ type: "spring", stiffness: 300, delay: 0.6 }}
                   >
                     <button
-                      onClick={() => setAuthModalOpen(true)}
+                      onClick={redirectToAuth}
                       className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2.5 rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 font-semibold"
                     >
                       Connect
@@ -303,8 +301,7 @@ export default function LandingPage() {
                       if (isAuthenticated) {
                         window.location.href = '/home'
                       } else {
-                        setAuthModalOpen(true)
-                        setAuthModalOpen(true)
+                        redirectToAuth()
                       }
                     }}
                     className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden w-full"
@@ -830,7 +827,7 @@ export default function LandingPage() {
                     if (isAuthenticated) {
                       window.location.href = '/home'
                     } else {
-                      setAuthModalOpen(true)
+                      redirectToAuth()
                     }
                   }}
                   className="group relative inline-flex items-center justify-center px-10 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 overflow-hidden"
@@ -1040,12 +1037,6 @@ export default function LandingPage() {
       >
         <FiChevronDown className="w-5 h-5 rotate-180" />
       </motion.button>
-
-      {/* Auth Modal */}
-      <UnifiedAuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-      />
     </div>
   )
 }

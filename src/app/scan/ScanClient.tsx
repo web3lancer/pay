@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { FiCamera, FiUpload, FiArrowLeft, FiUser, FiDollarSign } from 'react-icons/fi'
 import { QRScanner } from '@/components/scanner/QRScanner'
 import { PageLayout } from '@/components/layout/PageLayout'
@@ -115,7 +116,7 @@ export function ScanClient() {
 
   return (
     <PageLayout>
-        <div
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -306,7 +307,7 @@ export function ScanClient() {
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* QR Scanner Modal */}

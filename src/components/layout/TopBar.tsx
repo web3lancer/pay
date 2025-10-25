@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { useAuth } from '@/contexts/AuthContext'
-import type { Users } from '@/types/appwrite.d'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -12,14 +11,9 @@ import {
   FiSearch,
   FiBell,
   FiUser,
-  FiPlus,
-  FiSend,
   FiLogOut,
-  FiSettings,
-  FiShield
+  FiSettings
 } from 'react-icons/fi'
-import { getUserProfileLink, canonizeUsername } from '@/lib/appwrite'
-import { UnifiedAuthModal } from '@/components/auth/UnifiedAuthModal'
 
 interface TopBarProps {
   onMenuClick: () => void
@@ -27,29 +21,17 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
-  const { account, userProfile, logout, isLoading, isAuthenticated } = useAuth()
+  const { logout, isAuthenticated, redirectToAuth } = useAuth()
   const router = useRouter()
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
-  const [authModalOpen, setAuthModalOpen] = useState(false)
 
   const handleSignOut = async () => {
     try {
-      await logout()
-      router.push('/auth/login')
+      logout()
     } catch (error) {
       console.error('Sign out failed:', error)
     }
   }
-
-  // Get username and email from userProfile (database), fallback to account
-  const username = userProfile?.username || account?.name || ''
-  const email = userProfile?.email || account?.email || ''
-  const displayName = userProfile?.displayName || account?.name || ''
-  const userId = userProfile?.userId || account?.$id || ''
-  const profileLink = getUserProfileLink({ username: username, userId })
-
-  // Get first letter of name for avatar
-  const firstLetter = displayName.charAt(0).toUpperCase()
 
   return (
     <header className={cn(
@@ -113,23 +95,11 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
           >
             <div className="h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center">
-              {isAuthenticated && account?.prefs?.profileImage ? (
-                <img
-                  src={account.prefs.profileImage}
-                  alt={displayName}
-                  className="h-8 w-8 rounded-full object-cover"
-                />
-              ) : (
-                <FiUser className="h-4 w-4 text-cyan-600" />
-              )}
+              <FiUser className="h-4 w-4 text-cyan-600" />
             </div>
             {!mobile && (
               <span className="text-sm font-medium text-neutral-900">
-                {isLoading
-                  ? '...'
-                  : (isAuthenticated
-                      ? (username || 'Account')
-                      : 'Account')}
+                {isAuthenticated ? 'Account' : 'Account'}
               </span>
             )}
           </button>
@@ -141,20 +111,11 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                 <>
                   {/* Authenticated User Header */}
                   <div className="px-4 py-3 border-b border-neutral-200">
-                    <p className="text-sm font-medium text-neutral-900">{email}</p>
+                    <p className="text-sm font-medium text-neutral-900">Account</p>
                   </div>
 
                   {/* Authenticated Menu Items */}
                   <div className="py-1">
-                    {/* Your Profile menu item */}
-                    <Link
-                      href={profileLink}
-                      className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
-                      onClick={() => setProfileDropdownOpen(false)}
-                    >
-                      <FiUser className="mr-3 h-4 w-4 text-neutral-500" />
-                      Your Profile
-                    </Link>
                     <Link
                       href="/settings"
                       className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
@@ -192,7 +153,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                     <button
                       onClick={() => {
                         setProfileDropdownOpen(false)
-                        setAuthModalOpen(true)
+                        redirectToAuth()
                       }}
                       className="flex w-full items-center px-4 py-2 text-sm text-cyan-600 hover:bg-neutral-100 font-medium"
                     >
@@ -206,12 +167,6 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
           )}
         </div>
       </div>
-
-      {/* Unified Auth Modal */}
-      <UnifiedAuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-      />
     </header>
   )
 }
