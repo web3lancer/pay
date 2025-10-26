@@ -6,7 +6,9 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
-import { account, getCurrentUserId, getCurrentUserProfile } from '@/lib/appwrite'
+import { account } from '@/lib/appwrite/client'
+import { getCurrentUserId, getCurrentUser } from '@/lib/appwrite/auth'
+import { getUser } from '@/lib/appwrite/users'
 import { initializeSessionMonitoring, onSessionChange } from '@/lib/sessionSync'
 
 interface UserProfile {
@@ -55,27 +57,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true)
       
-      // Try to get current user from Appwrite
+      // Try to get current user from Appwrite account
       const userId = await getCurrentUserId()
       
       if (userId) {
         // User is authenticated
         setIsAuthenticated(true)
         
-        // Fetch user profile
+        // Fetch full account details
         try {
-          const userProfile = await getCurrentUserProfile()
-          setUser({
+          const accountData = await getCurrentUser()
+          
+          // Try to fetch user profile from PayDB
+          let userFromDb = null
+          try {
+            userFromDb = await getUser(userId)
+          } catch (err) {
+            console.warn('Could not fetch user from PayDB:', err)
+          }
+          
+          // Merge account and database data
+          const mergedUser: UserProfile = {
             userId,
-            ...userProfile,
-            email: userProfile?.email,
-            displayName: userProfile?.name || userProfile?.displayName,
-          } as UserProfile)
+            $id: accountData?.$id || userId,
+            email: accountData?.email || userFromDb?.email || '',
+            name: accountData?.name || userFromDb?.displayName || '',
+            displayName: userFromDb?.displayName || accountData?.name || '',
+            username: userFromDb?.username || '',
+            email_verified: accountData?.emailVerification || false,
+            ...userFromDb,
+            ...accountData,
+          }
+          
+          setUser(mergedUser)
         } catch (profileError) {
           console.warn('Could not fetch user profile:', profileError)
           // Still authenticated even if profile fetch fails
           setUser({
             userId,
+            $id: userId,
             email: '',
           })
         }
