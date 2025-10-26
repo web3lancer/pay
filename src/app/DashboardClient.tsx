@@ -11,6 +11,7 @@ import { formatCurrency, formatCryptoAmount, formatPercentage } from '@/lib/util
 import { AppShell } from '@/components/layout/AppShell'
 import { TransactionHistory } from '@/components/transactions/TransactionHistory'
 import { QRCodeGenerator } from '@/components/profile/QRCodeGenerator'
+import { CapitalPromo } from '@/components/capital/CapitalPromo'
 
 interface Portfolio {
   totalBalance: number
@@ -235,6 +236,13 @@ export function DashboardClient() {
             </button>
           </div>
         </div>
+
+        {/* Capital Promo - Only shows for users with BTC balance */}
+        {portfolio && portfolio.wallets.find(w => w.symbol === 'BTC') && (
+          <CapitalPromo 
+            btcBalance={portfolio.wallets.find(w => w.symbol === 'BTC')?.balance || 0}
+          />
+        )}
 
         {/* Portfolio Overview */}
         <div

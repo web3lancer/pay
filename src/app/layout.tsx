@@ -7,6 +7,7 @@ import { TransactionProvider } from '@/contexts/TransactionContext'
 import { PaymentRequestProvider } from '@/contexts/PaymentRequestContext'
 import { ExchangeRateProvider } from '@/contexts/ExchangeRateContext'
 import { SidebarProvider } from '@/contexts/SidebarContext'
+import { CapitalProvider } from '@/contexts/CapitalContext'
 import LayoutClient from './layoutClient'
 
 export const metadata: Metadata = {
@@ -27,11 +28,13 @@ export default function RootLayout({
             <WalletProvider>
               <TransactionProvider>
                 <PaymentRequestProvider>
-                  <SidebarProvider>
-                    <Providers>
-                      <LayoutClient>{children}</LayoutClient>
-                    </Providers>
-                  </SidebarProvider>
+                  <CapitalProvider>
+                    <SidebarProvider>
+                      <Providers>
+                        <LayoutClient>{children}</LayoutClient>
+                      </Providers>
+                    </SidebarProvider>
+                  </CapitalProvider>
                 </PaymentRequestProvider>
               </TransactionProvider>
             </WalletProvider>
