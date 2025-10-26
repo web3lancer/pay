@@ -56,3 +56,9 @@ contractx/
 ignore1/
 
 appwrite.pay.json
+
+docx/
+# Added by Autocommiter: ensure *.env*
+*.env*
+# Added by Autocommiter: ensure .docx/
+.docx/

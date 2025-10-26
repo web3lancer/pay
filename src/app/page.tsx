@@ -1007,7 +1007,7 @@ export default function LandingPage() {
             className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center"
           >
             <p className="text-slate-400 mb-4 md:mb-0">
-              © 2024 LancerPay. All rights reserved.
+              © 2025 LancerPay. All rights reserved.
             </p>
             <motion.div
               initial={{ opacity: 0 }}
