@@ -2,21 +2,21 @@
 
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { CapitalDashboard } from '@/components/capital'
+import { useMezoWallet, useMezoPosition } from '@/integrations/mezo'
+import { CapitalDashboard, GetAdvanceModal } from '@/components/capital'
 import { AppShell } from '@/components/layout/AppShell'
 import { FiArrowLeft } from 'react-icons/fi'
 import Link from 'next/link'
 
 export default function CapitalPage() {
-  const { isAuthenticated, loading } = useAuth()
-  const [btcBalance] = useState(0.2845) // Mock data
+  const { isAuthenticated, loading: authLoading } = useAuth()
+  const { address, network } = useMezoWallet()
+  const { position } = useMezoPosition(address, network === 'mainnet' ? 'mainnet' : 'testnet')
+  const [showModal, setShowModal] = useState(false)
 
-  useEffect(() => {
-    // TODO: Fetch actual BTC balance from wallet context
-    // For now using mock data
-  }, [])
+  const collateral = position?.collateral ? parseFloat(position.collateral) : 0
 
-  if (loading) {
+  if (authLoading) {
     return (
       <AppShell>
         <div className="flex items-center justify-center min-h-screen">
@@ -54,7 +54,17 @@ export default function CapitalPage() {
         </div>
 
         {/* Main Dashboard */}
-        <CapitalDashboard btcBalance={btcBalance} />
+        <CapitalDashboard />
+
+        {/* Get Advance Modal */}
+        <GetAdvanceModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          onSuccess={() => {
+            // Modal will close automatically
+          }}
+          collateral={collateral}
+        />
 
         {/* Educational Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

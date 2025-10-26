@@ -5,14 +5,14 @@ import { FiAlertCircle, FiCheckCircle } from 'react-icons/fi'
 
 interface HealthMeterProps {
   healthPercentage: number
-  collateralizationRatio: number
+  healthFactor: number
   status: 'safe' | 'caution' | 'risk'
   className?: string
 }
 
 export function HealthMeter({
   healthPercentage,
-  collateralizationRatio,
+  healthFactor,
   status,
   className = ''
 }: HealthMeterProps) {
@@ -77,7 +77,7 @@ export function HealthMeter({
         <div>
           <h3 className="text-sm font-medium text-neutral-600">Position Health</h3>
           <p className="text-2xl font-bold text-neutral-900 mt-1">
-            {collateralizationRatio.toFixed(0)}%
+            {(healthFactor * 100).toFixed(0)}%
           </p>
         </div>
         <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${getStatusBg()}`}>
@@ -100,8 +100,8 @@ export function HealthMeter({
 
       {/* Labels */}
       <div className="flex justify-between mt-2 text-xs text-neutral-600">
-        <span>Low Risk (200%+)</span>
-        <span>Liquidation (150%)</span>
+        <span>Safe (200%+)</span>
+        <span>Liquidation (110%)</span>
       </div>
 
       {/* Info Message */}
