@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    const source = typeof window !== 'undefined' ? window.location.hostname : 'pay.web3lancer.website'
+    const source = typeof window !== 'undefined' ? window.location.origin : 'https://pay.web3lancer.website'
     const loginUrl = `${authUri}/login?source=${encodeURIComponent(source)}`
     window.location.href = loginUrl
   }, [])
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(false)
     
     // Redirect to auth logout
-    const source = typeof window !== 'undefined' ? window.location.hostname : 'pay.web3lancer.website'
+    const source = typeof window !== 'undefined' ? window.location.origin : 'https://pay.web3lancer.website'
     const logoutUrl = `${authUri}/logout?redirect=${encodeURIComponent(source)}`
     window.location.href = logoutUrl
   }, [])
