@@ -3,8 +3,6 @@
  * Handles session management and user profile retrieval
  */
 
-'use client'
-
 import { account } from './client'
 
 /**
