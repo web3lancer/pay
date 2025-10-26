@@ -7,7 +7,6 @@ import { TransactionProvider } from '@/contexts/TransactionContext'
 import { PaymentRequestProvider } from '@/contexts/PaymentRequestContext'
 import { ExchangeRateProvider } from '@/contexts/ExchangeRateContext'
 import { SidebarProvider } from '@/contexts/SidebarContext'
-import { AptosProvider } from '@/integrations/aptos/provider'
 import LayoutClient from './layoutClient'
 
 export const metadata: Metadata = {
@@ -25,19 +24,17 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthProvider>
           <ExchangeRateProvider>
-            <AptosProvider>
-              <WalletProvider>
-                <TransactionProvider>
-                  <PaymentRequestProvider>
-                    <SidebarProvider>
-                      <Providers>
-                        <LayoutClient>{children}</LayoutClient>
-                      </Providers>
-                    </SidebarProvider>
-                  </PaymentRequestProvider>
-                </TransactionProvider>
-              </WalletProvider>
-            </AptosProvider>
+            <WalletProvider>
+              <TransactionProvider>
+                <PaymentRequestProvider>
+                  <SidebarProvider>
+                    <Providers>
+                      <LayoutClient>{children}</LayoutClient>
+                    </Providers>
+                  </SidebarProvider>
+                </PaymentRequestProvider>
+              </TransactionProvider>
+            </WalletProvider>
           </ExchangeRateProvider>
         </AuthProvider>
       </body>
