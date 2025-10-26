@@ -1,18 +1,23 @@
 /**
- * External Authentication Context
- * Redirects users to external auth service for login/logout
- * User data is managed by the external auth service
+ * Appwrite Authentication Context
+ * Properly detects and manages Appwrite sessions
  */
 
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
+import { account, getCurrentUserId, getCurrentUserProfile } from '@/lib/appwrite'
+import { initializeSessionMonitoring, onSessionChange } from '@/lib/sessionSync'
 
 interface UserProfile {
   userId?: string
   username?: string
   email?: string
   displayName?: string
+  $id?: string
+  name?: string
+  email_verified?: boolean
+  [key: string]: any
 }
 
 interface AuthContextType {
@@ -38,37 +43,87 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+let sessionMonitoringInitialized = false
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<UserProfile | undefined>()
 
-  // Check if user has auth token/cookie from external auth service
-  useEffect(() => {
-    const checkAuth = () => {
-      try {
-        // Check for auth token in localStorage or cookies
-        const hasAuthToken = localStorage.getItem('auth_token') || 
-                            document.cookie.includes('auth_token')
-        setIsAuthenticated(!!hasAuthToken)
-      } catch (error) {
-        console.error('Auth check error:', error)
+  // Check Appwrite session status
+  const checkAppwriteSession = useCallback(async () => {
+    try {
+      setLoading(true)
+      
+      // Try to get current user from Appwrite
+      const userId = await getCurrentUserId()
+      
+      if (userId) {
+        // User is authenticated
+        setIsAuthenticated(true)
+        
+        // Fetch user profile
+        try {
+          const userProfile = await getCurrentUserProfile()
+          setUser({
+            userId,
+            ...userProfile,
+            email: userProfile?.email,
+            displayName: userProfile?.name || userProfile?.displayName,
+          } as UserProfile)
+        } catch (profileError) {
+          console.warn('Could not fetch user profile:', profileError)
+          // Still authenticated even if profile fetch fails
+          setUser({
+            userId,
+            email: '',
+          })
+        }
+      } else {
+        // No active session
         setIsAuthenticated(false)
-      } finally {
-        setLoading(false)
+        setUser(undefined)
       }
+    } catch (error) {
+      console.error('Session check error:', error)
+      setIsAuthenticated(false)
+      setUser(undefined)
+    } finally {
+      setLoading(false)
     }
-
-    checkAuth()
-
-    // Re-check auth when window gains focus (user returns from auth service)
-    const handleFocus = () => {
-      checkAuth()
-    }
-
-    window.addEventListener('focus', handleFocus)
-    return () => window.removeEventListener('focus', handleFocus)
   }, [])
+
+  // Initial auth check and setup session monitoring
+  useEffect(() => {
+    // Initial check
+    checkAppwriteSession()
+
+    // Initialize session monitoring (only once globally)
+    if (!sessionMonitoringInitialized) {
+      sessionMonitoringInitialized = true
+      initializeSessionMonitoring()
+    }
+
+    // Subscribe to session changes
+    const unsubscribe = onSessionChange((session) => {
+      if (session.isAuthenticated) {
+        setIsAuthenticated(true)
+        setUser({
+          userId: session.userId || '',
+          ...session.userProfile,
+          email: session.userProfile?.email,
+          displayName: session.userProfile?.name || session.userProfile?.displayName,
+        } as UserProfile)
+      } else {
+        setIsAuthenticated(false)
+        setUser(undefined)
+      }
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [checkAppwriteSession])
 
   const redirectToAuth = useCallback(() => {
     const authUri = process.env.NEXT_PUBLIC_AUTH_URI
@@ -82,58 +137,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = loginUrl
   }, [])
 
-  const logout = useCallback(() => {
-    const authUri = process.env.NEXT_PUBLIC_AUTH_URI
-    if (!authUri) {
-      console.error('NEXT_PUBLIC_AUTH_URI not configured')
-      return
+  const logout = useCallback(async () => {
+    try {
+      // First logout from Appwrite
+      const { logout: appwriteLogout } = await import('@/lib/appwrite')
+      await appwriteLogout()
+    } catch (error) {
+      console.error('Appwrite logout error:', error)
     }
 
-    // Clear local auth state
-    localStorage.removeItem('auth_token')
+    // Clear local state
     setIsAuthenticated(false)
-    
-    // Redirect to auth logout
-    const source = typeof window !== 'undefined' ? window.location.origin : 'https://pay.web3lancer.website'
-    const logoutUrl = `${authUri}/logout?redirect=${encodeURIComponent(source)}`
-    window.location.href = logoutUrl
+    setUser(undefined)
+
+    // Check if external auth URI is configured
+    const authUri = process.env.NEXT_PUBLIC_AUTH_URI
+    if (authUri) {
+      // Redirect to external auth service logout
+      const source = typeof window !== 'undefined' ? window.location.origin : 'https://pay.web3lancer.website'
+      const logoutUrl = `${authUri}/logout?redirect=${encodeURIComponent(source)}`
+      window.location.href = logoutUrl
+    }
   }, [])
 
   const signOut = useCallback(async () => {
-    logout()
+    await logout()
   }, [logout])
 
-  // Stub methods for compatibility - these would be handled by external auth service
+  const refreshProfile = useCallback(async () => {
+    await checkAppwriteSession()
+  }, [checkAppwriteSession])
+
+  // Stub methods for compatibility
   const completeProfile = useCallback(async () => {
-    console.log('Profile completion handled by external auth service')
+    console.log('Profile completion handled')
   }, [])
 
   const convertGuestToUser = useCallback(async () => {
-    console.log('Guest conversion handled by external auth service')
+    console.log('Guest conversion handled')
   }, [])
 
   const createGuestSession = useCallback(async () => {
-    console.log('Guest session handled by external auth service')
+    console.log('Guest session handled')
   }, [])
 
   const enableTwoFactor = useCallback(async () => {
-    console.log('2FA handled by external auth service')
+    console.log('2FA handled')
   }, [])
 
   const disableTwoFactor = useCallback(async () => {
-    console.log('2FA handled by external auth service')
+    console.log('2FA disabled')
   }, [])
 
   const verifyTwoFactor = useCallback(async () => {
-    console.log('2FA verification handled by external auth service')
+    console.log('2FA verification handled')
   }, [])
 
   const createRecoveryCodes = useCallback(async () => {
-    console.log('Recovery codes handled by external auth service')
-  }, [])
-
-  const refreshProfile = useCallback(async () => {
-    console.log('Profile refresh handled by external auth service')
+    console.log('Recovery codes handled')
   }, [])
 
   const value: AuthContextType = {
@@ -142,7 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: loading,
     user,
     userProfile: user,
-    account: undefined,
+    account: user,
     isGuest: false,
     redirectToAuth,
     logout,

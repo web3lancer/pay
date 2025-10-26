@@ -21,17 +21,21 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
-  const { logout, isAuthenticated, redirectToAuth } = useAuth()
+  const { logout, isAuthenticated, redirectToAuth, user, loading } = useAuth()
   const router = useRouter()
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
 
   const handleSignOut = async () => {
     try {
-      logout()
+      await logout()
+      router.push('/')
     } catch (error) {
       console.error('Sign out failed:', error)
     }
   }
+
+  // Get user display name or email
+  const userDisplayName = user?.displayName || user?.name || user?.email?.split('@')[0] || 'Account'
 
   return (
     <header className={cn(
@@ -97,9 +101,9 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             <div className="h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center">
               <FiUser className="h-4 w-4 text-cyan-600" />
             </div>
-            {!mobile && (
+        {!mobile && (
               <span className="text-sm font-medium text-neutral-900">
-                {isAuthenticated ? 'Account' : 'Account'}
+                {isAuthenticated && user?.email ? user.email : (loading ? 'Loading...' : 'Account')}
               </span>
             )}
           </button>
