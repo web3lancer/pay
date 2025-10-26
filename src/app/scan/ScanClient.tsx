@@ -308,7 +308,6 @@ export function ScanClient() {
             </div>
           )}
         </motion.div>
-      </div>
 
       {/* QR Scanner Modal */}
       <QRScanner
