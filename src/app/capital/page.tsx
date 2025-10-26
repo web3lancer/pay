@@ -9,7 +9,7 @@ import Link from 'next/link'
 
 export default function CapitalPage() {
   const { isAuthenticated, loading } = useAuth()
-  const [btcBalance, setBtcBalance] = useState(0.2845) // Mock data
+  const [btcBalance] = useState(0.2845) // Mock data
 
   useEffect(() => {
     // TODO: Fetch actual BTC balance from wallet context
