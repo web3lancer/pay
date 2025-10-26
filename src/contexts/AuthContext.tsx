@@ -115,8 +115,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Initial auth check and setup session monitoring
   useEffect(() => {
-    // Initial check
-    checkAppwriteSession()
+    let checkCount = 0
+    let initCheckInterval: NodeJS.Timeout | null = null
+
+    // Do multiple checks in the first 3 seconds for better detection
+    const initialCheck = async () => {
+      await checkAppwriteSession()
+      checkCount++
+      
+      // Do 3 quick checks (0ms, 500ms, 1000ms) to catch session
+      if (checkCount < 3) {
+        initCheckInterval = setTimeout(initialCheck, 500)
+      }
+    }
+
+    initialCheck()
 
     // Initialize session monitoring (only once globally)
     if (!sessionMonitoringInitialized) {
@@ -141,6 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     return () => {
+      if (initCheckInterval) clearTimeout(initCheckInterval)
       unsubscribe()
     }
   }, [checkAppwriteSession])
@@ -152,7 +166,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    const source = typeof window !== 'undefined' ? window.location.origin : 'https://pay.web3lancer.website'
+    const source = typeof window !== 'undefined' 
+      ? `${window.location.protocol}//${window.location.host}`
+      : 'https://pay.web3lancer.website'
     const loginUrl = `${authUri}/login?source=${encodeURIComponent(source)}`
     window.location.href = loginUrl
   }, [])
@@ -174,7 +190,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const authUri = process.env.NEXT_PUBLIC_AUTH_URI
     if (authUri) {
       // Redirect to external auth service logout
-      const source = typeof window !== 'undefined' ? window.location.origin : 'https://pay.web3lancer.website'
+      const source = typeof window !== 'undefined' 
+        ? `${window.location.protocol}//${window.location.host}`
+        : 'https://pay.web3lancer.website'
       const logoutUrl = `${authUri}/logout?redirect=${encodeURIComponent(source)}`
       window.location.href = logoutUrl
     }

@@ -3,7 +3,7 @@
  * Keeps the app synchronized with Appwrite session state
  */
 
-import { account, getCurrentUserId, getCurrentUserProfile } from '@/lib/appwrite'
+import { getCurrentUserId, getCurrentUser, getUser } from '@/lib/appwrite'
 
 export interface SessionData {
   userId: string | null
@@ -29,11 +29,19 @@ export async function getCurrentSession(): Promise<SessionData> {
       }
     }
 
-    const userProfile = await getCurrentUserProfile().catch(() => null)
+    // Get user from both Appwrite account and PayDB
+    const accountData = await getCurrentUser()
+    let userProfile = null
+    
+    try {
+      userProfile = await getUser(userId)
+    } catch (err) {
+      console.warn('Could not fetch user profile from PayDB:', err)
+    }
 
     return {
       userId,
-      userProfile,
+      userProfile: userProfile || accountData,
       isAuthenticated: true
     }
   } catch (error) {
@@ -83,10 +91,10 @@ export function initializeSessionMonitoring() {
     notifySessionChange()
   }
 
-  // Check session periodically
+  // Check session periodically (every 10 seconds for better detection)
   const interval = setInterval(() => {
     notifySessionChange()
-  }, 60000) // 1 minute
+  }, 10000) // 10 seconds for better real-time detection
 
   document.addEventListener('visibilitychange', handleVisibilityChange)
   window.addEventListener('focus', handleFocus)
