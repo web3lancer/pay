@@ -3,7 +3,8 @@
  * Keeps the app synchronized with Appwrite session state
  */
 
-import { getCurrentUserId, getCurrentUser, getUser } from '@/lib/appwrite'
+import { getCurrentUserId, getCurrentUser } from '@/lib/appwrite/auth'
+import { getUser } from '@/lib/appwrite/users'
 
 export interface SessionData {
   userId: string | null

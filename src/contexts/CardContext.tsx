@@ -1,7 +1,7 @@
 'use client'
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { VirtualCards } from '@/types/appwrite.d'
-import { databases, DATABASE_ID, COLLECTION_IDS } from '@/lib/appwrite'
+import { tablesdb, PAYDB_ID } from '@/lib/appwrite'
 import { ID, Query } from 'appwrite'
 
 type CardContextType = {
@@ -20,12 +20,12 @@ export const CardProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const fetchCards = async () => {
     setLoading(true)
     try {
-      const res = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTION_IDS.VIRTUAL_CARDS,
+      const res = await tablesdb.listRows(
+        PAYDB_ID,
+        'virtualCards',
         [Query.orderDesc('$createdAt')]
       )
-      setCards(res.documents as VirtualCards[])
+      setCards(res.rows as VirtualCards[])
     } finally {
       setLoading(false)
     }
@@ -34,9 +34,9 @@ export const CardProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const createCard = async (data: Omit<VirtualCards, 'cardId' | '$id' | '$createdAt' | '$updatedAt'>) => {
     setLoading(true)
     try {
-      await databases.createDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.VIRTUAL_CARDS,
+      await tablesdb.createRow(
+        PAYDB_ID,
+        'virtualCards',
         ID.unique(),
         { ...data }
       )

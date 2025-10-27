@@ -5,15 +5,14 @@
 
 import {
   account,
-  databases,
+  tablesdb,
   getCurrentUserId,
   getCurrentUserProfile,
   updateUser,
   getPreferences,
   updatePreferences,
   logout as appwriteLogout,
-  DATABASE_ID,
-  COLLECTION_IDS,
+  PAYDB_ID,
   ID,
 } from '@/lib/appwrite'
 
@@ -227,9 +226,9 @@ export async function getUserLogs(): Promise<any[]> {
     const userId = await getCurrentUserId()
     if (!userId) return []
 
-    const logs = await databases.listDocuments(
-      DATABASE_ID,
-      COLLECTION_IDS.SECURITY_LOGS,
+    const logs = await tablesdb.listRows(
+      PAYDB_ID,
+      'securityLogs',
       [
         {
           attribute: 'userId',
@@ -239,7 +238,7 @@ export async function getUserLogs(): Promise<any[]> {
       ]
     )
 
-    return logs.documents || []
+    return logs.rows || []
   } catch (error) {
     console.error('Failed to get user logs:', error)
     return []
@@ -258,9 +257,9 @@ export async function logSecurityEvent(
     const userId = await getCurrentUserId()
     if (!userId) return
 
-    await databases.createDocument(
-      DATABASE_ID,
-      COLLECTION_IDS.SECURITY_LOGS,
+    await tablesdb.createRow(
+      PAYDB_ID,
+      'securityLogs',
       ID.unique(),
       {
         userId,

@@ -1,7 +1,7 @@
 'use client'
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { VirtualAccounts } from '@/types/appwrite.d'
-import { databases, DATABASE_ID, COLLECTION_IDS } from '@/lib/appwrite'
+import { tablesdb, PAYDB_ID } from '@/lib/appwrite'
 import { ID, Query } from 'appwrite'
 
 type AccountContextType = {
@@ -20,12 +20,12 @@ export const AccountProvider: React.FC<{children: React.ReactNode}> = ({ childre
   const fetchAccounts = async () => {
     setLoading(true)
     try {
-      const res = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTION_IDS.VIRTUAL_ACCOUNTS,
+      const res = await tablesdb.listRows(
+        PAYDB_ID,
+        'virtualAccounts',
         [Query.orderDesc('$createdAt')]
       )
-      setAccounts(res.documents as VirtualAccounts[])
+      setAccounts(res.rows as VirtualAccounts[])
     } finally {
       setLoading(false)
     }
@@ -34,9 +34,9 @@ export const AccountProvider: React.FC<{children: React.ReactNode}> = ({ childre
   const createAccount = async (data: Omit<VirtualAccounts, 'accountId' | '$id' | '$createdAt' | '$updatedAt'>) => {
     setLoading(true)
     try {
-      await databases.createDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.VIRTUAL_ACCOUNTS,
+      await tablesdb.createRow(
+        PAYDB_ID,
+        'virtualAccounts',
         ID.unique(),
         { ...data }
       )

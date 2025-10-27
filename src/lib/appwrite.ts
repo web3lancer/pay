@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Storage, ID, Query, Avatars, AuthenticationFactor, Permission, Role, Functions, ExecutionMethod } from 'appwrite'
+import { Client, Account, TablesDB, Storage, ID, Query, Avatars, AuthenticationFactor, Permission, Role, Functions, ExecutionMethod } from 'appwrite'
 
 // Initialize Appwrite client
 const client = new Client()
@@ -9,28 +9,30 @@ client
 
 // Initialize services
 export const account = new Account(client)
-export const databases = new Databases(client)
+export const tablesdb = new TablesDB(client)
 export const storage = new Storage(client)
 export const avatars = new Avatars(client)
 export const functions = new Functions(client)
 export { ID, Query }
 
-// Database and collection IDs from environment variables
-export const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DB_ID!
+// PayDB (new TablesDB) - primary database for PayLancer
+export const PAYDB_ID = process.env.NEXT_PUBLIC_PAYDB_ID!
 
-// Collection IDs from environment variables - no hardcoded values
-export const COLLECTION_IDS = {
-  USERS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_USERS!,
-  WALLETS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_WALLETS!,
-  TOKENS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_TOKENS!,
-  TRANSACTIONS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_TRANSACTIONS!,
-  PAYMENT_REQUESTS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_PAYMENT_REQUESTS!,
-  EXCHANGE_RATES: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_EXCHANGE_RATES!,
-  SECURITY_LOGS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_SECURITY_LOGS!,
-  API_KEYS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_API_KEYS!,
-  VIRTUAL_CARDS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_VIRTUAL_CARDS!,
-  VIRTUAL_ACCOUNTS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_VIRTUAL_ACCOUNTS!
+// Table names in PayDB
+export const TABLES = {
+  USERS: 'users',
+  WALLETS: 'wallets',
+  TOKENS: 'tokens',
+  TRANSACTIONS: 'transactions',
+  PAYMENT_REQUESTS: 'paymentRequests',
+  EXCHANGE_RATES: 'exchangeRates',
+  SECURITY_LOGS: 'securityLogs',
+  API_KEYS: 'apiKeys',
 } as const
+
+// Deprecated: kept for backwards compatibility only
+export const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DB_ID || PAYDB_ID
+export const COLLECTION_IDS = TABLES
 
 // Storage bucket IDs from environment variables - no hardcoded values
 export const BUCKET_IDS = {
@@ -236,62 +238,62 @@ export async function logout(sessionId?: string) {
 
 // --- User CRUD ---
 export async function getUser(userId: string) {
-  return databases.getDocument(DATABASE_ID, COLLECTION_IDS.USERS, userId)
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'users', rowId: userId })
 }
 export async function updateUser(userId: string, data: Partial<any>) {
-  return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.USERS, userId, data)
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'users', rowId: userId, data })
 }
 export async function deleteUser(userId: string) {
-  return databases.deleteDocument(DATABASE_ID, COLLECTION_IDS.USERS, userId)
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'users', rowId: userId })
 }
 
 // --- Wallet CRUD ---
 export async function createWallet(data: any) {
-  return databases.createDocument(DATABASE_ID, COLLECTION_IDS.WALLETS, ID.unique(), data)
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'wallets', rowId: ID.unique(), data })
 }
 export async function getWallet(walletId: string) {
-  return databases.getDocument(DATABASE_ID, COLLECTION_IDS.WALLETS, walletId)
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'wallets', rowId: walletId })
 }
 export async function listWalletsByUser(userId: string) {
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.WALLETS, [Query.equal('userId', userId)])
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'wallets', queries: [Query.equal('userId', userId)] })
 }
 export async function updateWallet(walletId: string, data: Partial<any>) {
-  return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.WALLETS, walletId, data)
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'wallets', rowId: walletId, data })
 }
 export async function deleteWallet(walletId: string) {
-  return databases.deleteDocument(DATABASE_ID, COLLECTION_IDS.WALLETS, walletId)
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'wallets', rowId: walletId })
 }
 
 // --- Token CRUD ---
 export async function createToken(data: any) {
-  return databases.createDocument(DATABASE_ID, COLLECTION_IDS.TOKENS, ID.unique(), data)
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'tokens', rowId: ID.unique(), data })
 }
 export async function getToken(tokenId: string) {
-  return databases.getDocument(DATABASE_ID, COLLECTION_IDS.TOKENS, tokenId)
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'tokens', rowId: tokenId })
 }
 export async function listTokens() {
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.TOKENS)
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'tokens' })
 }
 export async function updateToken(tokenId: string, data: Partial<any>) {
-  return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.TOKENS, tokenId, data)
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'tokens', rowId: tokenId, data })
 }
 export async function deleteToken(tokenId: string) {
-  return databases.deleteDocument(DATABASE_ID, COLLECTION_IDS.TOKENS, tokenId)
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'tokens', rowId: tokenId })
 }
 
 // --- Transaction CRUD ---
 export async function createTransaction(data: any) {
-  return databases.createDocument(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, ID.unique(), data)
+  return tablesdb.createRow(PAYDB_ID, 'transactions', ID.unique(), data)
 }
 export async function getTransaction(transactionId: string) {
-  return databases.getDocument(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, transactionId)
+  return tablesdb.getRow(PAYDB_ID, 'transactions', transactionId)
 }
 
 
 export async function listTransactionsByUser(userId: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.TRANSACTIONS,
+    'transactions',
     [
       Query.or([
         Query.equal('fromUserId', userId),
@@ -303,108 +305,108 @@ export async function listTransactionsByUser(userId: string) {
 
 
 export async function updateTransaction(transactionId: string, data: Partial<any>) {
-  return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, transactionId, data)
+  return tablesdb.updateRow(PAYDB_ID, 'transactions', transactionId, data)
 }
 export async function deleteTransaction(transactionId: string) {
-  return databases.deleteDocument(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, transactionId)
+  return tablesdb.deleteRow(PAYDB_ID, 'transactions', transactionId)
 }
 
 // --- Payment Request CRUD ---
 export async function createPaymentRequest(data: any) {
-  return databases.createDocument(DATABASE_ID, COLLECTION_IDS.PAYMENT_REQUESTS, ID.unique(), data)
+  return tablesdb.createRow(PAYDB_ID, 'paymentRequests', ID.unique(), data)
 }
 export async function getPaymentRequest(requestId: string) {
-  return databases.getDocument(DATABASE_ID, COLLECTION_IDS.PAYMENT_REQUESTS, requestId)
+  return tablesdb.getRow(PAYDB_ID, 'paymentRequests', requestId)
 }
 export async function listPaymentRequestsByUser(userId: string) {
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.PAYMENT_REQUESTS, [Query.equal('fromUserId', userId)])
+  return tablesdb.listRows(PAYDB_ID, 'paymentRequests', [Query.equal('fromUserId', userId)])
 }
 export async function updatePaymentRequest(requestId: string, data: Partial<any>) {
-  return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.PAYMENT_REQUESTS, requestId, data)
+  return tablesdb.updateRow(PAYDB_ID, 'paymentRequests', requestId, data)
 }
 export async function deletePaymentRequest(requestId: string) {
-  return databases.deleteDocument(DATABASE_ID, COLLECTION_IDS.PAYMENT_REQUESTS, requestId)
+  return tablesdb.deleteRow(PAYDB_ID, 'paymentRequests', requestId)
 }
 
 // --- Virtual Card CRUD ---
 export async function createVirtualCard(data: any) {
-  return databases.createDocument(DATABASE_ID, COLLECTION_IDS.VIRTUAL_CARDS, ID.unique(), data)
+  return tablesdb.createRow(PAYDB_ID, 'virtualCards', ID.unique(), data)
 }
 export async function getVirtualCard(cardId: string) {
-  return databases.getDocument(DATABASE_ID, COLLECTION_IDS.VIRTUAL_CARDS, cardId)
+  return tablesdb.getRow(PAYDB_ID, 'virtualCards', cardId)
 }
 export async function listVirtualCardsByUser(userId: string) {
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.VIRTUAL_CARDS, [Query.equal('userId', userId)])
+  return tablesdb.listRows(PAYDB_ID, 'virtualCards', [Query.equal('userId', userId)])
 }
 export async function updateVirtualCard(cardId: string, data: Partial<any>) {
-  return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.VIRTUAL_CARDS, cardId, data)
+  return tablesdb.updateRow(PAYDB_ID, 'virtualCards', cardId, data)
 }
 export async function deleteVirtualCard(cardId: string) {
-  return databases.deleteDocument(DATABASE_ID, COLLECTION_IDS.VIRTUAL_CARDS, cardId)
+  return tablesdb.deleteRow(PAYDB_ID, 'virtualCards', cardId)
 }
 
 // --- Virtual Account CRUD ---
 export async function createVirtualAccount(data: any) {
-  return databases.createDocument(DATABASE_ID, COLLECTION_IDS.VIRTUAL_ACCOUNTS, ID.unique(), data)
+  return tablesdb.createRow(PAYDB_ID, 'virtualAccounts', ID.unique(), data)
 }
 export async function getVirtualAccount(accountId: string) {
-  return databases.getDocument(DATABASE_ID, COLLECTION_IDS.VIRTUAL_ACCOUNTS, accountId)
+  return tablesdb.getRow(PAYDB_ID, 'virtualAccounts', accountId)
 }
 export async function listVirtualAccountsByUser(userId: string) {
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.VIRTUAL_ACCOUNTS, [Query.equal('userId', userId)])
+  return tablesdb.listRows(PAYDB_ID, 'virtualAccounts', [Query.equal('userId', userId)])
 }
 export async function updateVirtualAccount(accountId: string, data: Partial<any>) {
-  return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.VIRTUAL_ACCOUNTS, accountId, data)
+  return tablesdb.updateRow(PAYDB_ID, 'virtualAccounts', accountId, data)
 }
 export async function deleteVirtualAccount(accountId: string) {
-  return databases.deleteDocument(DATABASE_ID, COLLECTION_IDS.VIRTUAL_ACCOUNTS, accountId)
+  return tablesdb.deleteRow(PAYDB_ID, 'virtualAccounts', accountId)
 }
 
 // --- Security Logs CRUD ---
 export async function createSecurityLog(data: any) {
-  return databases.createDocument(DATABASE_ID, COLLECTION_IDS.SECURITY_LOGS, ID.unique(), data)
+  return tablesdb.createRow(PAYDB_ID, 'securityLogs', ID.unique(), data)
 }
 export async function listSecurityLogsByUser(userId: string) {
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.SECURITY_LOGS, [Query.equal('userId', userId)])
+  return tablesdb.listRows(PAYDB_ID, 'securityLogs', [Query.equal('userId', userId)])
 }
 
 // --- API Keys CRUD ---
 export async function createApiKey(data: any) {
-  return databases.createDocument(DATABASE_ID, COLLECTION_IDS.API_KEYS, ID.unique(), data)
+  return tablesdb.createRow(PAYDB_ID, 'apiKeys', ID.unique(), data)
 }
 export async function listApiKeysByUser(userId: string) {
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.API_KEYS, [Query.equal('userId', userId)])
+  return tablesdb.listRows(PAYDB_ID, 'apiKeys', [Query.equal('userId', userId)])
 }
 export async function updateApiKey(keyId: string, data: Partial<any>) {
-  return databases.updateDocument(DATABASE_ID, COLLECTION_IDS.API_KEYS, keyId, data)
+  return tablesdb.updateRow(PAYDB_ID, 'apiKeys', keyId, data)
 }
 export async function deleteApiKey(keyId: string) {
-  return databases.deleteDocument(DATABASE_ID, COLLECTION_IDS.API_KEYS, keyId)
+  return tablesdb.deleteRow(PAYDB_ID, 'apiKeys', keyId)
 }
 
 // --- Exchange Rates ---
 export async function listExchangeRates() {
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.EXCHANGE_RATES)
+  return tablesdb.listRows(PAYDB_ID, 'exchangeRates')
 }
 
 // --- Utility: List documents with query ---
 export async function listDocuments(collectionId: string, queries: any[] = []) {
-  return databases.listDocuments(DATABASE_ID, collectionId, queries)
+  return tablesdb.listRows(PAYDB_ID, collectionId, queries)
 }
 
 // --- Utility: Get document by ID ---
 export async function getDocument(collectionId: string, documentId: string) {
-  return databases.getDocument(DATABASE_ID, collectionId, documentId)
+  return tablesdb.getRow(PAYDB_ID, collectionId, documentId)
 }
 
 // --- Utility: Update document by ID ---
 export async function updateDocument(collectionId: string, documentId: string, data: any) {
-  return databases.updateDocument(DATABASE_ID, collectionId, documentId, data)
+  return tablesdb.updateRow(PAYDB_ID, collectionId, documentId, data)
 }
 
 // --- Utility: Delete document by ID ---
 export async function deleteDocument(collectionId: string, documentId: string) {
-  return databases.deleteDocument(DATABASE_ID, collectionId, documentId)
+  return tablesdb.deleteRow(PAYDB_ID, collectionId, documentId)
 }
 
 // --- Payment Logic (example: mark payment request as paid, create transaction, etc.) ---
@@ -538,9 +540,9 @@ export async function logoutAllExceptCurrent() {
  * Find user by email.
  */
 export async function findUserByEmail(email: string) {
-  const res = await databases.listDocuments(
+  const res = await tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.USERS,
+    'users',
     [Query.equal('email', email)]
   );
   return res.documents[0] || null;
@@ -556,9 +558,9 @@ export async function findUserByUsername(username: string) {
     const canon = canonizeUsername(username)
     if (!canon) return null
     
-    const res = await databases.listDocuments(
+    const res = await tablesdb.listRows(
       DATABASE_ID,
-      COLLECTION_IDS.USERS,
+      'users',
       [Query.equal('username', canon)]
     );
     return res.documents[0] || null;
@@ -578,9 +580,9 @@ export async function findUserByUsername(username: string) {
 export async function findUserById(userId: string) {
   try {
     // Use Query.equal for userId since it's not an array field
-    const res = await databases.listDocuments(
+    const res = await tablesdb.listRows(
       DATABASE_ID,
-      COLLECTION_IDS.USERS,
+      'users',
       [Query.equal('userId', userId)]
     );
     return res.documents[0] || null;
@@ -597,9 +599,9 @@ export async function findUserById(userId: string) {
  * List all users (paginated).
  */
 export async function listUsers(limit = 25, offset = 0) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.USERS,
+    'users',
     [Query.limit(limit), Query.offset(offset)]
   );
 }
@@ -609,9 +611,9 @@ export async function listUsers(limit = 25, offset = 0) {
  */
 export async function testUsersCollectionAccess() {
   try {
-    const res = await databases.listDocuments(
+    const res = await tablesdb.listRows(
       DATABASE_ID,
-      COLLECTION_IDS.USERS,
+      'users',
       [Query.limit(1)]
     );
     console.log('Users collection access test successful:', res);
@@ -628,9 +630,9 @@ export async function testUsersCollectionAccess() {
  * Find wallet by address.
  */
 export async function findWalletByAddress(walletAddress: string) {
-  const res = await databases.listDocuments(
+  const res = await tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.WALLETS,
+    'wallets',
     [Query.equal('walletAddress', walletAddress)]
   );
   return res.documents[0] || null;
@@ -640,9 +642,9 @@ export async function findWalletByAddress(walletAddress: string) {
  * List wallets by blockchain.
  */
 export async function listWalletsByBlockchain(blockchain: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.WALLETS,
+    'wallets',
     [Query.equal('blockchain', blockchain)]
   );
 }
@@ -653,9 +655,9 @@ export async function listWalletsByBlockchain(blockchain: string) {
  * Find token by symbol.
  */
 export async function findTokenBySymbol(symbol: string) {
-  const res = await databases.listDocuments(
+  const res = await tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.TOKENS,
+    'tokens',
     [Query.equal('symbol', symbol)]
   );
   return res.documents[0] || null;
@@ -665,9 +667,9 @@ export async function findTokenBySymbol(symbol: string) {
  * List tokens by blockchain.
  */
 export async function listTokensByBlockchain(blockchain: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.TOKENS,
+    'tokens',
     [Query.equal('blockchain', blockchain)]
   );
 }
@@ -678,9 +680,9 @@ export async function listTokensByBlockchain(blockchain: string) {
  * List transactions by wallet.
  */
 export async function listTransactionsByWallet(walletId: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.TRANSACTIONS,
+    'transactions',
     [Query.equal('fromWalletId', walletId)]
   );
 }
@@ -689,9 +691,9 @@ export async function listTransactionsByWallet(walletId: string) {
  * List transactions by token.
  */
 export async function listTransactionsByToken(tokenId: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.TRANSACTIONS,
+    'transactions',
     [Query.equal('tokenId', tokenId)]
   );
 }
@@ -703,7 +705,7 @@ export async function searchTransactions({ status, type }: { status?: string; ty
   const queries = [];
   if (status) queries.push(Query.equal('status', status));
   if (type) queries.push(Query.equal('type', type));
-  return databases.listDocuments(DATABASE_ID, COLLECTION_IDS.TRANSACTIONS, queries);
+  return tablesdb.listRows(PAYDB_ID, 'transactions', queries);
 }
 
 // --- PAYMENT REQUEST OPERATIONS ---
@@ -712,9 +714,9 @@ export async function searchTransactions({ status, type }: { status?: string; ty
  * List payment requests by status.
  */
 export async function listPaymentRequestsByStatus(status: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.PAYMENT_REQUESTS,
+    'paymentRequests',
     [Query.equal('status', status)]
   );
 }
@@ -723,9 +725,9 @@ export async function listPaymentRequestsByStatus(status: string) {
  * Find payment request by invoice number.
  */
 export async function findPaymentRequestByInvoice(invoiceNumber: string) {
-  const res = await databases.listDocuments(
+  const res = await tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.PAYMENT_REQUESTS,
+    'paymentRequests',
     [Query.equal('invoiceNumber', invoiceNumber)]
   );
   return res.documents[0] || null;
@@ -737,9 +739,9 @@ export async function findPaymentRequestByInvoice(invoiceNumber: string) {
  * Find card by card number.
  */
 export async function findCardByNumber(cardNumber: string) {
-  const res = await databases.listDocuments(
+  const res = await tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.VIRTUAL_CARDS,
+    'virtualCards',
     [Query.equal('cardNumber', cardNumber)]
   );
   return res.documents[0] || null;
@@ -749,9 +751,9 @@ export async function findCardByNumber(cardNumber: string) {
  * List cards by status.
  */
 export async function listCardsByStatus(status: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.VIRTUAL_CARDS,
+    'virtualCards',
     [Query.equal('status', status)]
   );
 }
@@ -762,9 +764,9 @@ export async function listCardsByStatus(status: string) {
  * Find account by account number.
  */
 export async function findAccountByNumber(accountNumber: string) {
-  const res = await databases.listDocuments(
+  const res = await tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.VIRTUAL_ACCOUNTS,
+    'virtualAccounts',
     [Query.equal('accountNumber', accountNumber)]
   );
   return res.documents[0] || null;
@@ -774,9 +776,9 @@ export async function findAccountByNumber(accountNumber: string) {
  * List accounts by status.
  */
 export async function listAccountsByStatus(status: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.VIRTUAL_ACCOUNTS,
+    'virtualAccounts',
     [Query.equal('status', status)]
   );
 }
@@ -787,9 +789,9 @@ export async function listAccountsByStatus(status: string) {
  * List security logs by action.
  */
 export async function listSecurityLogsByAction(action: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.SECURITY_LOGS,
+    'securityLogs',
     [Query.equal('action', action)]
   );
 }
@@ -800,9 +802,9 @@ export async function listSecurityLogsByAction(action: string) {
  * Find API key by public key.
  */
 export async function findApiKeyByPublicKey(publicKey: string) {
-  const res = await databases.listDocuments(
+  const res = await tablesdb.listRows(
     DATABASE_ID,
-    COLLECTION_IDS.API_KEYS,
+    'apiKeys',
     [Query.equal('publicKey', publicKey)]
   );
   return res.documents[0] || null;
@@ -814,7 +816,7 @@ export async function findApiKeyByPublicKey(publicKey: string) {
  * Search any collection by field and value.
  */
 export async function searchCollection(collectionId: string, field: string, value: string) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
     collectionId,
     [Query.equal(field, value)]
@@ -825,7 +827,7 @@ export async function searchCollection(collectionId: string, field: string, valu
  * Paginate any collection.
  */
 export async function paginateCollection(collectionId: string, limit = 25, offset = 0) {
-  return databases.listDocuments(
+  return tablesdb.listRows(
     DATABASE_ID,
     collectionId,
     [Query.limit(limit), Query.offset(offset)]
@@ -836,7 +838,7 @@ export async function paginateCollection(collectionId: string, limit = 25, offse
  * Count documents in a collection (with optional query).
  */
 export async function countDocuments(collectionId: string, queries: any[] = []) {
-  const res = await databases.listDocuments(DATABASE_ID, collectionId, queries);
+  const res = await tablesdb.listRows(PAYDB_ID, collectionId, queries);
   return res.total;
 }
 
@@ -904,7 +906,7 @@ export async function revokeVirtualCard(cardId: string) {
 
 // --- ADVANCED ACCOUNT LOGIC ---
 
-// Assumes updateVirtualAccount, createSecurityLog, databases, DATABASE_ID, and COLLECTION_IDS are imported/defined elsewhere
+// Assumes updateVirtualAccount, createSecurityLog, databases, PAYDB_ID, and COLLECTION_IDS are imported/defined elsewhere
 // Also assumes 'client' is defined elsewhere in your codebase
 
 /**
@@ -943,9 +945,9 @@ export async function getCurrentUserProfile(): Promise<any | null> {
     const acc = await account.get();
     // Try to fetch existing user profile
     try {
-      const profile = await databases.getDocument(
+      const profile = await tablesdb.getRow(
         DATABASE_ID,
-        COLLECTION_IDS.USERS,
+        'users',
         acc.$id
       );
       return profile;
@@ -967,9 +969,9 @@ export async function getCurrentUserProfile(): Promise<any | null> {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      const createdProfile = await databases.createDocument(
+      const createdProfile = await tablesdb.createRow(
         DATABASE_ID,
-        COLLECTION_IDS.USERS,
+        'users',
         acc.$id, // Use Appwrite account ID as document ID
         newProfile
       );
