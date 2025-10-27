@@ -6,6 +6,7 @@
     pkgs.gh
     pkgs.openssl
     pkgs.systemd
+    pkgs.cargo
     
   ];
   idx.extensions = [
@@ -29,3 +30,4 @@
     };
   };
 }
+

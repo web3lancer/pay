@@ -20,11 +20,11 @@ export const CardProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const fetchCards = async () => {
     setLoading(true)
     try {
-      const res = await tablesdb.listRows(
-        PAYDB_ID,
-        'virtualCards',
-        [Query.orderDesc('$createdAt')]
-      )
+      const res = await tablesdb.listRows({
+        databaseId: PAYDB_ID,
+        tableId: 'virtualCards',
+        queries: [Query.orderDesc('$createdAt')]
+      })
       setCards(res.rows as VirtualCards[])
     } finally {
       setLoading(false)
@@ -34,12 +34,12 @@ export const CardProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const createCard = async (data: Omit<VirtualCards, 'cardId' | '$id' | '$createdAt' | '$updatedAt'>) => {
     setLoading(true)
     try {
-      await tablesdb.createRow(
-        PAYDB_ID,
-        'virtualCards',
-        ID.unique(),
-        { ...data }
-      )
+      await tablesdb.createRow({
+        databaseId: PAYDB_ID,
+        tableId: 'virtualCards',
+        rowId: ID.unique(),
+        data: { ...data }
+      })
       await fetchCards()
     } finally {
       setLoading(false)

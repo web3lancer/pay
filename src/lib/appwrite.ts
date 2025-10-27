@@ -283,115 +283,115 @@ export async function deleteToken(tokenId: string) {
 
 // --- Transaction CRUD ---
 export async function createTransaction(data: any) {
-  return tablesdb.createRow(PAYDB_ID, 'transactions', ID.unique(), data)
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'transactions', rowId: ID.unique(), data })
 }
 export async function getTransaction(transactionId: string) {
-  return tablesdb.getRow(PAYDB_ID, 'transactions', transactionId)
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'transactions', rowId: transactionId })
 }
 
 
 export async function listTransactionsByUser(userId: string) {
-  return tablesdb.listRows(
-    DATABASE_ID,
-    'transactions',
-    [
+  return tablesdb.listRows({
+    databaseId: PAYDB_ID,
+    tableId: 'transactions',
+    queries: [
       Query.or([
         Query.equal('fromUserId', userId),
         Query.contains('toUserId', userId)
       ])
     ]
-  )
+  })
 }
 
 
 export async function updateTransaction(transactionId: string, data: Partial<any>) {
-  return tablesdb.updateRow(PAYDB_ID, 'transactions', transactionId, data)
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'transactions', rowId: transactionId, data })
 }
 export async function deleteTransaction(transactionId: string) {
-  return tablesdb.deleteRow(PAYDB_ID, 'transactions', transactionId)
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'transactions', rowId: transactionId })
 }
 
 // --- Payment Request CRUD ---
 export async function createPaymentRequest(data: any) {
-  return tablesdb.createRow(PAYDB_ID, 'paymentRequests', ID.unique(), data)
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'paymentRequests', rowId: ID.unique(), data })
 }
 export async function getPaymentRequest(requestId: string) {
-  return tablesdb.getRow(PAYDB_ID, 'paymentRequests', requestId)
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'paymentRequests', rowId: requestId })
 }
 export async function listPaymentRequestsByUser(userId: string) {
-  return tablesdb.listRows(PAYDB_ID, 'paymentRequests', [Query.equal('fromUserId', userId)])
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'paymentRequests', queries: [Query.equal('fromUserId', userId)] })
 }
 export async function updatePaymentRequest(requestId: string, data: Partial<any>) {
-  return tablesdb.updateRow(PAYDB_ID, 'paymentRequests', requestId, data)
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'paymentRequests', rowId: requestId, data })
 }
 export async function deletePaymentRequest(requestId: string) {
-  return tablesdb.deleteRow(PAYDB_ID, 'paymentRequests', requestId)
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'paymentRequests', rowId: requestId })
 }
 
 // --- Virtual Card CRUD ---
 export async function createVirtualCard(data: any) {
-  return tablesdb.createRow(PAYDB_ID, 'virtualCards', ID.unique(), data)
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'virtualCards', rowId: ID.unique(), data })
 }
 export async function getVirtualCard(cardId: string) {
-  return tablesdb.getRow(PAYDB_ID, 'virtualCards', cardId)
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'virtualCards', rowId: cardId })
 }
 export async function listVirtualCardsByUser(userId: string) {
-  return tablesdb.listRows(PAYDB_ID, 'virtualCards', [Query.equal('userId', userId)])
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'virtualCards', queries: [Query.equal('userId', userId)] })
 }
 export async function updateVirtualCard(cardId: string, data: Partial<any>) {
-  return tablesdb.updateRow(PAYDB_ID, 'virtualCards', cardId, data)
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'virtualCards', rowId: cardId, data })
 }
 export async function deleteVirtualCard(cardId: string) {
-  return tablesdb.deleteRow(PAYDB_ID, 'virtualCards', cardId)
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'virtualCards', rowId: cardId })
 }
 
 // --- Virtual Account CRUD ---
 export async function createVirtualAccount(data: any) {
-  return tablesdb.createRow(PAYDB_ID, 'virtualAccounts', ID.unique(), data)
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', rowId: ID.unique(), data })
 }
 export async function getVirtualAccount(accountId: string) {
-  return tablesdb.getRow(PAYDB_ID, 'virtualAccounts', accountId)
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', rowId: accountId })
 }
 export async function listVirtualAccountsByUser(userId: string) {
-  return tablesdb.listRows(PAYDB_ID, 'virtualAccounts', [Query.equal('userId', userId)])
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', queries: [Query.equal('userId', userId)] })
 }
 export async function updateVirtualAccount(accountId: string, data: Partial<any>) {
-  return tablesdb.updateRow(PAYDB_ID, 'virtualAccounts', accountId, data)
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', rowId: accountId, data })
 }
 export async function deleteVirtualAccount(accountId: string) {
-  return tablesdb.deleteRow(PAYDB_ID, 'virtualAccounts', accountId)
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', rowId: accountId })
 }
 
 // --- Security Logs CRUD ---
 export async function createSecurityLog(data: any) {
-  return tablesdb.createRow(PAYDB_ID, 'securityLogs', ID.unique(), data)
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'securityLogs', rowId: ID.unique(), data })
 }
 export async function listSecurityLogsByUser(userId: string) {
-  return tablesdb.listRows(PAYDB_ID, 'securityLogs', [Query.equal('userId', userId)])
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'securityLogs', queries: [Query.equal('userId', userId)] })
 }
 
 // --- API Keys CRUD ---
 export async function createApiKey(data: any) {
-  return tablesdb.createRow(PAYDB_ID, 'apiKeys', ID.unique(), data)
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'apiKeys', rowId: ID.unique(), data })
 }
 export async function listApiKeysByUser(userId: string) {
-  return tablesdb.listRows(PAYDB_ID, 'apiKeys', [Query.equal('userId', userId)])
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'apiKeys', queries: [Query.equal('userId', userId)] })
 }
 export async function updateApiKey(keyId: string, data: Partial<any>) {
-  return tablesdb.updateRow(PAYDB_ID, 'apiKeys', keyId, data)
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'apiKeys', rowId: keyId, data })
 }
 export async function deleteApiKey(keyId: string) {
-  return tablesdb.deleteRow(PAYDB_ID, 'apiKeys', keyId)
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'apiKeys', rowId: keyId })
 }
 
 // --- Exchange Rates ---
 export async function listExchangeRates() {
-  return tablesdb.listRows(PAYDB_ID, 'exchangeRates')
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'exchangeRates' })
 }
 
 // --- Utility: List documents with query ---
 export async function listDocuments(collectionId: string, queries: any[] = []) {
-  return tablesdb.listRows(PAYDB_ID, collectionId, queries)
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: collectionId, queries })
 }
 
 // --- Utility: Get document by ID ---
