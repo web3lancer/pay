@@ -3455,7 +3455,6 @@
             ],
             "indexes": []
         },
-
         {
             "$id": "users",
             "$permissions": [
@@ -3471,60 +3470,12 @@
             "rowSecurity": false,
             "columns": [
                 {
-                    "key": "userId",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null
-                },
-                {
                     "key": "email",
                     "type": "string",
                     "required": true,
                     "array": false,
                     "format": "email",
                     "default": null
-                },
-                {
-                    "key": "username",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 50,
-                    "default": null
-                },
-                {
-                    "key": "displayName",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 100,
-                    "default": null
-                },
-                {
-                    "key": "profileImage",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 500,
-                    "default": null
-                },
-                {
-                    "key": "phoneNumber",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20,
-                    "default": null
-                },
-                {
-                    "key": "kycStatus",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20,
-                    "default": "pending"
                 },
                 {
                     "key": "kycLevel",
@@ -3550,30 +3501,6 @@
                     "default": true
                 },
                 {
-                    "key": "country",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 3,
-                    "default": null
-                },
-                {
-                    "key": "timezone",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 50,
-                    "default": null
-                },
-                {
-                    "key": "preferredCurrency",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 10,
-                    "default": "USD"
-                },
-                {
                     "key": "createdAt",
                     "type": "datetime",
                     "required": true,
@@ -3589,26 +3516,105 @@
                     "format": "",
                     "default": null
                 },
-
+                {
+                    "key": "userId",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "username",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "displayName",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 100,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "profileImage",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 500,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "phoneNumber",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 20,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "kycStatus",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 20,
+                    "default": "pending",
+                    "encrypt": false
+                },
+                {
+                    "key": "country",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 3,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "timezone",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "preferredCurrency",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 10,
+                    "default": "USD",
+                    "encrypt": false
+                },
                 {
                     "key": "paymentRequests",
                     "type": "relationship",
                     "required": false,
                     "array": false,
-                    "relatedCollection": "payment_requests",
+                    "relatedTable": "payment_requests",
                     "relationType": "oneToMany",
                     "twoWay": true,
                     "twoWayKey": "users",
                     "onDelete": "cascade",
                     "side": "parent"
                 },
-
                 {
                     "key": "aPIKeys",
                     "type": "relationship",
                     "required": false,
                     "array": false,
-                    "relatedCollection": "api_keys",
+                    "relatedTable": "api_keys",
                     "relationType": "oneToMany",
                     "twoWay": true,
                     "twoWayKey": "users",
@@ -3685,7 +3691,6 @@
                 }
             ]
         },
-
         {
             "$id": "tokens",
             "$permissions": [
@@ -3706,7 +3711,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "symbol",
@@ -3714,7 +3720,8 @@
                     "required": true,
                     "array": false,
                     "size": 20,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "name",
@@ -3722,7 +3729,8 @@
                     "required": true,
                     "array": false,
                     "size": 100,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "blockchain",
@@ -3730,7 +3738,8 @@
                     "required": true,
                     "array": false,
                     "size": 20,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "contractAddress",
@@ -3738,7 +3747,8 @@
                     "required": false,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "decimals",
@@ -3755,7 +3765,8 @@
                     "required": false,
                     "array": false,
                     "size": 500,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "isStablecoin",
@@ -3817,7 +3828,6 @@
             ],
             "indexes": []
         },
-
         {
             "$id": "payment_requests",
             "$permissions": [
@@ -3833,12 +3843,25 @@
             "rowSecurity": false,
             "columns": [
                 {
+                    "key": "users",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "users",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "paymentRequests",
+                    "onDelete": "cascade",
+                    "side": "child"
+                },
+                {
                     "key": "requestId",
                     "type": "string",
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "fromUserId",
@@ -3846,7 +3869,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "toUserId",
@@ -3854,7 +3878,8 @@
                     "required": false,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "toEmail",
@@ -3870,7 +3895,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "amount",
@@ -3878,7 +3904,8 @@
                     "required": true,
                     "array": false,
                     "size": 100,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "description",
@@ -3886,7 +3913,8 @@
                     "required": false,
                     "array": false,
                     "size": 500,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "dueDate",
@@ -3902,7 +3930,8 @@
                     "required": false,
                     "array": false,
                     "size": 20,
-                    "default": "pending"
+                    "default": "pending",
+                    "encrypt": false
                 },
                 {
                     "key": "paymentTxId",
@@ -3910,7 +3939,8 @@
                     "required": false,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "invoiceNumber",
@@ -3918,7 +3948,8 @@
                     "required": false,
                     "array": false,
                     "size": 50,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "metadata",
@@ -3926,7 +3957,8 @@
                     "required": false,
                     "array": false,
                     "size": 1000,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "createdAt",
@@ -3943,18 +3975,6 @@
                     "array": false,
                     "format": "",
                     "default": null
-                },
-                {
-                    "key": "users",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedCollection": "users",
-                    "relationType": "oneToMany",
-                    "twoWay": true,
-                    "twoWayKey": "paymentRequests",
-                    "onDelete": "cascade",
-                    "side": "child"
                 }
             ],
             "indexes": [
@@ -4015,7 +4035,6 @@
                 }
             ]
         },
-
         {
             "$id": "exchange_rates",
             "$permissions": [
@@ -4036,7 +4055,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "fromCurrency",
@@ -4044,7 +4064,8 @@
                     "required": true,
                     "array": false,
                     "size": 10,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "toCurrency",
@@ -4052,7 +4073,8 @@
                     "required": true,
                     "array": false,
                     "size": 10,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "rate",
@@ -4069,7 +4091,8 @@
                     "required": true,
                     "array": false,
                     "size": 50,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "lastUpdated",
@@ -4089,7 +4112,6 @@
             ],
             "indexes": []
         },
-
         {
             "$id": "api_keys",
             "$permissions": [
@@ -4104,12 +4126,25 @@
             "rowSecurity": false,
             "columns": [
                 {
+                    "key": "users",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "users",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "aPIKeys",
+                    "onDelete": "cascade",
+                    "side": "child"
+                },
+                {
                     "key": "keyId",
                     "type": "string",
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "userId",
@@ -4117,7 +4152,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "keyName",
@@ -4125,7 +4161,8 @@
                     "required": true,
                     "array": false,
                     "size": 100,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "publicKey",
@@ -4133,7 +4170,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "hashedSecret",
@@ -4141,7 +4179,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "permissions",
@@ -4149,7 +4188,8 @@
                     "required": true,
                     "array": false,
                     "size": 1000,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "isActive",
@@ -4181,18 +4221,6 @@
                     "array": false,
                     "format": "",
                     "default": null
-                },
-                {
-                    "key": "users",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedCollection": "users",
-                    "relationType": "oneToMany",
-                    "twoWay": true,
-                    "twoWayKey": "aPIKeys",
-                    "onDelete": "cascade",
-                    "side": "child"
                 }
             ],
             "indexes": [
@@ -4242,7 +4270,6 @@
                 }
             ]
         },
-
         {
             "$id": "virtual_cards",
             "$permissions": [
@@ -4262,7 +4289,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "userId",
@@ -4270,7 +4298,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "cardNumber",
@@ -4278,7 +4307,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "expiry",
@@ -4286,7 +4316,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "cvv",
@@ -4294,7 +4325,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "cardType",
@@ -4302,7 +4334,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "status",
@@ -4310,7 +4343,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "linkedWalletId",
@@ -4318,7 +4352,8 @@
                     "required": false,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "createdAt",
@@ -4373,7 +4408,6 @@
                 }
             ]
         },
-
         {
             "$id": "virtual_accounts",
             "$permissions": [
@@ -4393,7 +4427,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "userId",
@@ -4401,7 +4436,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "accountNumber",
@@ -4409,7 +4445,8 @@
                     "required": true,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "currency",
@@ -4417,7 +4454,8 @@
                     "required": false,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "balance",
@@ -4434,7 +4472,8 @@
                     "required": false,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "linkedWalletId",
@@ -4442,7 +4481,8 @@
                     "required": false,
                     "array": false,
                     "size": 255,
-                    "default": null
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "createdAt",
@@ -4497,7 +4537,6 @@
                 }
             ]
         }
-
     ],
     "projectName": "web3lancer",
     "settings": {
@@ -4651,7 +4690,6 @@
             "encryption": true,
             "antivirus": true
         },
-
         {
             "$id": "pay_user_assets",
             "$permissions": [],
