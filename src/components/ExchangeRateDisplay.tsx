@@ -49,6 +49,7 @@ export function ExchangeRateDisplay({ className = '', showRefresh = false }: Exc
 
       <div className="space-y-3">
         {Object.values(rates).slice(0, 6).map((rate) => {
+          if (!rate?.price_usd) return null
           const priceChange = formatPriceChange(rate.price_change_24h)
           const isPositive = rate.price_change_24h >= 0
 
