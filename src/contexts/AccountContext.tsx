@@ -20,11 +20,11 @@ export const AccountProvider: React.FC<{children: React.ReactNode}> = ({ childre
   const fetchAccounts = async () => {
     setLoading(true)
     try {
-      const res = await tablesdb.listRows(
-        PAYDB_ID,
-        'virtualAccounts',
-        [Query.orderDesc('$createdAt')]
-      )
+      const res = await tablesdb.listRows({
+        databaseId: PAYDB_ID,
+        tableId: 'virtualAccounts',
+        queries: [Query.orderDesc('$createdAt')]
+      })
       setAccounts(res.rows as VirtualAccounts[])
     } finally {
       setLoading(false)
@@ -34,12 +34,12 @@ export const AccountProvider: React.FC<{children: React.ReactNode}> = ({ childre
   const createAccount = async (data: Omit<VirtualAccounts, 'accountId' | '$id' | '$createdAt' | '$updatedAt'>) => {
     setLoading(true)
     try {
-      await tablesdb.createRow(
-        PAYDB_ID,
-        'virtualAccounts',
-        ID.unique(),
-        { ...data }
-      )
+      await tablesdb.createRow({
+        databaseId: PAYDB_ID,
+        tableId: 'virtualAccounts',
+        rowId: ID.unique(),
+        data: { ...data }
+      })
       await fetchAccounts()
     } finally {
       setLoading(false)
