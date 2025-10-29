@@ -18,6 +18,9 @@ export { ID, Query }
 // PayDB (new TablesDB) - primary database for PayLancer
 export const PAYDB_ID = process.env.NEXT_PUBLIC_PAYDB_ID!
 
+// FinanceDB - database for wallet and financial data
+export const FINANCEDB_ID = process.env.NEXT_PUBLIC_FINANCEDB_ID!
+
 // Table names in PayDB
 export const TABLES = {
   USERS: 'users',
@@ -249,19 +252,19 @@ export async function deleteUser(userId: string) {
 
 // --- Wallet CRUD ---
 export async function createWallet(data: any) {
-  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'wallets', rowId: ID.unique(), data })
+  return tablesdb.createRow({ databaseId: FINANCEDB_ID, tableId: 'wallets', rowId: ID.unique(), data })
 }
 export async function getWallet(walletId: string) {
-  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'wallets', rowId: walletId })
+  return tablesdb.getRow({ databaseId: FINANCEDB_ID, tableId: 'wallets', rowId: walletId })
 }
 export async function listWalletsByUser(userId: string) {
-  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'wallets', queries: [Query.equal('userId', userId)] })
+  return tablesdb.listRows({ databaseId: FINANCEDB_ID, tableId: 'wallets', queries: [Query.equal('userId', userId)] })
 }
 export async function updateWallet(walletId: string, data: Partial<any>) {
-  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'wallets', rowId: walletId, data })
+  return tablesdb.updateRow({ databaseId: FINANCEDB_ID, tableId: 'wallets', rowId: walletId, data })
 }
 export async function deleteWallet(walletId: string) {
-  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'wallets', rowId: walletId })
+  return tablesdb.deleteRow({ databaseId: FINANCEDB_ID, tableId: 'wallets', rowId: walletId })
 }
 
 // --- Token CRUD ---
@@ -283,17 +286,17 @@ export async function deleteToken(tokenId: string) {
 
 // --- Transaction CRUD ---
 export async function createTransaction(data: any) {
-  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'transactions', rowId: ID.unique(), data })
+  return tablesdb.createRow({ databaseId: FINANCEDB_ID, tableId: '6825e7ff0019f94e4dee', rowId: ID.unique(), data })
 }
 export async function getTransaction(transactionId: string) {
-  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'transactions', rowId: transactionId })
+  return tablesdb.getRow({ databaseId: FINANCEDB_ID, tableId: '6825e7ff0019f94e4dee', rowId: transactionId })
 }
 
 
 export async function listTransactionsByUser(userId: string) {
   return tablesdb.listRows({
-    databaseId: PAYDB_ID,
-    tableId: 'transactions',
+    databaseId: FINANCEDB_ID,
+    tableId: '6825e7ff0019f94e4dee',
     queries: [
       Query.or([
         Query.equal('fromUserId', userId),
@@ -305,61 +308,61 @@ export async function listTransactionsByUser(userId: string) {
 
 
 export async function updateTransaction(transactionId: string, data: Partial<any>) {
-  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'transactions', rowId: transactionId, data })
+  return tablesdb.updateRow({ databaseId: FINANCEDB_ID, tableId: '6825e7ff0019f94e4dee', rowId: transactionId, data })
 }
 export async function deleteTransaction(transactionId: string) {
-  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'transactions', rowId: transactionId })
+  return tablesdb.deleteRow({ databaseId: FINANCEDB_ID, tableId: '6825e7ff0019f94e4dee', rowId: transactionId })
 }
 
 // --- Payment Request CRUD ---
 export async function createPaymentRequest(data: any) {
-  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'paymentRequests', rowId: ID.unique(), data })
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'payment_requests', rowId: ID.unique(), data })
 }
 export async function getPaymentRequest(requestId: string) {
-  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'paymentRequests', rowId: requestId })
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'payment_requests', rowId: requestId })
 }
 export async function listPaymentRequestsByUser(userId: string) {
-  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'paymentRequests', queries: [Query.equal('fromUserId', userId)] })
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'payment_requests', queries: [Query.equal('fromUserId', userId)] })
 }
 export async function updatePaymentRequest(requestId: string, data: Partial<any>) {
-  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'paymentRequests', rowId: requestId, data })
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'payment_requests', rowId: requestId, data })
 }
 export async function deletePaymentRequest(requestId: string) {
-  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'paymentRequests', rowId: requestId })
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'payment_requests', rowId: requestId })
 }
 
 // --- Virtual Card CRUD ---
 export async function createVirtualCard(data: any) {
-  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'virtualCards', rowId: ID.unique(), data })
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'virtual_cards', rowId: ID.unique(), data })
 }
 export async function getVirtualCard(cardId: string) {
-  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'virtualCards', rowId: cardId })
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'virtual_cards', rowId: cardId })
 }
 export async function listVirtualCardsByUser(userId: string) {
-  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'virtualCards', queries: [Query.equal('userId', userId)] })
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'virtual_cards', queries: [Query.equal('userId', userId)] })
 }
 export async function updateVirtualCard(cardId: string, data: Partial<any>) {
-  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'virtualCards', rowId: cardId, data })
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'virtual_cards', rowId: cardId, data })
 }
 export async function deleteVirtualCard(cardId: string) {
-  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'virtualCards', rowId: cardId })
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'virtual_cards', rowId: cardId })
 }
 
 // --- Virtual Account CRUD ---
 export async function createVirtualAccount(data: any) {
-  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', rowId: ID.unique(), data })
+  return tablesdb.createRow({ databaseId: PAYDB_ID, tableId: 'virtual_accounts', rowId: ID.unique(), data })
 }
 export async function getVirtualAccount(accountId: string) {
-  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', rowId: accountId })
+  return tablesdb.getRow({ databaseId: PAYDB_ID, tableId: 'virtual_accounts', rowId: accountId })
 }
 export async function listVirtualAccountsByUser(userId: string) {
-  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', queries: [Query.equal('userId', userId)] })
+  return tablesdb.listRows({ databaseId: PAYDB_ID, tableId: 'virtual_accounts', queries: [Query.equal('userId', userId)] })
 }
 export async function updateVirtualAccount(accountId: string, data: Partial<any>) {
-  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', rowId: accountId, data })
+  return tablesdb.updateRow({ databaseId: PAYDB_ID, tableId: 'virtual_accounts', rowId: accountId, data })
 }
 export async function deleteVirtualAccount(accountId: string) {
-  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'virtualAccounts', rowId: accountId })
+  return tablesdb.deleteRow({ databaseId: PAYDB_ID, tableId: 'virtual_accounts', rowId: accountId })
 }
 
 // --- Security Logs CRUD ---
