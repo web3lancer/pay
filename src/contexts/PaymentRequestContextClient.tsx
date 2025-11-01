@@ -148,11 +148,11 @@ export function PaymentRequestProvider({ children }: { children: React.ReactNode
   }
 
   const getActiveRequests = (): PaymentRequests[] => {
-    return paymentRequests.filter(req => req.status === 'pending')
+    return (paymentRequests || []).filter(req => req.status === 'pending')
   }
 
   const getPaidRequests = (): PaymentRequests[] => {
-    return paymentRequests.filter(req => req.status === 'paid')
+    return (paymentRequests || []).filter(req => req.status === 'paid')
   }
 
   useEffect(() => {

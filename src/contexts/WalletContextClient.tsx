@@ -137,10 +137,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     try {
       // Get all user wallets
       const userWalletsResponse = await appwrite.listWalletsByUser(account.$id)
-      const userWallets = userWalletsResponse.documents
+      const userWallets = userWalletsResponse.documents || []
 
       // Create a batch of update promises
-      const updatePromises = userWallets.map(wallet => {
+      const updatePromises = (userWallets || []).map(wallet => {
         const isNewDefault = wallet.$id === walletId
         // Only update if the status is changing
         if (wallet.isDefault !== isNewDefault) {

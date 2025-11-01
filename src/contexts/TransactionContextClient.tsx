@@ -62,7 +62,7 @@ export function TransactionProvider({ children }: { children: React.ReactNode })
   }
 
   const getTransactionsByWallet = (walletId: string): Transactions[] => {
-    return transactions.filter(tx => tx.fromWalletId === walletId || tx.toWalletId === walletId)
+    return (transactions || []).filter(tx => tx.fromWalletId === walletId || tx.toWalletId === walletId)
   }
 
   useEffect(() => {
