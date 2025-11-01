@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { PageLayout } from '@/components/layout/PageLayout'
+
 import { FiPlus, FiCopy, FiDownload, FiShare2, FiX, FiCheck } from 'react-icons/fi'
 import { formatCurrency, formatCryptoAmount } from '@/lib/utils'
 
@@ -53,7 +53,7 @@ export function HistoryClient() {
   }
 
   return (
-    <PageLayout>
+    <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-neutral-900">Payment History</h1>
@@ -143,6 +143,6 @@ export function HistoryClient() {
             )}
           </div>
         </div>
-    </PageLayout>
+    </div>
   )
 }

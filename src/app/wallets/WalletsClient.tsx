@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 
 import Link from 'next/link';
 
-import { PageLayout } from '@/components/layout/PageLayout';
+
 import { useWallet } from '@/contexts/WalletContext';
 import { formatCurrency, formatCryptoAmount, shortenAddress } from '@/lib/utils';
 import EmptyState from '@/components/ui/EmptyState';
@@ -28,7 +28,7 @@ export function WalletsClient() {
 
   if (isLoading) {
     return (
-      <PageLayout>
+      <div className="max-w-7xl mx-auto">
           <div className="flex flex-col space-y-6">
             <div className="flex items-center justify-between">
               <div>
@@ -62,12 +62,12 @@ export function WalletsClient() {
               </div>
             </div>
           </div>
-    </PageLayout>
+    </div>
     )
   }
 
   return (
-    <PageLayout>
+    <div className="max-w-7xl mx-auto">
         <div className="flex flex-col space-y-6">
           {/* Page Header */}
           <div className="flex items-center justify-between">
@@ -213,6 +213,6 @@ export function WalletsClient() {
             </div>
           </div>
         </div>
-    </PageLayout>
+    </div>
   )
 }

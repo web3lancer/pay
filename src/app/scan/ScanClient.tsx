@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { FiCamera, FiUpload, FiArrowLeft, FiUser, FiDollarSign } from 'react-icons/fi'
 import { QRScanner } from '@/components/scanner/QRScanner'
-import { PageLayout } from '@/components/layout/PageLayout'
+
 
 interface ScannedData {
   type: 'address' | 'payment_request' | 'profile' | 'unknown'
@@ -115,7 +115,7 @@ export function ScanClient() {
   }
 
   return (
-    <PageLayout>
+    <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -316,6 +316,6 @@ export function ScanClient() {
         onScan={handleScan}
         title="Scan Payment QR Code"
       />
-    </PageLayout>
+    </div>
   )
 }

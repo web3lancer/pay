@@ -187,7 +187,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refreshWallets()
-  }, [refreshWallets])
+  }, [account])
 
   return (
     <WalletContext.Provider value={{

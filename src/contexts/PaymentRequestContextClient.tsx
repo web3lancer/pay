@@ -157,7 +157,7 @@ export function PaymentRequestProvider({ children }: { children: React.ReactNode
 
   useEffect(() => {
     refreshPaymentRequests()
-  }, [refreshPaymentRequests])
+  }, [account])
 
   return (
     <PaymentRequestContext.Provider value={{

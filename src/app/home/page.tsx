@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { PageLayout } from '@/components/layout/PageLayout'
-import { useAuth } from '@/contexts/AuthContext' // <-- ensure this uses appwrite.ts under the hood
+import { useAuth } from '@/contexts/AuthContext'
 import { useWallet } from '@/contexts/WalletContext'
 import { useTransaction } from '@/contexts/TransactionContext'
 import { usePaymentRequest } from '@/contexts/PaymentRequestContext'
@@ -64,7 +63,7 @@ export default function HomePage() {
   }
 
   return (
-    <PageLayout>
+    <div className="max-w-7xl mx-auto">
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-900 mb-2">
@@ -313,6 +312,6 @@ export default function HomePage() {
         {/* Exchange Rates */}
         <ExchangeRateDisplay showRefresh={true} />
       </div>
-    </PageLayout>
+    </div>
   )
 }

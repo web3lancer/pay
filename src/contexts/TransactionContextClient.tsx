@@ -67,7 +67,7 @@ export function TransactionProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     refreshTransactions()
-  }, [refreshTransactions])
+  }, [account])
 
   return (
     <TransactionContext.Provider value={{
