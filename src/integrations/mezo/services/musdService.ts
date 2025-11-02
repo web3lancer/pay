@@ -107,41 +107,46 @@ export const withdrawCollateral = async (
   }
 };
 
-/**
- * Get user position details
- * @param userAddress - User wallet address
- * @param network - 'mainnet' or 'testnet'
- * @returns Position with collateral, debt, health factor, ratio
- */
 export const getUserPosition = async (
   userAddress: string,
   network?: "mainnet" | "testnet"
 ): Promise<Position | null> => {
+  if (!userAddress) return null;
+
   const provider = getMezoProvider(network);
   const addresses = getAddresses(network === "mainnet" ? "mainnet" : "testnet");
   const borrowerOpsAddress = addresses.BorrowerOperations || addresses.Portal;
 
   try {
     const borrowerOpsContract = new Contract(borrowerOpsAddress, BORROWER_OPERATIONS_ABI, provider);
-    const [collateral, debt] = await borrowerOpsContract.getTrove(userAddress);
+    
+    try {
+      const [collateral, debt] = await borrowerOpsContract.getTrove(userAddress);
 
-    const collateralStr = formatEther(collateral);
-    const debtStr = formatEther(debt);
+      const collateralStr = formatEther(collateral);
+      const debtStr = formatEther(debt);
 
-    // Calculate health factor (collateral / debt ratio)
-    const collateralNum = parseFloat(collateralStr);
-    const debtNum = parseFloat(debtStr);
-    const healthFactor = debtNum === 0 ? 999 : collateralNum / debtNum;
-    const ratio = debtNum === 0 ? 999 : (collateralNum / debtNum) * 100;
+      // Calculate health factor (collateral / debt ratio)
+      const collateralNum = parseFloat(collateralStr);
+      const debtNum = parseFloat(debtStr);
+      const healthFactor = debtNum === 0 ? 999 : collateralNum / debtNum;
+      const ratio = debtNum === 0 ? 999 : (collateralNum / debtNum) * 100;
 
-    return {
-      collateral: collateralStr,
-      debt: debtStr,
-      healthFactor,
-      ratio,
-    };
-  } catch (error) {
-    console.error("Error fetching user position:", error);
+      return {
+        collateral: collateralStr,
+        debt: debtStr,
+        healthFactor,
+        ratio,
+      };
+    } catch (callError: any) {
+      // User likely has no position yet - this is not an error
+      if (callError?.reason?.includes("require(false)") || callError?.code === "CALL_EXCEPTION") {
+        return null;
+      }
+      throw callError;
+    }
+  } catch (error: any) {
+    console.error("Error fetching user position:", error?.message || error);
     return null;
   }
 };

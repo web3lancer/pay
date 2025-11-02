@@ -292,58 +292,47 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-neutral-900">Settings</h1>
-          <p className="text-neutral-600 mt-2">
-            Manage your account settings and preferences
-          </p>
-        </div>
+    <div className="max-w-7xl mx-auto px-4">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-neutral-900">Settings</h1>
+        <p className="text-neutral-600 mt-2">
+          Manage your account settings and preferences
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <nav className="space-y-2">
-              {tabs.map((tab) => {
-                const Icon = tab.icon
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-cyan-50 text-cyan-700 border-l-4 border-cyan-500'
-                        : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <Icon className="h-5 w-5" />
-                      <div>
-                        <p className="font-medium">{tab.label}</p>
-                        <p className="text-xs text-neutral-500 mt-1 lg:hidden">
-                          {tab.description}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
-            </nav>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl border border-neutral-200 p-6">
-              <div key={activeTab} className="animate-fadeIn">
-                {activeTab === 'profile' && renderProfileTab()}
-                {activeTab === 'security' && renderSecurityTab()}
-                {activeTab === 'notifications' && renderNotificationsTab()}
-                {activeTab === 'preferences' && renderPreferencesTab()}
-                {activeTab === 'integrations' && renderIntegrationsTab()}
-              </div>
-            </div>
-          </div>
+      {/* Horizontal Tab Navigation */}
+      <div className="mb-6 border-b border-neutral-200">
+        <div className="flex space-x-1 overflow-x-auto">
+          {tabs.map((tab) => {
+            const Icon = tab.icon
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors flex items-center gap-2 ${
+                  activeTab === tab.id
+                    ? 'border-cyan-500 text-cyan-600'
+                    : 'border-transparent text-neutral-600 hover:text-neutral-900'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            )
+          })}
         </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="bg-white rounded-xl border border-neutral-200 p-6">
+        <div key={activeTab} className="animate-fadeIn">
+          {activeTab === 'profile' && renderProfileTab()}
+          {activeTab === 'security' && renderSecurityTab()}
+          {activeTab === 'notifications' && renderNotificationsTab()}
+          {activeTab === 'preferences' && renderPreferencesTab()}
+          {activeTab === 'integrations' && renderIntegrationsTab()}
+        </div>
+      </div>
     </div>
   )
 }

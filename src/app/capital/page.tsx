@@ -1,10 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useMezoWallet, useMezoPosition } from '@/integrations/mezo'
 import { CapitalDashboard, GetAdvanceModal } from '@/components/capital'
-import { AppShell } from '@/components/layout/AppShell'
 import { FiArrowLeft } from 'react-icons/fi'
 import Link from 'next/link'
 
@@ -18,26 +17,21 @@ export default function CapitalPage() {
 
   if (authLoading) {
     return (
-      <AppShell>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-        </div>
-      </AppShell>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      </div>
     )
   }
 
   if (!isAuthenticated) {
     return (
-      <AppShell>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-neutral-600">Please log in to access Capital Hub</p>
-        </div>
-      </AppShell>
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-neutral-600">Please log in to access Capital Hub</p>
+      </div>
     )
   }
 
   return (
-    <AppShell>
       <div className="space-y-6 pb-20 md:pb-6">
         {/* Header with Back Button */}
         <div className="flex items-center gap-3">
@@ -146,6 +140,5 @@ export default function CapitalPage() {
           </p>
         </div>
       </div>
-    </AppShell>
   )
 }

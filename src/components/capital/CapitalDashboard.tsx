@@ -174,7 +174,7 @@ export function CapitalDashboard({
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onSuccess={() => handleRefresh()}
-        btcBalance={btcBalance}
+        btcBalance={collateral}
       />
     </>
   )

@@ -83,8 +83,10 @@ export const getConnectedAddress = async (): Promise<string | null> => {
       method: "eth_requestAccounts",
     });
     return accounts[0] || null;
-  } catch (error) {
-    console.error("Error getting connected address:", error);
+  } catch (error: any) {
+    if (error?.code !== 4001) {
+      console.error("Error getting connected address:", error?.message || error);
+    }
     return null;
   }
 };
