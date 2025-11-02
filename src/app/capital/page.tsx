@@ -32,6 +32,7 @@ export default function CapitalPage() {
   }
 
   return (
+    <div className="max-w-7xl mx-auto px-4 py-6">
       <div className="space-y-6 pb-20 md:pb-6">
         {/* Header with Back Button */}
         <div className="flex items-center gap-3">

@@ -1,11 +1,9 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAppwriteAccount } from '@/hooks/useAppwriteAccount'
-import { TopBar } from '@/components/layout/TopBar'
-import { useState } from 'react'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -61,12 +59,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <TopBar onMenuClick={() => {}} mobile={false} />
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <div className="bg-white rounded-lg shadow-sm p-8 mb-6">
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Profile Header */}
+      <div className="bg-white rounded-lg shadow-sm p-8 mb-6">
           <div className="flex items-start justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-neutral-900 mb-2">

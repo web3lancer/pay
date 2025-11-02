@@ -26,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile overlay - only show when sidebar is open on mobile */}
       {isOpen && (
         <div 
           className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
@@ -34,20 +34,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         />
       )}
       
-      {/* Sidebar */}
+      {/* Sidebar content */}
       <div className={cn(
-        'bg-white border-r border-neutral-200 h-full w-full',
-        // Mobile styles - only show on mobile when open
-        'lg:hidden fixed top-0 left-0 z-50 h-[100vh] w-64 transform transition-transform duration-300 ease-in-out',
+        'bg-white border-r border-neutral-200 h-full flex flex-col',
+        // Mobile: fixed overlay that slides in from left
+        'fixed top-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:hidden',
         {
           'translate-x-0': isOpen,
           '-translate-x-full': !isOpen,
         },
-        // Desktop styles - simple relative positioning since AppShell handles fixed
-        'lg:block lg:relative lg:h-full lg:w-full lg:transform-none lg:transition-none'
+        // Desktop: static in layout flow, always visible
+        'lg:relative lg:translate-x-0 lg:flex lg:w-full lg:transition-none'
       )}>
-        <div className="flex flex-col h-full">
-          <nav className="flex-1 px-4 py-6 space-y-2">
+        <nav className="flex-1 px-4 py-6 space-y-2">
             {navigation.map((item) => {
               const isActive = pathname === item.href
               const isExternal = 'external' in item && item.external
@@ -100,7 +99,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
           </div>
-        </div>
       </div>
     </>
   )

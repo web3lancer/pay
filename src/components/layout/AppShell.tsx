@@ -14,16 +14,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
-        <Sidebar isOpen={true} onClose={() => {}} />
-      </div>
+      {/* Sidebar - single instance handles both mobile and desktop */}
+      <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} />
 
-      <div className="flex flex-col flex-1">
-        {/* Mobile Sidebar */}
-        <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} />
-
-        {/* Main Content */}
+      {/* Main Content Area */}
+      <div className="flex flex-col flex-1 min-w-0">
         <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
           {children}
         </main>

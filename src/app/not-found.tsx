@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -134,8 +133,7 @@ export default function NotFound() {
   }
 
   return (
-    <AppShell>
-      <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
         {/* Floating crypto symbols */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-20 left-10">
@@ -277,6 +275,6 @@ export default function NotFound() {
           )}
         </div>
       </div>
-    </AppShell>
+    // </div>
   )
 }
