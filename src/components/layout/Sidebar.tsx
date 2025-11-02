@@ -38,10 +38,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <aside className={cn(
         'bg-white border-r border-neutral-200 h-full flex flex-col',
         // Mobile: fixed overlay, slide from left
-        'fixed top-0 left-0 z-50 w-64 transform transition-transform duration-300 lg:hidden',
+        'fixed top-16 left-0 z-50 w-64 transform transition-transform duration-300 lg:hidden',
         isOpen ? 'translate-x-0' : '-translate-x-full',
-        // Desktop: static sidebar, always visible
-        'lg:static lg:w-64 lg:translate-x-0 lg:transition-none lg:flex'
+        // Desktop: static sidebar, always visible below topbar
+        'lg:static lg:w-64 lg:translate-x-0 lg:transition-none lg:flex lg:top-auto'
       )}>
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             {navigation.map((item) => {

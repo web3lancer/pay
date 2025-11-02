@@ -3,52 +3,17 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { useAppwriteAccount } from '@/hooks/useAppwriteAccount'
+import { FiArrowRight, FiExternalLink } from 'react-icons/fi'
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { isAuthenticated, loading: authLoading } = useAuth()
-  const { profile, fetchProfile, updateProfile, loading } = useAppwriteAccount()
-  const [isEditing, setIsEditing] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    displayName: '',
-    bio: ''
-  })
+  const { isAuthenticated, loading: authLoading, user, userProfile } = useAuth()
 
-  // Fetch profile on mount
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      fetchProfile()
-    } else if (!authLoading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       router.push('/')
     }
-  }, [isAuthenticated, authLoading, fetchProfile, router])
-
-  // Populate form when profile loads
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        name: profile.name || '',
-        displayName: profile.displayName || '',
-        bio: profile.bio || ''
-      })
-    }
-  }, [profile])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleSave = async () => {
-    try {
-      await updateProfile(formData)
-      setIsEditing(false)
-    } catch (error) {
-      console.error('Failed to update profile:', error)
-    }
-  }
+  }, [isAuthenticated, authLoading, router])
 
   if (authLoading) {
     return (
@@ -58,143 +23,71 @@ export default function ProfilePage() {
     )
   }
 
+  // Get initials from user name
+  const name = userProfile?.displayName || userProfile?.name || user?.email?.split('@')[0] || 'U'
+  const initials = name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+
+  // Get random pastel background color based on initials hash
+  const colors = [
+    'bg-gradient-to-br from-cyan-400 to-blue-500',
+    'bg-gradient-to-br from-purple-400 to-pink-500',
+    'bg-gradient-to-br from-green-400 to-emerald-500',
+    'bg-gradient-to-br from-yellow-400 to-orange-500',
+    'bg-gradient-to-br from-red-400 to-pink-500'
+  ]
+  const colorIndex = initials.charCodeAt(0) % colors.length
+  const bgColor = colors[colorIndex]
+
+  // Build account settings URL
+  const source = typeof window !== 'undefined' ? window.location.href : ''
+  const authSubdomain = process.env.AUTH_SUBDOMAIN || 'accounts'
+  const appDomain = process.env.APP_DOMAIN || 'web3lancer.website'
+  const accountsUrl = `https://${authSubdomain}.${appDomain}/profile?source=${encodeURIComponent(source)}`
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* Profile Header */}
-      <div className="bg-white rounded-lg shadow-sm p-8 mb-6">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-                {profile?.name || 'User Profile'}
-              </h1>
-              <p className="text-neutral-600">{profile?.email}</p>
-              {profile?.verified && (
-                <p className="text-sm text-green-600 mt-2">✓ Email verified</p>
-              )}
-            </div>
-            {!isEditing && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
-              >
-                Edit Profile
-              </button>
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      {/* Profile Card */}
+      <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-8">
+        <div className="flex items-start gap-8 mb-8">
+          {/* Avatar */}
+          <div className={`w-24 h-24 rounded-full ${bgColor} flex items-center justify-center flex-shrink-0`}>
+            <span className="text-4xl font-bold text-white">{initials}</span>
+          </div>
+
+          {/* Profile Info */}
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-neutral-900 mb-1">
+              {userProfile?.displayName || userProfile?.name || 'User'}
+            </h1>
+            <p className="text-neutral-600 mb-4">{user?.email}</p>
+            
+            {userProfile?.verified && (
+              <div className="inline-block px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+                ✓ Verified
+              </div>
             )}
           </div>
-
-          {/* Profile Content */}
-          {isEditing ? (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="John Doe"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Display Name
-                </label>
-                <input
-                  type="text"
-                  name="displayName"
-                  value={formData.displayName}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="John"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Bio
-                </label>
-                <textarea
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
-                  placeholder="Tell us about yourself..."
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={handleSave}
-                  disabled={loading}
-                  className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors disabled:opacity-50"
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  onClick={() => {
-                    setIsEditing(false)
-                    setFormData({
-                      name: profile?.name || '',
-                      displayName: profile?.displayName || '',
-                      bio: profile?.bio || ''
-                    })
-                  }}
-                  className="px-4 py-2 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {profile?.bio && (
-                <div>
-                  <h3 className="text-sm font-semibold text-neutral-600 mb-2">Bio</h3>
-                  <p className="text-neutral-700">{profile.bio}</p>
-                </div>
-              )}
-              {profile?.createdAt && (
-                <div>
-                  <h3 className="text-sm font-semibold text-neutral-600 mb-2">Member Since</h3>
-                  <p className="text-neutral-700">
-                    {new Date(profile.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
-        {/* Account Info Card */}
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-xl font-bold text-neutral-900 mb-4">Account Information</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between py-3 border-b border-neutral-200">
-              <span className="text-neutral-600">Email</span>
-              <span className="text-neutral-900 font-medium">{profile?.email}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-neutral-200">
-              <span className="text-neutral-600">Status</span>
-              <span className="text-neutral-900 font-medium">
-                {profile?.verified ? (
-                  <span className="text-green-600">Verified</span>
-                ) : (
-                  <span className="text-yellow-600">Not Verified</span>
-                )}
-              </span>
-            </div>
-            <div className="flex justify-between py-3">
-              <span className="text-neutral-600">User ID</span>
-              <span className="text-neutral-900 font-mono text-sm truncate">
-                {profile?.userId}
-              </span>
-            </div>
-          </div>
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-3">
+          <a
+            href={accountsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors"
+          >
+            Edit Profile & Settings
+            <FiExternalLink className="h-5 w-5" />
+          </a>
+          <p className="text-sm text-neutral-500 text-center">
+            Manage profile, security, and preferences in Account Settings
+          </p>
         </div>
       </div>
     </div>

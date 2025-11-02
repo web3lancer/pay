@@ -141,5 +141,7 @@ export default function CapitalPage() {
           </p>
         </div>
       </div>
+
+    </div>
   )
 }
