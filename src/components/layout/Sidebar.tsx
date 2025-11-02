@@ -36,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       
       {/* Sidebar */}
       <aside className={cn(
-        'bg-white border-r border-neutral-200 h-full flex flex-col',
+        'bg-white border-r border-neutral-200 h-full flex flex-col shadow-lg shadow-neutral-300/40',
         // Mobile: fixed overlay, slide from left
         'fixed top-16 left-0 z-50 w-64 transform transition-transform duration-300 lg:hidden',
         isOpen ? 'translate-x-0' : '-translate-x-full',
@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   className={cn(
                     'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
                     {
-                      'bg-cyan-50 text-cyan-700 border-r-2 border-cyan-500': isActive,
+                      'bg-cyan-50 text-cyan-700 border-r-2 border-cyan-500 shadow-sm shadow-cyan-200/50': isActive,
                       'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900': !isActive,
                     }
                   )}
@@ -85,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </nav>
         
         {/* Footer */}
-        <div className="px-4 py-4 border-t border-neutral-200 flex-shrink-0">
+        <div className="px-4 py-4 border-t border-neutral-200 flex-shrink-0 bg-neutral-50 shadow-inner shadow-neutral-200/30">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xs">W3</span>

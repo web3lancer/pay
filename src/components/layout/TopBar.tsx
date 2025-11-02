@@ -104,7 +104,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
 
   return (
     <header className={cn(
-      'flex h-16 items-center justify-between bg-white border-b border-neutral-200 px-6',
+      'flex h-16 items-center justify-between bg-white border-b border-neutral-200 px-6 shadow-sm shadow-neutral-200/50',
       {
         'px-4': mobile,
       }
@@ -141,7 +141,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             <input
               type="text"
               placeholder="Search transactions, addresses..."
-              className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-200"
+              className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-200 shadow-sm shadow-neutral-200/50"
             />
           </div>
         </div>
@@ -211,7 +211,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
 
           {/* Dropdown Menu */}
           {profileDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl py-2 z-50 border border-neutral-200">
+            <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg shadow-neutral-300/50 py-2 z-50 border border-neutral-200/80">
               {isAuthenticated ? (
                 <>
                   {/* User Header */}

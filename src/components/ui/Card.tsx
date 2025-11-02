@@ -9,10 +9,10 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Card({ className, variant = 'default', ...props }: CardProps) {
   const base =
-    "rounded-2xl backdrop-blur-lg glassmorphism-card";
+    "rounded-2xl backdrop-blur-lg glassmorphism-card border";
   const variants = {
-    default: "bg-white/60 border border-white/30 shadow-xl shadow-indigo-500/20",
-    indigo: "bg-gradient-to-br from-indigo-500/70 via-indigo-600/60 to-indigo-700/70 border border-indigo-300/30 shadow-xl shadow-indigo-600/30",
+    default: "bg-white/60 border-white/30 shadow-lg shadow-indigo-500/15",
+    indigo: "bg-gradient-to-br from-indigo-500/70 via-indigo-600/60 to-indigo-700/70 border-indigo-300/30 shadow-lg shadow-indigo-600/25",
   }
   return (
     <div
@@ -31,7 +31,7 @@ interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
 export function CardHeader({ className, ...props }: CardHeaderProps) {
   return (
     <div
-      className={cn("px-6 py-5 border-b border-neutral-200", className)}
+      className={cn("px-6 py-5 border-b border-neutral-200/70 bg-white/50", className)}
       {...props}
     />
   )
@@ -42,7 +42,7 @@ interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
 export function CardTitle({ className, ...props }: CardTitleProps) {
   return (
     <h3
-      className={cn("text-lg font-semibold text-neutral-900", className)}
+      className={cn("text-lg font-semibold text-neutral-900 text-opacity-90", className)}
       {...props}
     />
   )
@@ -75,7 +75,7 @@ interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
 export function CardFooter({ className, ...props }: CardFooterProps) {
   return (
     <div
-      className={cn("px-6 py-4 border-t border-neutral-200 bg-neutral-50", className)}
+      className={cn("px-6 py-4 border-t border-neutral-200/70 bg-neutral-50/70 shadow-inner shadow-neutral-200/20", className)}
       {...props}
     />
   )

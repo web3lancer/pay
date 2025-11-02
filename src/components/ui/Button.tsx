@@ -35,24 +35,24 @@ export const Button: React.FC<ButtonProps> = ({
   // Variant classes
   const variantClasses = {
     default:
-      'bg-white/60 text-neutral-800 hover:bg-white/80 shadow-md shadow-indigo-200/30',
+      'bg-white/60 text-neutral-800 hover:bg-white/80 shadow-md shadow-indigo-200/40',
     primary:
       'bg-gradient-to-r from-cyan-500 via-blue-500 to-blue-600 text-white ' +
       'hover:from-cyan-600 hover:to-blue-700 ' +
-      'shadow-xl shadow-cyan-500/30 ' +
+      'shadow-lg shadow-cyan-500/40 ' +
       'border border-white/20 ' +
       'backdrop-blur-md glassmorphism-btn',
     indigo:
       'bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-700 text-white ' +
       'hover:from-indigo-600 hover:to-indigo-800 ' +
-      'shadow-xl shadow-indigo-500/30 ' +
+      'shadow-lg shadow-indigo-500/40 ' +
       'border border-white/20 ' +
       'backdrop-blur-md glassmorphism-btn',
     outline:
       'bg-white/30 border border-cyan-300 text-cyan-700 hover:bg-white/60 ' +
-      'shadow-md shadow-indigo-200/20 backdrop-blur-md',
+      'shadow-md shadow-indigo-200/30 backdrop-blur-md',
     ghost:
-      'bg-transparent text-neutral-700 hover:bg-white/40 shadow-none backdrop-blur-md',
+      'bg-transparent text-neutral-700 hover:bg-white/40 shadow-sm shadow-neutral-200/20 backdrop-blur-md',
   };
 
   return (
