@@ -10,8 +10,6 @@ import {
   FiUser,
 } from 'react-icons/fi';
 
-
-import TwoFactorSettings from '@/components/security/TwoFactorSettings';
 import { useAuth } from '@/contexts/AuthContext';
 
 
@@ -141,49 +139,33 @@ export default function SettingsPage() {
     </div>
   )
 
-  const renderSecurityTab = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-neutral-900 mb-4">Two-Factor Authentication</h3>
-        <TwoFactorSettings />
-      </div>
+  const renderSecurityTab = () => {
+    // Get current page URL for source parameter
+    const source = typeof window !== 'undefined' ? window.location.href : ''
+    const authSubdomain = process.env.AUTH_SUBDOMAIN || 'accounts'
+    const appDomain = process.env.APP_DOMAIN || 'web3lancer.website'
+    const accountsUrl = `https://${authSubdomain}.${appDomain}/settings?source=${encodeURIComponent(source)}`
 
-      <div>
-        <h3 className="text-lg font-semibold text-neutral-900 mb-4">Password</h3>
-        <div className="bg-neutral-50 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-neutral-900 mb-1">Change Password</p>
-              <p className="text-sm text-neutral-600">
-                Last changed: Never
-              </p>
-            </div>
-            <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-              Change Password
-            </button>
-          </div>
+    return (
+      <div className="space-y-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-2">Account Security</h3>
+          <p className="text-neutral-600 mb-6">
+            Manage all your account security settings including two-factor authentication, password, and API keys in one centralized location.
+          </p>
+          <a
+            href={accountsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+          >
+            Go to Account Settings
+            <FiShield className="h-5 w-5" />
+          </a>
         </div>
       </div>
-
-      <div>
-        <h3 className="text-lg font-semibold text-neutral-900 mb-4">API Keys</h3>
-        <div className="bg-neutral-50 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-neutral-900 mb-1">API Access</p>
-              <p className="text-sm text-neutral-600">
-                Manage API keys for third-party applications
-              </p>
-            </div>
-            <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
-              <FiKey className="h-4 w-4" />
-              Manage Keys
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+    )
+  }
 
   const renderNotificationsTab = () => (
     <div className="space-y-6">
