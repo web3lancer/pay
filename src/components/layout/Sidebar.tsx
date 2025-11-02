@@ -26,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Mobile overlay - only show when sidebar is open on mobile */}
+      {/* Mobile overlay */}
       {isOpen && (
         <div 
           className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
@@ -34,19 +34,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         />
       )}
       
-      {/* Sidebar content */}
-      <div className={cn(
+      {/* Sidebar */}
+      <aside className={cn(
         'bg-white border-r border-neutral-200 h-full flex flex-col',
-        // Mobile: fixed overlay that slides in from left
-        'fixed top-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:hidden',
-        {
-          'translate-x-0': isOpen,
-          '-translate-x-full': !isOpen,
-        },
-        // Desktop: static in layout flow, always visible
-        'lg:relative lg:translate-x-0 lg:flex lg:w-full lg:transition-none'
+        // Mobile: fixed overlay, slide from left
+        'fixed top-0 left-0 z-50 w-64 transform transition-transform duration-300 lg:hidden',
+        isOpen ? 'translate-x-0' : '-translate-x-full',
+        // Desktop: static sidebar, always visible
+        'lg:static lg:w-64 lg:translate-x-0 lg:transition-none lg:flex'
       )}>
-        <nav className="flex-1 px-4 py-6 space-y-2">
+        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             {navigation.map((item) => {
               const isActive = pathname === item.href
               const isExternal = 'external' in item && item.external
@@ -85,21 +82,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 </Link>
               )
             })}
-          </nav>
-          
-          {/* Footer */}
-          <div className="px-4 py-4 border-t border-neutral-200">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xs">W3</span>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-neutral-900">Web3Lancer Pay</p>
-                <p className="text-xs text-neutral-500">v1.0.0</p>
-              </div>
+        </nav>
+        
+        {/* Footer */}
+        <div className="px-4 py-4 border-t border-neutral-200 flex-shrink-0">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xs">W3</span>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-neutral-900">Web3Lancer Pay</p>
+              <p className="text-xs text-neutral-500">v1.0.0</p>
             </div>
           </div>
-      </div>
+        </div>
+      </aside>
     </>
   )
 }
