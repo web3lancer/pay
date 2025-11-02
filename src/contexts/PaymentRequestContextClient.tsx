@@ -27,7 +27,7 @@ interface PaymentRequestContextType {
 const PaymentRequestContext = createContext<PaymentRequestContextType | undefined>(undefined)
 
 export function PaymentRequestProvider({ children }: { children: React.ReactNode }) {
-  const { account } = useAuth()
+  const { account, isAuthenticated } = useAuth()
   const [paymentRequests, setPaymentRequests] = useState<PaymentRequests[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -156,8 +156,10 @@ export function PaymentRequestProvider({ children }: { children: React.ReactNode
   }
 
   useEffect(() => {
-    refreshPaymentRequests()
-  }, [account])
+    if (isAuthenticated) {
+      refreshPaymentRequests()
+    }
+  }, [isAuthenticated])
 
   return (
     <PaymentRequestContext.Provider value={{

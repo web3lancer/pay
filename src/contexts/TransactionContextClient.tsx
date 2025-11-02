@@ -18,7 +18,7 @@ interface TransactionContextType {
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined)
 
 export function TransactionProvider({ children }: { children: React.ReactNode }) {
-  const { account } = useAuth()
+  const { account, isAuthenticated } = useAuth()
   const [transactions, setTransactions] = useState<Transactions[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -66,8 +66,10 @@ export function TransactionProvider({ children }: { children: React.ReactNode })
   }
 
   useEffect(() => {
-    refreshTransactions()
-  }, [account])
+    if (isAuthenticated) {
+      refreshTransactions()
+    }
+  }, [isAuthenticated])
 
   return (
     <TransactionContext.Provider value={{

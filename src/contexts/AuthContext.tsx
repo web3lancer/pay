@@ -117,6 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let checkCount = 0
     let initCheckInterval: NodeJS.Timeout | null = null
+    let timeoutId: NodeJS.Timeout | null = null
 
     // Do multiple checks in the first 3 seconds for better detection
     const initialCheck = async () => {
@@ -130,6 +131,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     initialCheck()
+
+    // Safety timeout - ensure loading is false after 5 seconds
+    timeoutId = setTimeout(() => {
+      setLoading(false)
+    }, 5000)
 
     // Initialize session monitoring (only once globally)
     if (!sessionMonitoringInitialized) {
@@ -155,9 +161,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       if (initCheckInterval) clearTimeout(initCheckInterval)
+      if (timeoutId) clearTimeout(timeoutId)
       unsubscribe()
     }
-  }, [checkAppwriteSession])
+  }, [])
 
   const redirectToAuth = useCallback(() => {
     const authUri = process.env.NEXT_PUBLIC_AUTH_URI
@@ -204,7 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = useCallback(async () => {
     await checkAppwriteSession()
-  }, [checkAppwriteSession])
+  }, [])
 
   // Stub methods for compatibility
   const completeProfile = useCallback(async () => {

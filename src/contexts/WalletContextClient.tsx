@@ -29,7 +29,7 @@ interface WalletContextType {
 const WalletContext = createContext<WalletContextType | undefined>(undefined)
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-  const { account } = useAuth()
+  const { account, isAuthenticated } = useAuth()
   const [wallets, setWallets] = useState<Wallets[]>([])
   const [defaultWallet, setDefaultWalletState] = useState<Wallets | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -47,7 +47,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     setError(null)
     try {
       const userWalletsResponse = await appwrite.listWalletsByUser(account.$id)
-      const userWallets = userWalletsResponse.documents as unknown as Wallets[]
+      const userWallets = userWalletsResponse.documents || []
       setWallets(userWallets)
       
       const defaultWal = userWallets.find(w => w.isDefault) || userWallets[0] || null
@@ -186,8 +186,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    refreshWallets()
-  }, [account])
+    if (isAuthenticated) {
+      refreshWallets()
+    }
+  }, [isAuthenticated])
 
   return (
     <WalletContext.Provider value={{
