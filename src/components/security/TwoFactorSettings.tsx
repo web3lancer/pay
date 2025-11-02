@@ -203,8 +203,9 @@ export function TwoFactorSettings({ onClose }: TwoFactorSettingsProps) {
 
       <div className="bg-white p-6 rounded-lg border text-center">
         {qrCodeUrl && (
-          <div className="mb-4">
-            <QRCode value={qrCodeUrl} size={200} />
+          <div className="mb-4 p-4 bg-gray-100 rounded text-sm text-gray-600">
+            <p className="mb-2">Scan with your authenticator app:</p>
+            <code className="text-xs break-all">{qrCodeUrl}</code>
           </div>
         )}
         
