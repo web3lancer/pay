@@ -14,7 +14,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const { isSidebarOpen, toggleSidebar } = useSidebar()
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-neutral-50 dark:bg-ash-dark transition-colors duration-300">
       {/* TopBar */}
       <TopBar onMenuClick={toggleSidebar} mobile={false} />
 

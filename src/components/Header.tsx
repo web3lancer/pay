@@ -3,6 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const Header: React.FC = () => {
   const { isAuthenticated, redirectToAuth } = useAuth()
@@ -16,7 +17,7 @@ const Header: React.FC = () => {
   ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-white/10 shadow-lg shadow-slate-900/50 animate-in">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 dark:bg-ash-dark/90 backdrop-blur-md border-b border-white/10 dark:border-white/5 shadow-lg shadow-slate-900/50 dark:shadow-neutral-950/50 transition-colors duration-300">
       <nav className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -43,6 +44,8 @@ const Header: React.FC = () => {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
+            
             {isAuthenticated ? (
               <Link
                 href="/home"

@@ -87,11 +87,42 @@
   --space-24: 6rem;       /* 96px */
 }
 
+/* Dark Mode Theme Variables */
+html.dark {
+  /* Dark Neutral Palette (inverted for dark mode) */
+  --neutral-900: #F9FAFB;   /* Text Primary (light) */
+  --neutral-800: #F3F4F6;   /* Text Secondary (light) */
+  --neutral-700: #E5E7EB;   /* Text Tertiary (light) */
+  --neutral-600: #D1D5DB;   /* Text Disabled */
+  --neutral-500: #9CA3AF;   /* Borders */
+  --neutral-400: #6B7280;   /* Placeholders */
+  --neutral-300: #4B5563;   /* Dividers */
+  --neutral-200: #374151;   /* Background Secondary */
+  --neutral-100: #1F2937;   /* Background Primary */
+  --neutral-50: #0F0F23;    /* Background Elevated (deep ash) */
+
+  /* Dark Indigo Palette */
+  --indigo-900: #f5f3ff;
+  --indigo-800: #e0e7ff;
+  --indigo-700: #c7d2fe;
+  --indigo-600: #a5b4fc;
+  --indigo-500: #818cf8;
+  --indigo-400: #6366f1;
+  --indigo-300: #4f46e5;
+  --indigo-200: #4338ca;
+  --indigo-100: #3730a3;
+  --indigo-50: #312e81;
+}
+
 /* Typography */
 @layer base {
   body {
-    @apply text-neutral-900 bg-neutral-50 antialiased;
+    @apply text-neutral-900 bg-neutral-50 antialiased transition-colors duration-300;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  html.dark body {
+    @apply text-neutral-900 bg-ash-dark;
   }
 
   h1, h2, h3, h4, h5, h6 {

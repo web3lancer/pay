@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import {
   FiMenu,
   FiSearch,
@@ -104,7 +105,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
 
   return (
     <header className={cn(
-      'flex h-16 items-center justify-between bg-white border-b border-neutral-200 px-6 shadow-sm shadow-neutral-200/50',
+      'flex h-16 items-center justify-between bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-6 shadow-sm shadow-neutral-200/50 dark:shadow-neutral-950/50 transition-colors duration-300',
       {
         'px-4': mobile,
       }
@@ -114,7 +115,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
         {mobile && (
           <button
             onClick={onMenuClick}
-            className="p-2 text-neutral-600 hover:text-neutral-900 lg:hidden"
+            className="p-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 lg:hidden transition-colors"
           >
             <FiMenu className="h-5 w-5" />
           </button>
@@ -127,7 +128,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             alt="LancerPay Logo"
             className="h-8 w-8 object-contain"
           />
-          <span className="font-semibold text-neutral-900">LancerPay</span>
+          <span className="font-semibold text-neutral-900 dark:text-neutral-100 transition-colors">LancerPay</span>
         </div>
       </div>
 
@@ -136,12 +137,12 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
         <div className="flex-1 flex justify-center">
           <div className="relative w-full max-w-xl">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FiSearch className="h-4 w-4 text-neutral-400" />
+              <FiSearch className="h-4 w-4 text-neutral-400 dark:text-neutral-600 transition-colors" />
             </div>
             <input
               type="text"
               placeholder="Search transactions, addresses..."
-              className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-200 shadow-sm shadow-neutral-200/50"
+              className="w-full pl-10 pr-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-sm placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:focus:ring-cyan-400 transition-all duration-200 shadow-sm shadow-neutral-200/50 dark:shadow-neutral-950/50"
             />
           </div>
         </div>
@@ -149,8 +150,11 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
 
       {/* Right Section */}
       <div className="flex items-center gap-3">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         {/* Notifications */}
-        <button className="relative p-2 text-neutral-600 hover:text-neutral-900 transition-colors">
+        <button className="relative p-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors">
           <FiBell className="h-5 w-5" />
           <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full flex items-center justify-center">
             <span className="text-[10px] text-white font-bold">3</span>
@@ -164,8 +168,8 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
             className={cn(
               'flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200',
               profileDropdownOpen 
-                ? 'bg-neutral-100' 
-                : 'hover:bg-neutral-100'
+                ? 'bg-neutral-100 dark:bg-neutral-800' 
+                : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
             )}
           >
             {/* Avatar Circle with Initials */}
@@ -180,11 +184,11 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                 
                 {!mobile && (
                   <div className="flex items-center gap-1">
-                    <span className="text-sm font-medium text-neutral-900">
+                    <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100 transition-colors">
                       {userName ? userName.split(' ')[0] : userEmail.split('@')[0]}
                     </span>
                     <FiChevronDown className={cn(
-                      'h-4 w-4 text-neutral-600 transition-transform',
+                      'h-4 w-4 text-neutral-600 dark:text-neutral-400 transition-transform',
                       profileDropdownOpen && 'rotate-180'
                     )} />
                   </div>
@@ -192,18 +196,18 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
               </>
             ) : loading ? (
               <>
-                <div className="h-9 w-9 rounded-full bg-neutral-200 animate-pulse" />
+                <div className="h-9 w-9 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse" />
                 {!mobile && (
-                  <span className="text-sm font-medium text-neutral-600">Loading...</span>
+                  <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400 transition-colors">Loading...</span>
                 )}
               </>
             ) : (
               <>
-                <div className="h-9 w-9 rounded-full bg-cyan-100 flex items-center justify-center">
-                  <FiUser className="h-4 w-4 text-cyan-600" />
+                <div className="h-9 w-9 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                  <FiUser className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                 </div>
                 {!mobile && (
-                  <span className="text-sm font-medium text-neutral-900">Connect</span>
+                  <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100 transition-colors">Connect</span>
                 )}
               </>
             )}
@@ -211,11 +215,11 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
 
           {/* Dropdown Menu */}
           {profileDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg shadow-neutral-300/50 py-2 z-50 border border-neutral-200/80">
+            <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-neutral-800 rounded-lg shadow-lg shadow-neutral-300/50 dark:shadow-neutral-950/50 py-2 z-50 border border-neutral-200/80 dark:border-neutral-700/80 transition-colors">
               {isAuthenticated ? (
                 <>
                   {/* User Header */}
-                  <div className="px-4 py-3 border-b border-neutral-200">
+                  <div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 transition-colors">
                     <div className="flex items-center gap-3">
                       <div className={cn(
                         'h-12 w-12 rounded-full flex items-center justify-center text-white font-semibold',
@@ -224,10 +228,10 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                         {initials}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-neutral-900 truncate">
+                        <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate transition-colors">
                           {userName || 'Account'}
                         </p>
-                        <p className="text-xs text-neutral-500 truncate">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate transition-colors">
                           {userEmail}
                         </p>
                       </div>
@@ -238,37 +242,37 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                   <div className="py-2">
                     <button
                       onClick={handleProfileClick}
-                      className="flex items-center w-full px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors gap-3"
+                      className="flex items-center w-full px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors gap-3"
                     >
-                      <FiUser className="h-4 w-4 text-neutral-500" />
+                      <FiUser className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
                       <span>View Profile</span>
                     </button>
 
                     <button
                       onClick={handleSettingsClick}
-                      className="flex items-center w-full px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors gap-3"
+                      className="flex items-center w-full px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors gap-3"
                     >
-                      <FiSettings className="h-4 w-4 text-neutral-500" />
+                      <FiSettings className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
                       <span>Settings</span>
                     </button>
 
                     <Link
                       href="/help"
                       onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center w-full px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors gap-3"
+                      className="flex items-center w-full px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors gap-3"
                     >
-                      <FiHelpCircle className="h-4 w-4 text-neutral-500" />
+                      <FiHelpCircle className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
                       <span>Help & Support</span>
                     </Link>
                   </div>
 
                   {/* Divider */}
-                  <div className="border-t border-neutral-200 my-1" />
+                  <div className="border-t border-neutral-200 dark:border-neutral-700 my-1 transition-colors" />
 
                   {/* Sign Out */}
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors gap-3"
+                    className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors gap-3"
                   >
                     <FiLogOut className="h-4 w-4" />
                     <span>Sign out</span>
@@ -277,9 +281,9 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
               ) : (
                 <>
                   {/* Unauthenticated User Header */}
-                  <div className="px-4 py-3 border-b border-neutral-200">
-                    <p className="text-sm font-semibold text-neutral-900">Welcome to LancerPay</p>
-                    <p className="text-xs text-neutral-500 mt-1">Sign in to access your account</p>
+                  <div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 transition-colors">
+                    <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 transition-colors">Welcome to LancerPay</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 transition-colors">Sign in to access your account</p>
                   </div>
 
                   {/* Authentication Option */}
@@ -289,7 +293,7 @@ export function TopBar({ onMenuClick, mobile = false }: TopBarProps) {
                         setProfileDropdownOpen(false)
                         redirectToAuth()
                       }}
-                      className="flex items-center w-full px-4 py-2.5 text-sm text-cyan-600 hover:bg-cyan-50 transition-colors gap-3 font-medium"
+                      className="flex items-center w-full px-4 py-2.5 text-sm text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/20 transition-colors gap-3 font-medium"
                     >
                       <FiUser className="h-4 w-4" />
                       <span>Sign in</span>

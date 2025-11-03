@@ -29,14 +29,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       {/* Mobile overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 dark:bg-opacity-70 lg:hidden transition-opacity"
           onClick={onClose}
         />
       )}
       
       {/* Sidebar */}
       <aside className={cn(
-        'bg-white border-r border-neutral-200 h-full flex flex-col shadow-lg shadow-neutral-300/40',
+        'bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 h-full flex flex-col shadow-lg shadow-neutral-300/40 dark:shadow-neutral-950/40 transition-colors duration-300',
         // Mobile: fixed overlay, slide from left
         'fixed top-16 left-0 z-50 w-64 transform transition-transform duration-300 lg:hidden',
         isOpen ? 'translate-x-0' : '-translate-x-full',
@@ -56,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => onClose()}
-                    className="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+                    className="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 hover:text-neutral-900 dark:hover:text-neutral-100"
                   >
                     <span className="mr-3 text-base">{item.icon}</span>
                     {item.name}
@@ -72,8 +72,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   className={cn(
                     'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
                     {
-                      'bg-cyan-50 text-cyan-700 border-r-2 border-cyan-500 shadow-sm shadow-cyan-200/50': isActive,
-                      'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900': !isActive,
+                      'bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-400 border-r-2 border-cyan-500 shadow-sm shadow-cyan-200/50 dark:shadow-cyan-950/50': isActive,
+                      'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 hover:text-neutral-900 dark:hover:text-neutral-100': !isActive,
                     }
                   )}
                 >
@@ -85,14 +85,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </nav>
         
         {/* Footer */}
-        <div className="px-4 py-4 border-t border-neutral-200 flex-shrink-0 bg-neutral-50 shadow-inner shadow-neutral-200/30">
+        <div className="px-4 py-4 border-t border-neutral-200 dark:border-neutral-800 flex-shrink-0 bg-neutral-50 dark:bg-neutral-800/50 shadow-inner shadow-neutral-200/30 dark:shadow-neutral-950/30 transition-colors">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xs">W3</span>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-neutral-900">Web3Lancer Pay</p>
-              <p className="text-xs text-neutral-500">v1.0.0</p>
+              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 transition-colors">Web3Lancer Pay</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 transition-colors">v1.0.0</p>
             </div>
           </div>
         </div>
@@ -100,3 +100,5 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     </>
   )
 }
+
+export default Sidebar
