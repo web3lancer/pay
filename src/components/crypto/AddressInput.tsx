@@ -52,7 +52,7 @@ export function AddressInput({
             <button 
               type="button"
               onClick={onQrScan}
-              className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500"
+              className="p-1.5 rounded-full hover:bg-gray-100/80 text-gray-500 transition-colors shadow-sm hover:shadow-sm hover:shadow-gray-200/30"
             >
               <FiCamera className="h-4 w-4" />
             </button>
@@ -61,7 +61,7 @@ export function AddressInput({
           <button 
             type="button"
             onClick={handlePaste}
-            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500"
+            className="p-1.5 rounded-full hover:bg-gray-100/80 text-gray-500 transition-colors shadow-sm hover:shadow-sm hover:shadow-gray-200/30"
           >
             <FiClipboard className="h-4 w-4" />
           </button>

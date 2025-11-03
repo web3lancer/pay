@@ -16,7 +16,7 @@ const Header: React.FC = () => {
   ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-white/10 animate-in">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-white/10 shadow-lg shadow-slate-900/50 animate-in">
       <nav className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -46,14 +46,14 @@ const Header: React.FC = () => {
             {isAuthenticated ? (
               <Link
                 href="/home"
-                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full font-medium shadow-lg hover:scale-105 hover:shadow-cyan-500/25 transition-all"
+                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full font-medium shadow-lg shadow-cyan-500/40 hover:scale-105 hover:shadow-cyan-500/50 transition-all"
               >
                 Dashboard
               </Link>
             ) : (
               <button 
                 onClick={redirectToAuth}
-                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full font-medium shadow-lg hover:scale-105 hover:shadow-cyan-500/25 transition-all"
+                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full font-medium shadow-lg shadow-cyan-500/40 hover:scale-105 hover:shadow-cyan-500/50 transition-all"
               >
                 Login
               </button>

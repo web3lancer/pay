@@ -51,8 +51,8 @@ export function CurrencySelector({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex items-center justify-between w-full rounded-lg border border-gray-300 bg-white px-3 py-2',
-          'hover:border-indigo-300 transition-all duration-150',
+          'flex items-center justify-between w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm shadow-gray-200/40',
+          'hover:border-indigo-300 hover:shadow-md hover:shadow-gray-200/50 transition-all duration-150',
           'focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500',
           className
         )}
@@ -102,7 +102,7 @@ export function CurrencySelector({
             {/* Dropdown */}
             <div
               className={cn(
-                "absolute z-50 w-full min-w-[240px] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg",
+                "absolute z-50 w-full min-w-[240px] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg shadow-gray-300/40",
                 dropdownPosition === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'
               )}
               initial={{ opacity: 0, y: dropdownPosition === 'top' ? 10 : -10 }}

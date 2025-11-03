@@ -28,7 +28,7 @@ export function ExchangeRateDisplay({ className = '', showRefresh = false }: Exc
   }
 
   return (
-    <div className={`bg-white rounded-xl border border-neutral-200 p-6 ${className}`}>
+    <div className={`bg-white rounded-xl border border-neutral-200 p-6 shadow-lg shadow-neutral-300/40 ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-neutral-900">Live Prices</h3>
         <div className="flex items-center space-x-2">
@@ -119,7 +119,7 @@ export function TokenSelect({ selectedToken, onTokenSelect, className = '', labe
       <select
         value={selectedToken}
         onChange={(e) => onTokenSelect(e.target.value)}
-        className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+        className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent shadow-sm shadow-neutral-200/40"
       >
         <option value="">Select a token</option>
         {availableTokens.map((tokenId) => {

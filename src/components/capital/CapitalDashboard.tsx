@@ -46,7 +46,7 @@ export function CapitalDashboard({
 
   return (
     <>
-      <div className={`bg-white rounded-2xl border border-neutral-200 overflow-hidden ${className}`}>
+      <div className={`bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-lg shadow-neutral-300/40 ${className}`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-50 to-primary-100 border-b border-primary-200 px-6 py-6">
           <div className="flex justify-between items-start mb-4">
@@ -85,7 +85,7 @@ export function CapitalDashboard({
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Available Collateral */}
-            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200">
+            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 shadow-sm shadow-neutral-200/40">
               <div className="flex items-center gap-2 mb-2">
                 <FiLock className="w-4 h-4 text-neutral-600" />
                 <span className="text-xs font-medium text-neutral-600">Collateral (BTC)</span>
@@ -99,7 +99,7 @@ export function CapitalDashboard({
             </div>
 
             {/* Currently Borrowed */}
-            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200">
+            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 shadow-sm shadow-neutral-200/40">
               <div className="flex items-center gap-2 mb-2">
                 <FiUnlock className="w-4 h-4 text-neutral-600" />
                 <span className="text-xs font-medium text-neutral-600">Debt (MUSD)</span>
@@ -113,7 +113,7 @@ export function CapitalDashboard({
             </div>
 
             {/* Available to Borrow */}
-            <div className="p-4 rounded-xl bg-primary-50 border border-primary-200">
+            <div className="p-4 rounded-xl bg-primary-50 border border-primary-200 shadow-sm shadow-primary-200/40">
               <div className="flex items-center gap-2 mb-2">
                 <FiTrendingUp className="w-4 h-4 text-primary-600" />
                 <span className="text-xs font-medium text-primary-600">Available to Borrow</span>

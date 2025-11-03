@@ -80,7 +80,7 @@ export function HealthMeter({
             {(healthFactor * 100).toFixed(0)}%
           </p>
         </div>
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${getStatusBg()}`}>
+        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${getStatusBg()} shadow-sm`}>
           <div className={getStatusTextColor()}>
             {getStatusIcon()}
           </div>
@@ -91,9 +91,9 @@ export function HealthMeter({
       </div>
 
       {/* Health Bar */}
-      <div className="relative h-3 bg-neutral-200 rounded-full overflow-hidden">
+      <div className="relative h-3 bg-neutral-200 rounded-full overflow-hidden shadow-sm shadow-neutral-300/40">
         <div
-          className={`h-full bg-gradient-to-r ${getStatusColor()} transition-all duration-500`}
+          className={`h-full bg-gradient-to-r ${getStatusColor()} transition-all duration-500 shadow-sm`}
           style={{ width: `${Math.min(100, healthPercentage)}%` }}
         />
       </div>
@@ -105,7 +105,7 @@ export function HealthMeter({
       </div>
 
       {/* Info Message */}
-      <div className="mt-4 p-3 rounded-lg bg-neutral-50 border border-neutral-200">
+      <div className="mt-4 p-3 rounded-lg bg-neutral-50 border border-neutral-200 shadow-sm shadow-neutral-200/40">
         <p className="text-sm text-neutral-700">
           {status === 'safe' && (
             <>Your position is <strong>healthy</strong>. You can borrow more or withdraw collateral safely.</>

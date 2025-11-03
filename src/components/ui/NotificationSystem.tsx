@@ -44,15 +44,15 @@ export function NotificationSystem({
   const getBackgroundColor = (type: string) => {
     switch (type) {
       case 'success':
-        return 'bg-green-50 border-green-200'
+        return 'bg-green-50 border-green-200 shadow-lg shadow-green-200/40'
       case 'error':
-        return 'bg-red-50 border-red-200'
+        return 'bg-red-50 border-red-200 shadow-lg shadow-red-200/40'
       case 'warning':
-        return 'bg-yellow-50 border-yellow-200'
+        return 'bg-yellow-50 border-yellow-200 shadow-lg shadow-yellow-200/40'
       case 'info':
-        return 'bg-blue-50 border-blue-200'
+        return 'bg-blue-50 border-blue-200 shadow-lg shadow-blue-200/40'
       default:
-        return 'bg-neutral-50 border-neutral-200'
+        return 'bg-neutral-50 border-neutral-200 shadow-lg shadow-neutral-200/40'
     }
   }
 

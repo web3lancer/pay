@@ -70,14 +70,14 @@ export function Modal({
           >
             <Dialog.Panel
               className={cn(
-                'w-full transform overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-100 transition-all',
+                'w-full transform overflow-hidden rounded-2xl bg-white shadow-[0_25px_70px_-12px_rgba(0,0,0,0.35)] border border-gray-100/80 transition-all',
                 sizeClasses[size],
                 className
               )}
             >
               {/* Header */}
               {(title || showCloseButton) && (
-                <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5 bg-gradient-to-b from-gray-50 to-white">
+                <div className="flex items-center justify-between border-b border-gray-200/70 px-6 py-5 bg-gradient-to-b from-gray-50/90 to-white shadow-sm shadow-gray-200/30">
                   {title && (
                     <div>
                       <Dialog.Title className="text-lg font-semibold text-gray-900">
@@ -92,7 +92,7 @@ export function Modal({
                   )}
                   {showCloseButton && (
                     <button
-                      className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+                      className="rounded-lg p-2 text-gray-400 hover:bg-gray-100/80 hover:text-gray-500 transition-all"
                       onClick={onClose}
                       whileTap={{ scale: 0.9 }}
                       whileHover={{ rotate: 90 }}

@@ -62,7 +62,7 @@ export function TabsList({
     <div 
       role="tablist" 
       className={cn(
-        'flex items-center w-max p-1 bg-neutral-100 rounded-lg',
+        'flex items-center w-max p-1 bg-neutral-100 rounded-lg shadow-sm shadow-neutral-200/40',
         className
       )}
       {...props}
@@ -109,7 +109,7 @@ export function TabsTrigger({
       className={cn(
         'inline-flex items-center justify-center px-3.5 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-all',
         isActive
-          ? 'bg-white text-neutral-900 shadow'
+          ? 'bg-white text-neutral-900 shadow-sm shadow-neutral-200/50'
           : 'text-neutral-600 hover:text-neutral-900',
         className
       )}

@@ -124,7 +124,7 @@ export function Drawer({
           >
             <Dialog.Panel
               className={cn(
-                'bg-white shadow-xl overflow-hidden transform transition-all',
+                'bg-white shadow-2xl shadow-gray-400/30 overflow-hidden transform transition-all',
                 selectedPosition.panel,
                 className
               )}
@@ -139,7 +139,7 @@ export function Drawer({
               
               {/* Title section */}
               {(title || showCloseButton) && (
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/70 bg-gray-50/50 shadow-sm shadow-gray-200/20">
                   {title && (
                     <div>
                       <Dialog.Title className="text-lg font-semibold text-gray-900">
@@ -154,7 +154,7 @@ export function Drawer({
                   )}
                   {showCloseButton && (
                     <button
-                      className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+                      className="rounded-full p-2 text-gray-400 hover:bg-gray-100/80 hover:text-gray-500 transition-all"
                       onClick={onClose}
                       whileTap={{ scale: 0.9 }}
                       transition={{ duration: 0.2 }}
