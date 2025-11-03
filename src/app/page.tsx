@@ -5,8 +5,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { 
-  FiSend, FiDownload, FiCode, FiShield, FiGlobe, FiZap, 
+  FiSend, FiZap, FiShield, FiGlobe, FiCode,
   FiArrowRight, FiCheck, FiStar, FiUsers, FiTrendingUp,
   FiCreditCard, FiLock, FiRefreshCw, FiEye, FiHeart,
   FiBarChart, FiTarget, FiPlay, FiChevronDown
@@ -109,7 +110,7 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-ash-dark overflow-hidden transition-colors duration-300">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -158,7 +159,7 @@ export default function LandingPage() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-black/5"
+        className="sticky top-0 z-50 bg-white/80 dark:bg-ash-dark/80 backdrop-blur-xl border-b border-white/20 dark:border-white/5 shadow-lg shadow-black/5 dark:shadow-neutral-950/5 transition-colors duration-300"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -191,7 +192,7 @@ export default function LandingPage() {
                 <motion.a
                   key={item}
                   href={`#${item.toLowerCase()}`}
-                  className="text-slate-600 hover:text-cyan-600 font-medium transition-colors relative group"
+                  className="text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium transition-colors relative group"
                   whileHover={{ scale: 1.05 }}
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -206,6 +207,8 @@ export default function LandingPage() {
             </div>
 
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              
               {isAuthenticated ? (
                 <motion.div
                   initial={{ scale: 0 }}
@@ -511,8 +514,8 @@ export default function LandingPage() {
       </section>
 
       {/* Dynamic Features Section */}
-      <section id="features" className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-cyan-50"></div>
+      <section id="features" className="py-32 relative overflow-hidden bg-white dark:bg-neutral-900 transition-colors duration-300">
+        <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-cyan-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -562,7 +565,7 @@ export default function LandingPage() {
                   className={`absolute inset-0 bg-gradient-to-r ${feature.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-all duration-300`}
                 />
                 
-                <div className="relative bg-white rounded-2xl p-8 shadow-lg border border-slate-200 hover:shadow-2xl hover:border-slate-300 transition-all duration-300">
+                <div className="relative bg-white rounded-2xl p-8 shadow-lg border border-slate-200 dark:bg-neutral-800 dark:border-neutral-700 hover:shadow-2xl hover:border-slate-300 dark:hover:border-neutral-600 transition-all duration-300">
                   <motion.div
                     whileHover={{ rotate: 360, scale: 1.1 }}
                     transition={{ duration: 0.6 }}
@@ -571,10 +574,10 @@ export default function LandingPage() {
                     <feature.icon className="w-8 h-8 text-white" />
                   </motion.div>
                   
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-cyan-600 group-hover:to-blue-600 group-hover:bg-clip-text transition-all duration-300">
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-cyan-600 group-hover:to-blue-600 group-hover:bg-clip-text transition-all duration-300">
                     {feature.title}
                   </h3>
-                  <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{feature.description}</p>
                   
                   {/* Hover effect indicator */}
                   <motion.div
@@ -666,7 +669,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-32 bg-gradient-to-br from-cyan-50 to-blue-50 relative overflow-hidden">
+      <section className="py-32 bg-white dark:bg-neutral-900 relative overflow-hidden transition-colors duration-300">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
@@ -708,7 +711,7 @@ export default function LandingPage() {
                 }}
                 className="group"
               >
-                <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200 hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
+                <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200 dark:bg-neutral-800 dark:border-neutral-700 hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
                   <div
                     className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   />
@@ -727,7 +730,7 @@ export default function LandingPage() {
                       ))}
                     </div>
                     
-                    <p className="text-slate-600 leading-relaxed mb-6 text-lg">
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6 text-lg">
                       "{testimonial.content}"
                     </p>
                     
@@ -743,8 +746,8 @@ export default function LandingPage() {
                         />
                       </motion.div>
                       <div>
-                        <div className="font-bold text-slate-900">{testimonial.name}</div>
-                        <div className="text-slate-500 text-sm">{testimonial.role}</div>
+                        <div className="font-bold text-slate-900 dark:text-white">{testimonial.name}</div>
+                        <div className="text-slate-500 dark:text-slate-400 text-sm">{testimonial.role}</div>
                       </div>
                     </div>
                   </div>
