@@ -19,19 +19,19 @@ export function ThemeToggle() {
   const handleThemeChange = async () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark'
     
-    // Update local theme immediately
-    setTheme(newTheme)
-    
-    // Sync to Appwrite if authenticated
-    if (isAuthenticated) {
-      setSyncing(true)
-      try {
+    setSyncing(true)
+    try {
+      // Always update theme immediately (next-themes will update localStorage)
+      setTheme(newTheme)
+      
+      // Sync to Appwrite if authenticated
+      if (isAuthenticated) {
         await setThemePreference(newTheme as 'light' | 'dark')
-      } catch (error) {
-        console.error('Failed to sync theme to Appwrite:', error)
-      } finally {
-        setSyncing(false)
       }
+    } catch (error) {
+      console.error('Failed to sync theme to Appwrite:', error)
+    } finally {
+      setSyncing(false)
     }
   }
 
