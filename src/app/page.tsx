@@ -366,7 +366,7 @@ export default function LandingPage() {
               transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
               className="relative"
             >
-              <div className="relative bg-gradient-to-br from-white to-slate-50 rounded-3xl p-8 shadow-2xl border border-white/20">
+              <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-orange-950/30 dark:to-orange-900/20 rounded-3xl p-8 shadow-2xl border border-white/20 dark:border-orange-500/30">
                 {/* Floating elements */}
                 <motion.div
                   animate={{
@@ -378,7 +378,7 @@ export default function LandingPage() {
                     repeat: Infinity,
                     ease: "easeInOut"
                   }}
-                  className="absolute -top-6 -right-6 w-20 h-20 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl opacity-80 blur-sm"
+                  className="absolute -top-6 -right-6 w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-500 dark:from-orange-400 dark:to-orange-500 rounded-2xl opacity-80 blur-sm"
                 />
                 <motion.div
                   animate={{
@@ -391,59 +391,59 @@ export default function LandingPage() {
                     ease: "easeInOut",
                     delay: 1
                   }}
-                  className="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl opacity-60 blur-sm"
+                  className="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 dark:from-orange-400 dark:to-orange-600 rounded-xl opacity-60 blur-sm"
                 />
 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6">
-                    <span className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Send Payment</span>
+                    <span className="text-sm font-semibold text-slate-500 dark:text-orange-200 uppercase tracking-wide">Send Payment</span>
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                     >
-                      <FiSend className="w-6 h-6 text-cyan-600" />
+                      <FiSend className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                     </motion.div>
                   </div>
                   
                   <div className="space-y-6">
                     <div>
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Amount</label>
+                      <label className="text-xs font-semibold text-slate-400 dark:text-orange-200 uppercase tracking-wide">Amount</label>
                       <motion.div
                         key={activeFeature}
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.5 }}
-                        className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent"
+                        className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-orange-500 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent"
                       >
                         ${(1250.00 + activeFeature * 127.50).toLocaleString()}
                       </motion.div>
                     </div>
                     
                     <div>
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">To</label>
-                      <div className="text-lg text-slate-700 dark:text-blue-200 font-medium">john@example.com</div>
+                      <label className="text-xs font-semibold text-slate-400 dark:text-orange-200 uppercase tracking-wide">To</label>
+                      <div className="text-lg text-slate-700 dark:text-orange-100 font-medium">john@example.com</div>
                     </div>
                     
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-cyan-500/30 transition-all duration-300"
+                      className="w-full bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-500 dark:to-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-orange-500/30 dark:hover:shadow-orange-500/30 transition-all duration-300"
                     >
                       Send Now
                     </motion.button>
                   </div>
                   
                   {/* Live indicators */}
-                  <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200">
+                  <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200 dark:border-orange-300/20">
                     <div className="flex items-center space-x-2">
                       <motion.div
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
                         className="w-2 h-2 bg-emerald-500 rounded-full"
                       />
-                      <span className="text-xs text-slate-500">Live network</span>
+                      <span className="text-xs text-slate-500 dark:text-orange-200">Live network</span>
                     </div>
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs text-slate-400 dark:text-orange-200">
                       <motion.span
                         key={activeFeature}
                         initial={{ opacity: 0 }}

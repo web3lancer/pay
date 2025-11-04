@@ -56,13 +56,13 @@ export function HistoryClient() {
     <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-neutral-900">Payment History</h1>
-          <p className="text-neutral-600 mt-1">View your past payment requests and transactions</p>
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Payment History</h1>
+          <p className="text-neutral-600 dark:text-white mt-1">View your past payment requests and transactions</p>
         </div>
 
         {/* History List */}
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <h2 className="text-xl font-semibold text-neutral-900 mb-4">All Requests</h2>
+        <div className="bg-white dark:bg-orange-500/10 dark:border-orange-500/30 rounded-xl shadow-sm border border-neutral-200 p-6">
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-4">All Requests</h2>
 
           <div className="space-y-4">
             {paymentHistory.map((request, index) => (
@@ -70,8 +70,8 @@ export function HistoryClient() {
                 key={request.id}
                 className={`p-4 border rounded-lg ${
                   request.status === 'completed' 
-                    ? 'border-neutral-200 bg-neutral-50'
-                    : 'border-cyan-200'
+                    ? 'border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50'
+                    : 'border-orange-200 dark:border-orange-500/30 dark:bg-orange-500/5'
                 }`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -84,33 +84,33 @@ export function HistoryClient() {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="flex items-center">
-                      <h3 className="font-medium text-neutral-900">{request.description}</h3>
+                      <h3 className="font-medium text-neutral-900 dark:text-white">{request.description}</h3>
                       <span className={`ml-3 text-xs px-2 py-0.5 rounded-full ${
                         request.status === 'pending'
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-green-100 text-green-800'
+                          ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300'
+                          : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
                       }`}>
                         {request.status === 'pending' ? 'Pending' : 'Completed'}
                       </span>
                     </div>
                     <div className="mt-1 flex items-center text-sm">
-                      <span className="font-medium text-neutral-800">
+                      <span className="font-medium text-neutral-800 dark:text-white">
                         {formatCryptoAmount(request.amount, request.symbol)}
                       </span>
-                      <span className="mx-1 text-neutral-400">•</span>
-                      <span className="text-neutral-500">{formatCurrency(request.fiatAmount)}</span>
+                      <span className="mx-1 text-neutral-400 dark:text-neutral-600">•</span>
+                      <span className="text-neutral-500 dark:text-neutral-400">{formatCurrency(request.fiatAmount)}</span>
                     </div>
-                    <div className="mt-1 text-xs text-neutral-500">
+                    <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                       Created {new Date(request.created).toLocaleDateString()}
                       {request.status === 'pending' && request.expires && (
                         <>
-                          <span className="mx-1 text-neutral-400">•</span>
+                          <span className="mx-1 text-neutral-400 dark:text-neutral-600">•</span>
                           Expires {new Date(request.expires).toLocaleDateString()}
                         </>
                       )}
                       {request.status === 'completed' && request.completedAt && (
                         <>
-                          <span className="mx-1 text-neutral-400">•</span>
+                          <span className="mx-1 text-neutral-400 dark:text-neutral-600">•</span>
                           Completed {new Date(request.completedAt).toLocaleDateString()}
                         </>
                       )}
@@ -120,13 +120,13 @@ export function HistoryClient() {
                   <div className="flex space-x-2">
                     <button 
                       onClick={() => handleCopyAddress(request.address)}
-                      className="p-2 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
+                      className="p-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-orange-500/10 rounded transition-colors"
                       title="Copy Address"
                     >
-                      {copySuccess === request.address ? <FiCheck className="text-green-600" /> : <FiCopy />}
+                      {copySuccess === request.address ? <FiCheck className="text-green-600 dark:text-green-400" /> : <FiCopy />}
                     </button>
                     <button 
-                      className="p-2 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
+                      className="p-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-orange-500/10 rounded transition-colors"
                       title="Download Receipt"
                     >
                       <FiDownload />
@@ -138,7 +138,7 @@ export function HistoryClient() {
 
             {paymentHistory.length === 0 && (
               <div className="text-center py-10">
-                <p className="text-neutral-500">No payment history found</p>
+                <p className="text-neutral-500 dark:text-neutral-400">No payment history found</p>
               </div>
             )}
           </div>

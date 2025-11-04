@@ -54,10 +54,10 @@ export function RouteGuard({ children }: RouteGuardProps) {
   // Show loading state while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
         <div className="text-center">
-          <FiLoader className="h-8 w-8 animate-spin text-cyan-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <FiLoader className="h-8 w-8 animate-spin text-cyan-600 dark:text-orange-500 mx-auto" />
+          <p className="mt-4 text-gray-600 dark:text-white">Loading...</p>
         </div>
       </div>
     )
@@ -66,10 +66,10 @@ export function RouteGuard({ children }: RouteGuardProps) {
   // Show redirecting state
   if (redirecting) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-neutral-900">
         <div className="text-center">
-          <FiLoader className="h-8 w-8 animate-spin text-cyan-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Redirecting to authentication...</p>
+          <FiLoader className="h-8 w-8 animate-spin text-cyan-600 dark:text-orange-500 mx-auto" />
+          <p className="mt-4 text-gray-600 dark:text-white">Redirecting to authentication...</p>
         </div>
       </div>
     )
@@ -82,10 +82,10 @@ export function RouteGuard({ children }: RouteGuardProps) {
 
   // Fallback: show loading (should redirect via useEffect)
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
       <div className="text-center">
-        <FiLoader className="h-8 w-8 animate-spin text-cyan-600 mx-auto" />
-        <p className="mt-4 text-gray-600">Authenticating...</p>
+        <FiLoader className="h-8 w-8 animate-spin text-cyan-600 dark:text-orange-500 mx-auto" />
+        <p className="mt-4 text-gray-600 dark:text-white">Authenticating...</p>
       </div>
     </div>
   )
