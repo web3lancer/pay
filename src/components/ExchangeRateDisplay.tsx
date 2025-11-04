@@ -28,18 +28,18 @@ export function ExchangeRateDisplay({ className = '', showRefresh = false }: Exc
   }
 
   return (
-    <div className={`bg-white rounded-xl border border-neutral-200 p-6 shadow-lg shadow-neutral-300/40 ${className}`}>
+    <div className={`bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 shadow-lg shadow-neutral-300/40 dark:shadow-neutral-950/40 ${className}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-neutral-900">Live Prices</h3>
+        <h3 className="text-lg font-semibold text-neutral-900 dark:text-blue-100">Live Prices</h3>
         <div className="flex items-center space-x-2">
-          <span className="text-xs text-neutral-500">
+          <span className="text-xs text-neutral-500 dark:text-neutral-400">
             Updated {formatLastUpdated()}
           </span>
           {showRefresh && (
             <button
               onClick={handleRefresh}
               disabled={isLoading}
-              className="p-1 text-neutral-400 hover:text-neutral-600 disabled:animate-spin"
+              className="p-1 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400 disabled:animate-spin"
             >
               <FiRefreshCw className="w-4 h-4" />
             </button>
@@ -60,12 +60,12 @@ export function ExchangeRateDisplay({ className = '', showRefresh = false }: Exc
                   {rate.symbol.slice(0, 2)}
                 </div>
                 <div>
-                  <div className="font-medium text-neutral-900">{rate.symbol}</div>
-                  <div className="text-sm text-neutral-500">{rate.name}</div>
+                  <div className="font-medium text-neutral-900 dark:text-blue-100">{rate.symbol}</div>
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400">{rate.name}</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-medium text-neutral-900">
+                <div className="font-medium text-neutral-900 dark:text-blue-100">
                   ${rate.price_usd.toLocaleString(undefined, { 
                     minimumFractionDigits: rate.price_usd < 1 ? 4 : 2,
                     maximumFractionDigits: rate.price_usd < 1 ? 6 : 2 
@@ -86,7 +86,7 @@ export function ExchangeRateDisplay({ className = '', showRefresh = false }: Exc
       </div>
 
       {isLoading && (
-        <div className="mt-4 text-center text-sm text-neutral-500">
+        <div className="mt-4 text-center text-sm text-neutral-500 dark:text-neutral-400">
           <div className="inline-flex items-center">
             <FiRefreshCw className="w-4 h-4 mr-2 animate-spin" />
             Updating prices...

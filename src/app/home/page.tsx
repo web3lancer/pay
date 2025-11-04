@@ -66,10 +66,10 @@ export default function HomePage() {
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Welcome Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+        <h1 className="text-3xl font-bold text-neutral-900 dark:text-blue-100 mb-2">
           Welcome back, {userProfile?.displayName || userProfile?.email?.split('@')[0] || account?.name || 'User'}!
         </h1>
-        <p className="text-neutral-600">
+        <p className="text-neutral-600 dark:text-blue-200">
           Manage your crypto wallets and transactions
         </p>
       </div>
@@ -162,9 +162,9 @@ export default function HomePage() {
       </div>
 
       {/* Recent Payment Requests */}
-      <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mb-8">
+      <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-neutral-900">Recent Payment Requests</h2>
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-blue-100">Recent Payment Requests</h2>
           <Link
             href="/requests"
             className="text-cyan-600 hover:text-cyan-700 text-sm font-medium"
@@ -176,17 +176,17 @@ export default function HomePage() {
         {paymentRequestsLoading ? (
           <div className="space-y-4">
             {[...Array(2)].map((_, i) => (
-              <div key={i} className="flex items-center justify-between border-b border-neutral-100 pb-3 animate-pulse">
+              <div key={i} className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-700 pb-3 animate-pulse">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-neutral-200"></div>
+                  <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-600"></div>
                   <div>
-                    <div className="h-4 w-24 bg-neutral-200 rounded"></div>
-                    <div className="h-3 w-32 bg-neutral-200 rounded mt-1"></div>
+                    <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-600 rounded"></div>
+                    <div className="h-3 w-32 bg-neutral-200 dark:bg-neutral-600 rounded mt-1"></div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="h-4 w-20 bg-neutral-200 rounded"></div>
-                  <div className="h-3 w-16 bg-neutral-200 rounded mt-1"></div>
+                  <div className="h-4 w-20 bg-neutral-200 dark:bg-neutral-600 rounded"></div>
+                  <div className="h-3 w-16 bg-neutral-200 dark:bg-neutral-600 rounded mt-1"></div>
                 </div>
               </div>
             ))}
@@ -197,30 +197,30 @@ export default function HomePage() {
           </div>
         ) : getActiveRequests().length === 0 ? (
           <div className="text-center py-4">
-            <p className="text-neutral-500">No active payment requests.</p>
+            <p className="text-neutral-500 dark:text-neutral-400">No active payment requests.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {getActiveRequests().slice(0, 3).map((request) => (
-              <div key={request.$id} className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div key={request.$id} className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-700 pb-3">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 rounded-full bg-yellow-100">
-                    <FiCode className="w-4 h-4 text-yellow-600" />
+                  <div className="p-2 rounded-full bg-yellow-100 dark:bg-yellow-900">
+                    <FiCode className="w-4 h-4 text-yellow-600 dark:text-yellow-300" />
                   </div>
                   <div>
-                    <div className="font-medium text-neutral-900">
+                    <div className="font-medium text-neutral-900 dark:text-blue-100">
                       {request.invoiceNumber}
                     </div>
-                    <div className="text-sm text-neutral-500">
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400">
                       {request.description || 'Payment request'}
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-medium text-neutral-900">
+                  <div className="font-medium text-neutral-900 dark:text-blue-100">
                     {request.amount} {request.tokenId.toUpperCase()}
                   </div>
-                  <div className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">
+                  <div className="text-xs px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300">
                     pending
                   </div>
                 </div>
@@ -232,9 +232,9 @@ export default function HomePage() {
 
       {/* Recent Transactions and Exchange Rates */}
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-neutral-900">Recent Transactions</h2>
+            <h2 className="text-xl font-semibold text-neutral-900 dark:text-blue-100">Recent Transactions</h2>
             <Link
               href="/transactions"
               className="text-cyan-600 hover:text-cyan-700 text-sm font-medium"
@@ -246,17 +246,17 @@ export default function HomePage() {
           {transactionsLoading ? (
              <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex items-center justify-between border-b border-neutral-100 pb-3 animate-pulse">
+                <div key={i} className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-700 pb-3 animate-pulse">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-neutral-200"></div>
+                    <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-600"></div>
                     <div>
-                      <div className="h-4 w-20 bg-neutral-200 rounded"></div>
-                      <div className="h-3 w-32 bg-neutral-200 rounded mt-1"></div>
+                      <div className="h-4 w-20 bg-neutral-200 dark:bg-neutral-600 rounded"></div>
+                      <div className="h-3 w-32 bg-neutral-200 dark:bg-neutral-600 rounded mt-1"></div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="h-4 w-24 bg-neutral-200 rounded"></div>
-                    <div className="h-3 w-16 bg-neutral-200 rounded mt-1"></div>
+                    <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-600 rounded"></div>
+                    <div className="h-3 w-16 bg-neutral-200 dark:bg-neutral-600 rounded mt-1"></div>
                   </div>
                 </div>
               ))}
@@ -267,7 +267,7 @@ export default function HomePage() {
             </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-neutral-500">No transactions yet</p>
+              <p className="text-neutral-500 dark:text-neutral-400">No transactions yet</p>
               <Link
                 href="/send"
                 className="inline-flex items-center mt-4 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
@@ -279,26 +279,26 @@ export default function HomePage() {
           ) : (
             <div className="space-y-4">
               {transactions.slice(0, 5).map((tx) => (
-                <div key={tx.$id} className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                <div key={tx.$id} className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-700 pb-3">
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-full ${tx.type === 'send' ? 'bg-red-100' : 'bg-green-100'}`}>
-                      <FiSend className={`w-4 h-4 ${tx.type === 'send' ? 'text-red-600' : 'text-green-600'}`} />
+                    <div className={`p-2 rounded-full ${tx.type === 'send' ? 'bg-red-100 dark:bg-red-900' : 'bg-green-100 dark:bg-green-900'}`}>
+                      <FiSend className={`w-4 h-4 ${tx.type === 'send' ? 'text-red-600 dark:text-red-300' : 'text-green-600 dark:text-green-300'}`} />
                     </div>
                     <div>
-                      <div className="font-medium text-neutral-900">
+                      <div className="font-medium text-neutral-900 dark:text-blue-100">
                         {tx.type === 'send' ? 'Sent' : 'Received'}
                       </div>
-                      <div className="text-sm text-neutral-500">
+                      <div className="text-sm text-neutral-500 dark:text-neutral-400">
                         {tx.description || `${tx.type} transaction`}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`font-medium ${tx.type === 'send' ? 'text-red-600' : 'text-green-600'}`}>
+                    <div className={`font-medium ${tx.type === 'send' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
                       {tx.type === 'send' ? '-' : '+'}{tx.amount} {tx.tokenId.toUpperCase()}
                     </div>
                     <div className={`text-xs px-2 py-1 rounded-full ${
-                      tx.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                      tx.status === 'confirmed' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
                     }`}>
                       {tx.status}
                     </div>

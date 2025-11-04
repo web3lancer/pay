@@ -421,7 +421,7 @@ export default function LandingPage() {
                     
                     <div>
                       <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">To</label>
-                      <div className="text-lg text-slate-700 font-medium">john@example.com</div>
+                      <div className="text-lg text-slate-700 dark:text-blue-200 font-medium">john@example.com</div>
                     </div>
                     
                     <motion.button
