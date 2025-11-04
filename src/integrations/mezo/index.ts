@@ -23,3 +23,4 @@ export { getAddresses } from "./contracts/addresses";
 export * from "./utils/validation";
 export * from "./utils/formatting";
 
+export * from "./providers";

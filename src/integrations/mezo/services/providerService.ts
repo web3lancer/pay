@@ -1,12 +1,16 @@
 import { JsonRpcProvider, Wallet } from "ethers";
 import { getCurrentNetwork, MEZO_MAINNET, MEZO_TESTNET } from "@/integrations/mezo/types/networks";
+import { getRpcUrl } from "@/integrations/mezo/providers/rpcProviderManager";
 
 let cachedProvider: JsonRpcProvider | null = null;
 let cachedNetwork: string = "";
 
 /**
  * Get or create a JsonRpcProvider instance for Mezo
- * Uses caching to avoid creating multiple provider instances
+ * Uses intelligent RPC provider selection with fallback logic:
+ * 1. Spectrum (if available)
+ * 2. Boar Network (if available)
+ * 3. Mezo Default RPC
  * @param network - 'mainnet' or 'testnet'
  * @returns JsonRpcProvider instance
  */
@@ -18,7 +22,11 @@ export const getMezoProvider = (network?: "mainnet" | "testnet"): JsonRpcProvide
   }
 
   const networkConfig = targetNetwork === "mainnet" ? MEZO_MAINNET : MEZO_TESTNET;
-  cachedProvider = new JsonRpcProvider(networkConfig.rpcUrl, {
+  
+  // Use RPC provider manager for intelligent provider selection
+  const rpcUrl = getRpcUrl(targetNetwork);
+  
+  cachedProvider = new JsonRpcProvider(rpcUrl, {
     chainId: networkConfig.chainId,
     name: networkConfig.name,
   });

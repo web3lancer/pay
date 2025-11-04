@@ -48,7 +48,19 @@ const CapitalContextClient = createContext<CapitalContextType | undefined>(undef
 
 export function CapitalProvider({ children }: { children: ReactNode }) {
   const { address, connected, network, connect } = useMezoWallet()
-  const { userWallet, openWalletManager } = useUserWallet()
+  
+  // Try to use wallet context, but handle case where it's not available
+  let userWallet: string | null = null
+  let openWalletManager = () => {}
+  
+  try {
+    const walletContext = useUserWallet()
+    userWallet = walletContext.userWallet
+    openWalletManager = walletContext.openWalletManager
+  } catch {
+    // WalletProvider not available, continue without wallet prefs
+  }
+  
   const { position: mezoPosition, loading: posLoading, refresh: refreshMezo, error: mezoError } = useMezoPosition(address, network === 'mainnet' ? 'mainnet' : 'testnet')
   const { openPosition, repay, withdraw, loading: txLoading, error: txError } = useMezoBorrow(network === 'mainnet' ? 'mainnet' : 'testnet')
 

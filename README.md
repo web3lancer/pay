@@ -20,6 +20,10 @@ Freelancers are often asset-rich (in Bitcoin) but cash-poor. Instead of forcing 
 2.  **Get Advance:** With one click, they access a credit line and borrow MUSD against their BTC using Mezo's secure protocol.
 3.  **Spend Instantly:** They receive stable MUSD to cover rent, expenses, and new equipment, all without selling their Bitcoin.
 
+### Integrations
+
+Paylancer capital is powered by **Spectrum** and **Boar**, all integrations in src/integrations/mezo/providers
+
 ---
 
 ## Key Features
