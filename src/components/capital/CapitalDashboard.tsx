@@ -8,6 +8,8 @@ import { HealthMeter } from './HealthMeter'
 import { BorrowModal } from './BorrowModal'
 import { RepayModal } from './RepayModal'
 import { WithdrawModal } from './WithdrawModal'
+import { WalletMismatchModal } from './WalletMismatchModal'
+import { WalletSelector } from './WalletSelector'
 import toast from 'react-hot-toast'
 
 interface CapitalDashboardProps {
@@ -23,9 +25,12 @@ export function CapitalDashboard({
     error, 
     connected, 
     address,
+    userWallet,
+    isWalletMismatch,
     btcPrice,
     connectWallet,
     refreshPosition,
+    openWalletManager,
     getAvailableToBorrow
   } = useCapital()
 
@@ -33,6 +38,15 @@ export function CapitalDashboard({
   const [showBorrowModal, setShowBorrowModal] = useState(false)
   const [showRepayModal, setShowRepayModal] = useState(false)
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
+  const [showMismatchModal, setShowMismatchModal] = useState(false)
+  const [mismatchConfirmed, setMismatchConfirmed] = useState(false)
+
+  // Show mismatch modal when wallet first mismatches
+  useEffect(() => {
+    if (isWalletMismatch && !mismatchConfirmed && connected) {
+      setShowMismatchModal(true)
+    }
+  }, [isWalletMismatch, mismatchConfirmed, connected])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -50,6 +64,11 @@ export function CapitalDashboard({
     } catch (err) {
       toast.error('Failed to connect wallet')
     }
+  }
+
+  const handleMismatchConfirm = () => {
+    setMismatchConfirmed(true)
+    setShowMismatchModal(false)
   }
 
   if (!connected || !address) {
@@ -90,17 +109,25 @@ export function CapitalDashboard({
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-orange-950 dark:to-orange-900 border-b border-primary-200 dark:border-orange-800 px-6 py-6">
           <div className="flex justify-between items-start mb-4">
-            <div>
+            <div className="flex-1">
               <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Capital Hub</h2>
               <p className="text-sm text-neutral-600 dark:text-orange-200 mt-1">Unlock credit with your Bitcoin</p>
             </div>
-            <button
-              onClick={handleRefresh}
-              disabled={isRefreshing || loading}
-              className="p-2 hover:bg-primary-200 dark:hover:bg-orange-800 rounded-lg transition-colors disabled:opacity-50"
-            >
-              <FiRefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            </button>
+            <div className="flex items-center gap-2">
+              <WalletSelector
+                userWallet={userWallet}
+                connectedWallet={address}
+                onAddWallet={handleConnect}
+                onWalletManager={openWalletManager}
+              />
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing || loading}
+                className="p-2 hover:bg-primary-200 dark:hover:bg-orange-800 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <FiRefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
           </div>
           {address && (
             <p className="text-xs text-neutral-500 dark:text-orange-300">
@@ -111,6 +138,15 @@ export function CapitalDashboard({
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {/* Wallet Mismatch Warning */}
+          {isWalletMismatch && mismatchConfirmed && (
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+              <p className="text-sm text-amber-900 dark:text-amber-200">
+                <strong>Note:</strong> You're using a different wallet than your account wallet. Transactions will be recorded with the connected wallet.
+              </p>
+            </div>
+          )}
+
           {/* Error Message */}
           {error && (
             <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
@@ -245,6 +281,14 @@ export function CapitalDashboard({
       </div>
 
       {/* Modals */}
+      <WalletMismatchModal
+        isOpen={showMismatchModal}
+        onClose={() => setShowMismatchModal(false)}
+        userWallet={userWallet}
+        connectedWallet={address}
+        onConfirm={handleMismatchConfirm}
+      />
+
       <BorrowModal
         isOpen={showBorrowModal}
         onClose={() => setShowBorrowModal(false)}

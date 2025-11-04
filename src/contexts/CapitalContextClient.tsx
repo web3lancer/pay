@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 import { useMezoWallet, useMezoPosition, useMezoBorrow, getBTCPrice, calculateMaxBorrowable, calculateHealthFactor, getHealthStatus, getHealthPercentage } from '@/integrations/mezo'
+import { useUserWallet } from './WalletPrefsContext'
 import toast from 'react-hot-toast'
 
 export interface CreditLinePosition {
@@ -26,6 +27,8 @@ export interface CapitalContextType {
   error: string | null
   connected: boolean
   address: string | null
+  userWallet: string | null
+  isWalletMismatch: boolean
   network: string | null
   btcPrice: number
 
@@ -35,6 +38,7 @@ export interface CapitalContextType {
   withdrawCollateral: (amount: number) => Promise<boolean>
   refreshPosition: () => Promise<void>
   connectWallet: () => Promise<void>
+  openWalletManager: () => void
 
   // Helpers
   getAvailableToBorrow: () => number
@@ -44,6 +48,7 @@ const CapitalContextClient = createContext<CapitalContextType | undefined>(undef
 
 export function CapitalProvider({ children }: { children: ReactNode }) {
   const { address, connected, network, connect } = useMezoWallet()
+  const { userWallet, openWalletManager } = useUserWallet()
   const { position: mezoPosition, loading: posLoading, refresh: refreshMezo, error: mezoError } = useMezoPosition(address, network === 'mainnet' ? 'mainnet' : 'testnet')
   const { openPosition, repay, withdraw, loading: txLoading, error: txError } = useMezoBorrow(network === 'mainnet' ? 'mainnet' : 'testnet')
 
@@ -51,6 +56,9 @@ export function CapitalProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [btcPrice, setBtcPrice] = useState(50000)
+
+  // Check if connected wallet matches user's stored wallet
+  const isWalletMismatch = connected && address && userWallet && address.toLowerCase() !== userWallet.toLowerCase()
 
   // Fetch BTC price on mount and when network changes
   useEffect(() => {
@@ -280,6 +288,8 @@ export function CapitalProvider({ children }: { children: ReactNode }) {
     error,
     connected,
     address,
+    userWallet,
+    isWalletMismatch,
     network,
     btcPrice,
     borrowMUSD,
@@ -287,6 +297,7 @@ export function CapitalProvider({ children }: { children: ReactNode }) {
     withdrawCollateral,
     refreshPosition,
     connectWallet,
+    openWalletManager,
     getAvailableToBorrow
   }
 

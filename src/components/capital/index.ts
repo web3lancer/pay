@@ -5,4 +5,5 @@ export { CapitalPromo } from './CapitalPromo'
 export { BorrowModal } from './BorrowModal'
 export { RepayModal } from './RepayModal'
 export { WithdrawModal } from './WithdrawModal'
-
+export { WalletMismatchModal } from './WalletMismatchModal'
+export { WalletSelector } from './WalletSelector'
