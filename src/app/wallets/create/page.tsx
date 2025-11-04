@@ -154,30 +154,30 @@ export default function CreateWalletPage() {
       <div className="mb-8">
         <Link
           href="/"
-          className="inline-flex items-center text-neutral-600 hover:text-neutral-900 mb-4"
+          className="inline-flex items-center text-neutral-600 dark:text-white hover:text-neutral-900 dark:hover:text-orange-300 mb-4"
         >
           <FiArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
         </Link>
-        <h1 className="text-3xl font-bold text-neutral-900">Create Wallet</h1>
-        <p className="text-neutral-600 mt-2">
+        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">Create Wallet</h1>
+        <p className="text-neutral-600 dark:text-white mt-2">
           Add a new wallet to manage your cryptocurrency
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg p-4 mb-6">
           <div className="flex items-center">
             <FiAlertCircle className="w-5 h-5 text-red-500 mr-2" />
-            <span className="text-red-700">{error}</span>
+            <span className="text-red-700 dark:text-red-200">{error}</span>
           </div>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Wallet Name */}
-        <div className="bg-white rounded-xl border border-neutral-200 p-6">
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
+        <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6">
+          <label className="block text-sm font-medium text-neutral-700 dark:text-transparent dark:bg-gradient-to-r dark:from-orange-300 dark:to-blue-300 dark:bg-clip-text mb-2">
             Wallet Name
           </label>
           <input
@@ -186,13 +186,13 @@ export default function CreateWalletPage() {
             value={formData.walletName}
             onChange={(e) => setFormData({ ...formData, walletName: e.target.value })}
             placeholder="My Bitcoin Wallet"
-            className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
           />
         </div>
 
         {/* Wallet Type */}
-        <div className="bg-white rounded-xl border border-neutral-200 p-6">
-          <label className="block text-sm font-medium text-neutral-700 mb-4">
+        <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6">
+          <label className="block text-sm font-medium text-neutral-700 dark:text-transparent dark:bg-gradient-to-r dark:from-orange-300 dark:to-blue-300 dark:bg-clip-text mb-4">
             Wallet Type
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -203,22 +203,22 @@ export default function CreateWalletPage() {
                 onClick={() => setFormData({ ...formData, walletType: type.id as any })}
                 className={`relative p-4 border rounded-lg text-left transition-all ${
                   formData.walletType === type.id
-                    ? 'border-cyan-500 bg-cyan-50'
-                    : 'border-neutral-200 hover:border-neutral-300'
+                    ? 'border-cyan-500 bg-cyan-50 dark:border-cyan-400 dark:bg-cyan-500/10'
+                    : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 bg-white dark:bg-neutral-700'
                 }`}
               >
                 <div className="flex items-start">
-                  <type.icon className="w-5 h-5 text-neutral-600 mt-1 mr-3" />
+                  <type.icon className="w-5 h-5 text-neutral-600 dark:text-neutral-300 mt-1 mr-3" />
                   <div className="flex-1">
-                    <div className="font-medium text-neutral-900 flex items-center">
+                    <div className="font-medium text-neutral-900 dark:text-white flex items-center">
                       {type.name}
                       {type.recommended && (
-                        <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                        <span className="ml-2 text-xs bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300 px-2 py-1 rounded">
                           Recommended
                         </span>
                       )}
                     </div>
-                    <div className="text-sm text-neutral-500 mt-1">
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
                       {type.description}
                     </div>
                   </div>
@@ -229,14 +229,14 @@ export default function CreateWalletPage() {
         </div>
 
         {/* Blockchain */}
-        <div className="bg-white rounded-xl border border-neutral-200 p-6">
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
+        <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6">
+          <label className="block text-sm font-medium text-neutral-700 dark:text-transparent dark:bg-gradient-to-r dark:from-orange-300 dark:to-blue-300 dark:bg-clip-text mb-2">
             Blockchain
           </label>
           <select
             value={formData.blockchain}
             onChange={(e) => setFormData({ ...formData, blockchain: e.target.value })}
-            className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
           >
             {blockchains.map((blockchain) => (
               <option key={blockchain.id} value={blockchain.id}>
@@ -248,11 +248,11 @@ export default function CreateWalletPage() {
 
         {/* Import Fields (only for imported wallets) */}
         {formData.walletType === 'imported' && (
-          <div className="bg-white rounded-xl border border-neutral-200 p-6">
-            <h3 className="font-medium text-neutral-900 mb-4">Import Details</h3>
+          <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6">
+            <h3 className="font-medium text-neutral-900 dark:text-white mb-4">Import Details</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                   Mnemonic Phrase
                 </label>
                 <input
@@ -261,9 +261,9 @@ export default function CreateWalletPage() {
                   value={mnemonic}
                   onChange={(e) => setMnemonic(e.target.value)}
                   placeholder="Enter mnemonic phrase"
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                 />
-                <p className="text-xs text-neutral-500 mt-1">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                   Your mnemonic phrase will be used to derive the wallet address and public key.
                 </p>
               </div>
@@ -271,7 +271,7 @@ export default function CreateWalletPage() {
               <div>
                 <button
                   type="button"
-                  className="flex items-center text-sm text-cyan-600 hover:underline focus:outline-none"
+                  className="flex items-center text-sm text-cyan-600 dark:text-cyan-400 hover:underline focus:outline-none"
                   onClick={() => setShowAdvanced((v) => !v)}
                 >
                   {showAdvanced ? <FiChevronUp className="mr-1" /> : <FiChevronDown className="mr-1" />}
@@ -279,7 +279,7 @@ export default function CreateWalletPage() {
                 </button>
                 {showAdvanced && (
                   <div className="mt-3">
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                       Derivation Path (optional)
                     </label>
                     <input
@@ -287,9 +287,9 @@ export default function CreateWalletPage() {
                       value={formData.derivationPath || ''}
                       onChange={(e) => setFormData({ ...formData, derivationPath: e.target.value })}
                       placeholder="e.g. m/44'/60'/0'/0/0"
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                     />
-                    <p className="text-xs text-neutral-500 mt-1">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                       Leave blank for default path.
                     </p>
                   </div>
@@ -301,8 +301,8 @@ export default function CreateWalletPage() {
 
         {/* Add password field for inbuilt/imported wallets */}
         {(formData.walletType === 'hot' || formData.walletType === 'imported') && (
-          <div className="bg-white rounded-xl border border-neutral-200 p-6">
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+          <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-transparent dark:bg-gradient-to-r dark:from-orange-300 dark:to-blue-300 dark:bg-clip-text mb-2">
               Wallet Password
             </label>
             <input
@@ -311,9 +311,9 @@ export default function CreateWalletPage() {
               value={walletPassword}
               onChange={(e) => setWalletPassword(e.target.value)}
               placeholder="Enter a strong password"
-              className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             />
-            <p className="text-xs text-neutral-500 mt-1">
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
               This password will be used to encrypt your wallet's private key.
             </p>
           </div>
@@ -323,14 +323,14 @@ export default function CreateWalletPage() {
         <div className="flex space-x-4">
           <Link
             href="/"
-            className="flex-1 px-4 py-2 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors text-center"
+            className="flex-1 px-4 py-2 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-white rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors text-center"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={isLoading}
-            className="flex-1 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? 'Creating...' : 'Create Wallet'}
           </button>
