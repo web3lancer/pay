@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { WalletProvider } from '@/contexts/WalletPrefsContext'
 import { CapitalProvider } from '@/contexts/CapitalContextClient'
 import { CapitalDashboard } from '@/components/capital'
 import { FiArrowLeft } from 'react-icons/fi'
@@ -27,27 +28,28 @@ export default function CapitalPage() {
   }
 
   return (
-    <CapitalProvider>
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="space-y-6 pb-20 md:pb-6">
-          {/* Header with Back Button */}
-          <div className="flex items-center gap-3">
-            <Link
-              href="/home"
-              className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors"
-            >
-              <FiArrowLeft className="w-5 h-5 dark:text-white" />
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">Capital Hub</h1>
-              <p className="text-neutral-600 dark:text-white">Unlock credit with your Bitcoin</p>
+    <WalletProvider>
+      <CapitalProvider>
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="space-y-6 pb-20 md:pb-6">
+            {/* Header with Back Button */}
+            <div className="flex items-center gap-3">
+              <Link
+                href="/home"
+                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors"
+              >
+                <FiArrowLeft className="w-5 h-5 dark:text-white" />
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">Capital Hub</h1>
+                <p className="text-neutral-600 dark:text-white">Unlock credit with your Bitcoin</p>
+              </div>
             </div>
-          </div>
 
-          {/* Main Dashboard */}
-          <CapitalDashboard />
+            {/* Main Dashboard */}
+            <CapitalDashboard />
 
-          {/* Educational Section */}
+            {/* Educational Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* How It Works */}
             <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 p-6">
@@ -128,6 +130,7 @@ export default function CapitalPage() {
           </div>
         </div>
       </div>
-    </CapitalProvider>
+      </CapitalProvider>
+    </WalletProvider>
   )
 }
