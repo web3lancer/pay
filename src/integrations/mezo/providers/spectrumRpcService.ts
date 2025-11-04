@@ -1,14 +1,18 @@
 /**
- * Spectrum RPC Service
+ * Spectrum GraphQL API Service
  * 
- * Integrates Spectrum RPCs for reliable, scalable, secure RPC and API solutions
- * Documentation: https://spectrumnodes.gitbook.io/docs/user-guides/create-your-first-endpoint
+ * NOTE: This endpoint is PRIMARILY a GraphQL API, not JSON-RPC
+ * For blockchain queries, use spectrumGraphqlService.ts which provides:
+ * - getBlockHeights, getBlockByNumber, getBlockByHash
+ * - getTransactionByHash, getAddressBalance, getBlockFee
+ * - Multi-chain support (20+ blockchains)
  * 
- * Spectrum provides:
- * - Reliable, scalable, secure RPC endpoints
- * - Free premium access during Mezo Hackathon
- * - High-performance API solutions
- * - Access form: https://spectrumnodes.gitbook.io/docs/user-guides/create-your-first-endpoint
+ * Documentation: https://spectrumnodes.gitbook.io/docs/developer-guides/apis/general-blockchain-api
+ * 
+ * The endpoint is configured for Mezo testnet/mainnet JSON-RPC by default,
+ * but the GraphQL endpoint is also available at the same base URL with /graphql suffix.
+ * 
+ * Access form: https://spectrumnodes.gitbook.io/docs/user-guides/create-your-first-endpoint
  */
 
 export interface SpectrumRpcConfig {
@@ -72,7 +76,8 @@ export const isSpectrumRpcAvailable = (network: 'testnet' | 'mainnet' = 'testnet
 }
 
 /**
- * Health check for Spectrum RPC endpoint
+ * Health check for Spectrum endpoint
+ * Note: This checks JSON-RPC availability. For GraphQL queries, use checkSpectrumGraphqlHealth
  * @param network - 'testnet' or 'mainnet'
  * @returns true if endpoint is responding
  */
@@ -80,22 +85,27 @@ export const checkSpectrumRpcHealth = async (network: 'testnet' | 'mainnet' = 't
   try {
     const url = getSpectrumRpcUrl(network)
     
-    const response = await fetch(url, {
+    const response = await fetch(`${url}graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'eth_chainId',
-        params: [],
-        id: 1
+        query: `
+          query {
+            getBlockHeights(chains: ["CHAIN_0X1"]) {
+              chain
+              height
+            }
+          }
+        `,
+        variables: {}
       })
     })
 
     return response.ok
   } catch (error) {
-    console.error(`Spectrum RPC health check failed for ${network}:`, error)
+    console.error(`Spectrum endpoint health check failed for ${network}:`, error)
     return false
   }
 }

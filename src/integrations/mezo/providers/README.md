@@ -2,20 +2,33 @@
 
 This module provides intelligent RPC provider management for Mezo with support for multiple premium providers and automatic fallback logic.
 
-## Supported Providers
+## Provider Types
 
-### 1. Spectrum RPC
-- **Status**: Premium, reliable RPC solutions
-- **Access**: Free premium access during Mezo Hackathon
-- **Documentation**: https://spectrumnodes.gitbook.io/docs/user-guides/create-your-first-endpoint
-- **Setup**: Fill out the Spectrum Access Form to get your endpoint
+### 1. Spectrum GraphQL API (PRIMARY)
+**For blockchain queries across 20+ chains**
+- **Type**: GraphQL API (NOT JSON-RPC)
+- **Use Case**: Multi-chain blockchain queries (blocks, transactions, balances, fees)
+- **Documentation**: https://spectrumnodes.gitbook.io/docs/developer-guides/apis/general-blockchain-api
+- **Implementation**: `spectrumGraphqlService.ts`
+- **Key Methods**:
+  - `getBlockHeights()` - Get current block height
+  - `getBlockByNumber()`, `getBlockByHash()` - Get block details
+  - `getTransactionByHash()` - Get transaction details
+  - `getAddressBalance()` - Get token/native balance
+  - `getBlockFee()` - Get base and priority fees
+
+### 2. Spectrum RPC Endpoint (SECONDARY)
+**For Mezo-specific JSON-RPC calls**
+- **Type**: JSON-RPC (Mezo Testnet/Mainnet)
+- **Use Case**: Standard EVM JSON-RPC operations
+- **Implementation**: `spectrumRpcService.ts`
 - **Environment Variables**:
   - `NEXT_PUBLIC_MEZO_RPC_SPECTRUM_TESTNET` - Testnet endpoint
   - `NEXT_PUBLIC_MEZO_RPC_SPECTRUM_MAINNET` - Mainnet endpoint
-  - `NEXT_PUBLIC_SPECTRUM_API_KEY` - API key (optional)
+  - `NEXT_PUBLIC_SPECTRUM_API_KEY` - Optional API key
 
-### 2. Boar Network
-- **Status**: Backup, alternative RPC provider
+### 3. Boar Network
+- **Status**: Backup RPC provider
 - **Access**: Upgraded free tier access for Mezo Hackathon
 - **Documentation**: https://boar.network/
 - **Features**: HTTP and WebSocket endpoints
@@ -26,7 +39,7 @@ This module provides intelligent RPC provider management for Mezo with support f
   - `NEXT_PUBLIC_MEZO_RPC_BOAR_MAINNET_WSS` - Mainnet WebSocket endpoint
   - `NEXT_PUBLIC_BOAR_API_KEY` - API key (optional)
 
-### 3. Mezo Default RPC
+### 4. Mezo Default RPC
 - **Status**: Official Mezo RPC (always available fallback)
 - **Environment Variables**:
   - `NEXT_PUBLIC_MEZO_RPC_TESTNET` - Testnet endpoint
@@ -34,7 +47,7 @@ This module provides intelligent RPC provider management for Mezo with support f
 
 ## Intelligent Fallback Logic
 
-The RPC provider manager automatically selects providers in priority order:
+The RPC provider manager automatically selects providers in priority order for JSON-RPC calls:
 
 1. **Spectrum** (if configured) - Priority 1
 2. **Boar Network** (if configured) - Priority 2
@@ -42,50 +55,86 @@ The RPC provider manager automatically selects providers in priority order:
 
 If the first provider fails, it automatically falls back to the next available provider.
 
-## Usage
+## Usage by Use Case
 
-### Get Current RPC URL
+### For Multi-Chain Blockchain Queries
 ```typescript
-import { getRpcUrl } from '@/integrations/mezo'
+import { 
+  getBlockHeights, 
+  getAddressBalance, 
+  getTransactionByHash 
+} from '@/integrations/mezo'
 
-const rpcUrl = getRpcUrl('testnet') // Uses intelligent provider selection
+// Query multiple chains at once
+const heights = await getBlockHeights(['CHAIN_0X1', 'CHAIN_SOLANA_MAINNET'])
+const balance = await getAddressBalance([
+  { chain: 'CHAIN_0X1', address: '0x...', token: 'native' }
+])
 ```
 
-### Get All Available Providers
+### For Mezo-Specific Operations
 ```typescript
-import { getAvailableRpcProviders } from '@/integrations/mezo'
+import { getMezoProvider } from '@/integrations/mezo'
 
-const providers = getAvailableRpcProviders('testnet')
-// Returns: [{ name, url, priority, isAvailable }, ...]
+const provider = getMezoProvider('testnet')
+const balance = await provider.getBalance('0x...')
+const blockNumber = await provider.getBlockNumber()
 ```
 
-### Check Provider Health
+### For RPC Provider Management
 ```typescript
-import { checkAllRpcProviderHealth } from '@/integrations/mezo'
+import { getRpcUrl, checkAllRpcProviderHealth } from '@/integrations/mezo'
 
-const healthStatus = await checkAllRpcProviderHealth('testnet')
-// Returns sorted list of providers by availability and priority
+const url = getRpcUrl('testnet')
+const health = await checkAllRpcProviderHealth('testnet')
 ```
 
-### Get Provider Status
-```typescript
-import { getRpcProviderStatus } from '@/integrations/mezo'
+## Configuration
 
-const status = await getRpcProviderStatus('testnet')
-// Output: "[TESTNET] Spectrum: ✓ (priority: 1) | Boar: ✓ (priority: 2) | Mezo Default: ✓ (priority: 3)"
-```
+Add to `.env.local` or `.env`:
 
-### Initialize RPC System
-```typescript
-import { initializeRpcProviders } from '@/integrations/mezo'
+```env
+# Spectrum GraphQL Endpoint (for multi-chain queries)
+NEXT_PUBLIC_MEZO_RPC_SPECTRUM_TESTNET=https://spectrum-01.simplystaking.xyz/aWxuZml5bXQtMDEtMWZmYjJlMGQ/c0_bvE1zqrJ95g/mezo/testnet/
+NEXT_PUBLIC_MEZO_RPC_SPECTRUM_MAINNET=
 
-await initializeRpcProviders('testnet')
-// Performs health checks and logs status
+# Spectrum API Key (optional)
+NEXT_PUBLIC_SPECTRUM_API_KEY=
+
+# Boar Network Configuration (optional)
+NEXT_PUBLIC_MEZO_RPC_BOAR_TESTNET_HTTPS=https://rpc-http.mezo.boar.network
+NEXT_PUBLIC_MEZO_RPC_BOAR_TESTNET_WSS=wss://rpc-ws.mezo.boar.network
+NEXT_PUBLIC_MEZO_RPC_BOAR_MAINNET_HTTPS=https://rpc-http.mezo.boar.network
+NEXT_PUBLIC_MEZO_RPC_BOAR_MAINNET_WSS=wss://rpc-ws.mezo.boar.network
+NEXT_PUBLIC_BOAR_API_KEY=
+
+# Mezo Official RPC (fallback)
+NEXT_PUBLIC_MEZO_RPC_TESTNET=https://rpc.test.mezo.org
+NEXT_PUBLIC_MEZO_RPC_MAINNET=https://mainnet.mezo.public.validationcloud.io/
 ```
 
 ## Individual Provider APIs
 
-### Spectrum RPC
+### Spectrum GraphQL
+```typescript
+import { 
+  getBlockHeights, 
+  getBlockByNumber,
+  getBlockByHash,
+  getTransactionByHash,
+  getAddressBalance,
+  getBlockFee,
+  isSpectrumGraphqlAvailable,
+  checkSpectrumGraphqlHealth
+} from '@/integrations/mezo'
+
+const available = isSpectrumGraphqlAvailable('testnet')
+const healthy = await checkSpectrumGraphqlHealth('testnet')
+```
+
+See `SPECTRUM_INTEGRATION.md` for complete API documentation.
+
+### Spectrum RPC (JSON-RPC)
 ```typescript
 import { 
   getSpectrumRpcUrl, 
@@ -113,54 +162,15 @@ const available = isBoarRpcAvailable('testnet')
 const healthy = await checkBoarRpcHealth('testnet')
 ```
 
-## Configuration
-
-Add to `.env.local` or `.env`:
-
-```env
-# Spectrum RPC Configuration
-NEXT_PUBLIC_MEZO_RPC_SPECTRUM_TESTNET=https://your-spectrum-endpoint-testnet
-NEXT_PUBLIC_MEZO_RPC_SPECTRUM_MAINNET=https://your-spectrum-endpoint-mainnet
-NEXT_PUBLIC_SPECTRUM_API_KEY=your-spectrum-api-key
-
-# Boar Network Configuration
-NEXT_PUBLIC_MEZO_RPC_BOAR_TESTNET_HTTPS=https://rpc-http.mezo.boar.network
-NEXT_PUBLIC_MEZO_RPC_BOAR_TESTNET_WSS=wss://rpc-ws.mezo.boar.network
-NEXT_PUBLIC_MEZO_RPC_BOAR_MAINNET_HTTPS=https://rpc-http.mezo.boar.network
-NEXT_PUBLIC_MEZO_RPC_BOAR_MAINNET_WSS=wss://rpc-ws.mezo.boar.network
-NEXT_PUBLIC_BOAR_API_KEY=your-boar-api-key
-```
-
-## How Providers Are Used
-
-The `getMezoProvider()` function in `providerService.ts` automatically uses the RPC provider manager to select the best available endpoint:
-
-```typescript
-import { getMezoProvider } from '@/integrations/mezo'
-
-// Automatically uses Spectrum > Boar > Mezo Default
-const provider = getMezoProvider('testnet')
-const balance = await provider.getBalance('0x...')
-```
-
-## Benefits
-
-✅ **Reliability**: Automatic fallback if primary provider fails
-✅ **Performance**: Premium RPC providers with better performance
-✅ **Flexibility**: Easy to add new providers
-✅ **Zero Configuration**: Works with sensible defaults
-✅ **Health Monitoring**: Built-in health checks
-✅ **Transparent**: Know which provider is being used
-
 ## Setup Steps
 
 ### 1. Get Spectrum Access
 1. Visit: https://spectrumnodes.gitbook.io/docs/user-guides/create-your-first-endpoint
 2. Fill out the Spectrum Access Form
-3. Get your custom endpoint URLs
+3. Receive your custom endpoint URL
 4. Add to environment variables
 
-### 2. Get Boar Access
+### 2. Get Boar Access (Optional)
 1. Visit: https://boar.network/
 2. Follow user guide for hackathon credits
 3. Get your HTTP and WebSocket endpoints
@@ -168,34 +178,47 @@ const balance = await provider.getBalance('0x...')
 
 ### 3. Test Configuration
 ```typescript
-import { initializeRpcProviders, getRpcProviderStatus } from '@/integrations/mezo'
+import { 
+  initializeRpcProviders, 
+  getRpcProviderStatus,
+  getBlockHeights 
+} from '@/integrations/mezo'
 
-// Initialize and log status
+// Check RPC provider status
 await initializeRpcProviders('testnet')
 const status = await getRpcProviderStatus('testnet')
 console.log(status)
+
+// Test GraphQL API
+const heights = await getBlockHeights(['CHAIN_0X1'], 'testnet')
+console.log(heights)
 ```
+
+## Benefits
+
+✅ **Multi-Chain Support**: Query 20+ blockchains with single service
+✅ **Reliability**: Automatic fallback if primary provider fails
+✅ **Performance**: Premium RPC providers with better performance
+✅ **Flexibility**: Easy to add new providers
+✅ **Zero Configuration**: Works with sensible defaults
+✅ **Health Monitoring**: Built-in health checks
+✅ **Transparent**: Know which provider is being used
 
 ## Troubleshooting
 
-### "RPC URL not configured"
-Ensure the appropriate environment variables are set. Check `env.sample` for required variables.
+### "Endpoint not configured"
+Ensure `NEXT_PUBLIC_MEZO_RPC_SPECTRUM_TESTNET` is set in environment variables.
 
 ### Provider health check failures
 - Verify API keys are correct
 - Check network connectivity
 - Ensure endpoints are still active
-- Try manual health check: `checkSpectrumRpcHealth()` or `checkBoarRpcHealth()`
+- Try manual health check with `checkSpectrumGraphqlHealth()` or `checkSpectrumRpcHealth()`
 
-### Performance issues
-All providers are working but performance is slow:
-- Check network latency
-- Consider load balancing across multiple providers
-- Use `getAllRpcUrls()` for distribution
-
-## Migration Path
-
-The system automatically selects the best provider. No code changes needed to switch providers - just update environment variables and the system will use new providers on next initialization.
+### GraphQL queries failing
+- See `SPECTRUM_INTEGRATION.md` for detailed troubleshooting
+- Verify chain ID is valid and supported
+- Check request parameters match API specification
 
 ## Future Enhancements
 
@@ -204,3 +227,4 @@ The system automatically selects the best provider. No code changes needed to sw
 - [ ] Provider reputation scoring
 - [ ] Automatic failover retry logic
 - [ ] Provider usage metrics
+

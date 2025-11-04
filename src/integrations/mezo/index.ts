@@ -1,6 +1,7 @@
 export * from "./services/providerService";
 export * from "./services/queryService";
 export * from "./services/customRpcService";
+export * from "./services/spectrumGraphqlService";
 export * from "./services/tokenService";
 export * from "./services/musdService";
 export * from "./services/positionService";
