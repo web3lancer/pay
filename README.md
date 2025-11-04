@@ -51,32 +51,48 @@ $ cp env.sample .env
 # 4. Start the dev server
 $ pnpm dev
 
-Tech Stack
-Next.js 15 + React 19
-Appwrite (Auth, DB, Storage, Realtime)
-Mezo (npm package) (Bitcoin-backed borrowing)
-Tailwind CSS + Framer Motion
-TypeScript
-Zustand (state management)
-Recharts (visualizations)
-Dexie (IndexedDB)
-Roadmap
-[x] Email/password & OAuth login
-[x] Animated dashboard & onboarding
-[x] Multi-currency wallet support
-[x] KYC & 2FA security
-[x] Invoicing & payment requests
-[x] Mezo Testnet Integration (Hackathon Demo)
-[ ] Mezo Mainnet Launch (Q1 2026)
-[ ] Full Loan Management (Repay, Top-up) (Q2 2026)
-[ ] MUSD Auto-Repay with Yield (Q3 2026)
-[ ] Token swaps & on/off ramp
-[ ] Mobile app (PWA)
-[ ] Marketplace for freelancers
-Contributing
-We welcome PRs, issues, and ideas! See CONTRIBUTING.md for details.
-Star ⭐ the repo
-Fork & PR
-Join our Discord
-License
-MIT © web3lancer
+---
+
+## Tech Stack
+
+-   **Next.js 15** + **React 19**
+-   **Appwrite** (Auth, DB, Storage, Realtime)
+-   **Mezo (npm package)** (Bitcoin-backed borrowing)
+-   **Tailwind CSS** + **Framer Motion**
+-   **TypeScript**
+-   **Zustand** (state management)
+-   **Recharts** (visualizations)
+-   **Dexie** (IndexedDB)
+
+---
+
+## Roadmap
+
+-   [x] Email/password & OAuth login
+-   [x] Animated dashboard & onboarding
+-   [xM] Multi-currency wallet support
+-   [x] KYC & 2FA security
+-   [x] Invoicing & payment requests
+-   [x] **Mezo Testnet Integration (Hackathon Demo)**
+-   [ ] **Mezo Mainnet Launch (Q1 2026)**
+-   [ ] **Full Loan Management (Repay, Top-up) (Q2 2026)**
+-   [ ] **MUSD Auto-Repay with Yield (Q3 2026)**
+-   [ ] Token swaps & on/off ramp
+-   [ ] Mobile app (PWA)
+-   [ ] Marketplace for freelancers
+
+---
+
+## Contributing
+
+We welcome PRs, issues, and ideas! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+-   Star ⭐ the repo
+-   Fork & PR
+-   Join our [Discord](https://discord.gg/B8efmXtE)
+
+---
+
+## License
+
+MIT © [web3lancer](https://github.com/web3lancer)
