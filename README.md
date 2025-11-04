@@ -51,6 +51,7 @@ $ cp env.sample .env
 # 4. Start the dev server
 $ pnpm dev
 
+```
 ---
 
 ## Tech Stack
@@ -70,7 +71,7 @@ $ pnpm dev
 
 -   [x] Email/password & OAuth login
 -   [x] Animated dashboard & onboarding
--   [xM] Multi-currency wallet support
+-   [x] Multi-currency wallet support
 -   [x] KYC & 2FA security
 -   [x] Invoicing & payment requests
 -   [x] **Mezo Testnet Integration (Hackathon Demo)**
