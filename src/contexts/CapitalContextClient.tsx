@@ -1,172 +1,273 @@
 'use client'
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
+import { useMezoWallet, useMezoPosition, useMezoBorrow, getBTCPrice, calculateMaxBorrowable, calculateHealthFactor, getHealthStatus, getHealthPercentage } from '@/integrations/mezo'
+import toast from 'react-hot-toast'
 
 export interface CreditLinePosition {
   id: string
+  address: string
   collateralAmount: number
   collateralCurrency: string
   borrowedAmount: number
   borrowedCurrency: string
-  collateralizationRatio: number
+  healthFactor: number
   maxBorrowable: number
   createdAt: Date
   updatedAt: Date
   status: 'active' | 'pending' | 'closed'
+  txHash?: string
 }
 
 export interface CapitalContextType {
-  // Position state
+  // State
   position: CreditLinePosition | null
   loading: boolean
   error: string | null
+  connected: boolean
+  address: string | null
+  network: string | null
+  btcPrice: number
 
   // Actions
-  initializePosition: (collateralBTC: number) => Promise<void>
-  borrowMUSD: (amount: number) => Promise<void>
-  repayMUSD: (amount: number) => Promise<void>
-  withdrawCollateral: (amount: number) => Promise<void>
+  borrowMUSD: (amount: number) => Promise<boolean>
+  repayMUSD: (amount: number) => Promise<boolean>
+  withdrawCollateral: (amount: number) => Promise<boolean>
   refreshPosition: () => Promise<void>
+  connectWallet: () => Promise<void>
 
   // Helpers
-  getHealthStatus: () => 'safe' | 'caution' | 'risk'
-  getHealthPercentage: () => number
   getAvailableToBorrow: () => number
 }
 
 const CapitalContextClient = createContext<CapitalContextType | undefined>(undefined)
 
 export function CapitalProvider({ children }: { children: ReactNode }) {
+  const { address, connected, network, connect } = useMezoWallet()
+  const { position: mezoPosition, loading: posLoading, refresh: refreshMezo, error: mezoError } = useMezoPosition(address, network === 'mainnet' ? 'mainnet' : 'testnet')
+  const { openPosition, repay, withdraw, loading: txLoading, error: txError } = useMezoBorrow(network === 'mainnet' ? 'mainnet' : 'testnet')
+
   const [position, setPosition] = useState<CreditLinePosition | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [btcPrice, setBtcPrice] = useState(50000)
 
-  const initializePosition = useCallback(async (collateralBTC: number) => {
-    setLoading(true)
-    setError(null)
-    try {
-      // TODO: Call Mezo API to initialize position
-      // For now, mock the response
-      const mockPosition: CreditLinePosition = {
-        id: 'pos_' + Date.now(),
-        collateralAmount: collateralBTC,
+  // Fetch BTC price on mount and when network changes
+  useEffect(() => {
+    const fetchPrice = async () => {
+      try {
+        const price = await getBTCPrice()
+        setBtcPrice(price)
+      } catch (err) {
+        console.error('Failed to fetch BTC price:', err)
+      }
+    }
+    fetchPrice()
+    const interval = setInterval(fetchPrice, 60000) // Refresh every 60 seconds
+    return () => clearInterval(interval)
+  }, [])
+
+  // Sync Mezo position with context position
+  useEffect(() => {
+    if (mezoPosition && address) {
+      const maxBorrow = calculateMaxBorrowable(parseFloat(mezoPosition.collateral), btcPrice)
+      const healthFactor = calculateHealthFactor(parseFloat(mezoPosition.collateral), parseFloat(mezoPosition.debt), btcPrice)
+      const healthStatus = getHealthStatus(healthFactor)
+
+      const newPosition: CreditLinePosition = {
+        id: `pos_${address}`,
+        address,
+        collateralAmount: parseFloat(mezoPosition.collateral),
         collateralCurrency: 'BTC',
-        borrowedAmount: 0,
+        borrowedAmount: parseFloat(mezoPosition.debt),
         borrowedCurrency: 'MUSD',
-        collateralizationRatio: 300,
-        maxBorrowable: collateralBTC * 0.5 * 50000, // Assuming 50k BTC, 50% LTV
+        healthFactor,
+        maxBorrowable,
         createdAt: new Date(),
         updatedAt: new Date(),
         status: 'active'
       }
-      setPosition(mockPosition)
+      setPosition(newPosition)
+      setError(null)
+    } else if (!mezoPosition && address && connected) {
+      setPosition(null)
+    }
+  }, [mezoPosition, address, connected, btcPrice])
+
+  // Sync errors
+  useEffect(() => {
+    if (mezoError) setError(mezoError)
+    if (txError) setError(txError)
+  }, [mezoError, txError])
+
+  const connectWallet = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      await connect()
+      toast.success('Wallet connected')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to initialize position')
+      const msg = err instanceof Error ? err.message : 'Failed to connect wallet'
+      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [connect])
 
   const borrowMUSD = useCallback(async (amount: number) => {
-    if (!position) throw new Error('No active position')
+    if (!connected || !address || !position) {
+      const msg = 'Wallet not connected'
+      setError(msg)
+      toast.error(msg)
+      return false
+    }
+
+    if (amount <= 0) {
+      const msg = 'Invalid borrow amount'
+      setError(msg)
+      toast.error(msg)
+      return false
+    }
+
+    const maxBorrow = position.maxBorrowable - position.borrowedAmount
+    if (amount > maxBorrow) {
+      const msg = `Cannot borrow more than ${maxBorrow.toFixed(2)} MUSD`
+      setError(msg)
+      toast.error(msg)
+      return false
+    }
+
+    const projectedDebt = position.borrowedAmount + amount
+    const projectedHealth = calculateHealthFactor(position.collateralAmount, projectedDebt, btcPrice)
+    if (projectedHealth < 1.1) {
+      const msg = 'Borrow would put position at liquidation risk (health < 1.1)'
+      setError(msg)
+      toast.error(msg)
+      return false
+    }
+
     setLoading(true)
     setError(null)
     try {
-      // TODO: Call Mezo API to borrow
-      const updatedPosition: CreditLinePosition = {
-        ...position,
-        borrowedAmount: position.borrowedAmount + amount,
-        collateralizationRatio: Math.max(
-          150,
-          (position.collateralAmount * 50000) / (position.borrowedAmount + amount)
-        ),
-        updatedAt: new Date()
+      const result = await openPosition(position.collateralAmount.toString(), amount.toString())
+      if (result.success) {
+        toast.success(`Borrowed ${amount.toFixed(2)} MUSD successfully`)
+        await refreshMezo()
+        return true
+      } else {
+        const errMsg = result.error?.message || 'Failed to borrow'
+        setError(errMsg)
+        toast.error(errMsg)
+        return false
       }
-      setPosition(updatedPosition)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to borrow')
+      const msg = err instanceof Error ? err.message : 'Borrow transaction failed'
+      setError(msg)
+      toast.error(msg)
+      return false
     } finally {
       setLoading(false)
     }
-  }, [position])
+  }, [connected, address, position, openPosition, refreshMezo, btcPrice])
 
   const repayMUSD = useCallback(async (amount: number) => {
-    if (!position) throw new Error('No active position')
+    if (!connected || !position) {
+      const msg = 'Wallet not connected or no active position'
+      setError(msg)
+      toast.error(msg)
+      return false
+    }
+
+    if (amount <= 0 || amount > position.borrowedAmount) {
+      const msg = 'Invalid repay amount'
+      setError(msg)
+      toast.error(msg)
+      return false
+    }
+
     setLoading(true)
     setError(null)
     try {
-      // TODO: Call Mezo API to repay
-      const updatedPosition: CreditLinePosition = {
-        ...position,
-        borrowedAmount: Math.max(0, position.borrowedAmount - amount),
-        collateralizationRatio: position.collateralAmount > 0
-          ? (position.collateralAmount * 50000) / Math.max(1, position.borrowedAmount - amount)
-          : 300,
-        updatedAt: new Date()
+      const result = await repay(amount.toString())
+      if (result.success) {
+        toast.success(`Repaid ${amount.toFixed(2)} MUSD successfully`)
+        await refreshMezo()
+        return true
+      } else {
+        const errMsg = result.error?.message || 'Failed to repay'
+        setError(errMsg)
+        toast.error(errMsg)
+        return false
       }
-      setPosition(updatedPosition)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to repay')
+      const msg = err instanceof Error ? err.message : 'Repay transaction failed'
+      setError(msg)
+      toast.error(msg)
+      return false
     } finally {
       setLoading(false)
     }
-  }, [position])
+  }, [connected, position, repay, refreshMezo])
 
   const withdrawCollateral = useCallback(async (amount: number) => {
-    if (!position) throw new Error('No active position')
+    if (!connected || !position) {
+      const msg = 'Wallet not connected or no active position'
+      setError(msg)
+      toast.error(msg)
+      return false
+    }
+
+    if (amount <= 0 || amount > position.collateralAmount) {
+      const msg = 'Invalid withdrawal amount'
+      setError(msg)
+      toast.error(msg)
+      return false
+    }
+
+    const projectedCollateral = position.collateralAmount - amount
+    const projectedHealth = calculateHealthFactor(projectedCollateral, position.borrowedAmount, btcPrice)
+    if (projectedHealth < 1.1) {
+      const msg = 'Cannot withdraw - would put position at liquidation risk'
+      setError(msg)
+      toast.error(msg)
+      return false
+    }
+
     setLoading(true)
     setError(null)
     try {
-      // TODO: Call Mezo API to withdraw
-      const newCollateral = position.collateralAmount - amount
-      const updatedPosition: CreditLinePosition = {
-        ...position,
-        collateralAmount: newCollateral,
-        collateralizationRatio: newCollateral > 0
-          ? (newCollateral * 50000) / Math.max(1, position.borrowedAmount)
-          : 300,
-        maxBorrowable: newCollateral * 0.5 * 50000,
-        updatedAt: new Date()
+      const result = await withdraw(amount.toString())
+      if (result.success) {
+        toast.success(`Withdrew ${amount.toFixed(4)} BTC successfully`)
+        await refreshMezo()
+        return true
+      } else {
+        const errMsg = result.error?.message || 'Failed to withdraw'
+        setError(errMsg)
+        toast.error(errMsg)
+        return false
       }
-      setPosition(updatedPosition)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to withdraw')
+      const msg = err instanceof Error ? err.message : 'Withdrawal transaction failed'
+      setError(msg)
+      toast.error(msg)
+      return false
     } finally {
       setLoading(false)
     }
-  }, [position])
+  }, [connected, position, withdraw, refreshMezo, btcPrice])
 
   const refreshPosition = useCallback(async () => {
-    setLoading(true)
     try {
-      // TODO: Fetch latest position from Mezo
-      // For now, just update timestamp
-      if (position) {
-        setPosition({ ...position, updatedAt: new Date() })
-      }
+      setError(null)
+      await refreshMezo()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to refresh')
-    } finally {
-      setLoading(false)
+      const msg = err instanceof Error ? err.message : 'Failed to refresh position'
+      setError(msg)
+      toast.error(msg)
     }
-  }, [position])
-
-  const getHealthStatus = useCallback((): 'safe' | 'caution' | 'risk' => {
-    if (!position) return 'safe'
-    const ratio = position.collateralizationRatio
-    if (ratio >= 200) return 'safe'
-    if (ratio >= 150) return 'caution'
-    return 'risk'
-  }, [position])
-
-  const getHealthPercentage = useCallback((): number => {
-    if (!position) return 100
-    // Map 150-300 ratio to 0-100 percentage
-    const ratio = position.collateralizationRatio
-    const minRatio = 150
-    const maxRatio = 300
-    return Math.max(0, Math.min(100, ((ratio - minRatio) / (maxRatio - minRatio)) * 100))
-  }, [position])
+  }, [refreshMezo])
 
   const getAvailableToBorrow = useCallback((): number => {
     if (!position) return 0
@@ -175,15 +276,17 @@ export function CapitalProvider({ children }: { children: ReactNode }) {
 
   const value: CapitalContextType = {
     position,
-    loading,
+    loading: loading || posLoading || txLoading,
     error,
-    initializePosition,
+    connected,
+    address,
+    network,
+    btcPrice,
     borrowMUSD,
     repayMUSD,
     withdrawCollateral,
     refreshPosition,
-    getHealthStatus,
-    getHealthPercentage,
+    connectWallet,
     getAvailableToBorrow
   }
 
