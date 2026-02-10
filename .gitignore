@@ -61,4 +61,4 @@ docx/
 # Added by Autocommiter: ensure *.env*
 *.env*
 # Added by Autocommiter: ensure .docx/
-.docx/
+.docx/*.nexus.backup
